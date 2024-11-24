@@ -113,7 +113,7 @@ const AlreadyAccountText = styled.div`
   color: #6b7280;
 `
 
-export default function SignUpForm() {
+function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -261,3 +261,5 @@ export default function SignUpForm() {
     </Wrapper>
   )
 }
+
+export default SignUpForm

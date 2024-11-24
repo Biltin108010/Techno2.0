@@ -1,8 +1,9 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 // Styled components
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   min-height: 100vh;
   background-color: #f4f4f4;
   padding: 1.5rem;
@@ -13,35 +14,35 @@ const Wrapper = styled.div`
   gap: 2rem;
 `;
 
-const LogoWrapper = styled.div`
+export const LogoWrapper = styled.div`
   width: 6rem;
   height: 6rem;
 `;
 
-const Logo = styled.img`
+export const Logo = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;
 `;
 
-const ContentWrapper = styled.div`
+export const ContentWrapper = styled.div`
   text-align: center;
   max-width: 17.5rem;
   gap: 1rem;
 `;
 
-const Heading = styled.h1`
+export const Heading = styled.h1`
   font-size: 1.5rem;
   font-weight: bold;
   letter-spacing: -0.015em;
 `;
 
-const Paragraph = styled.p`
+export const Paragraph = styled.p`
   font-size: 0.875rem;
   color: #6b7280;
 `;
 
-const ButtonsWrapper = styled.div`
+export const ButtonsWrapper = styled.div`
   width: 100%;
   max-width: 17.5rem;
   display: flex;
@@ -49,7 +50,7 @@ const ButtonsWrapper = styled.div`
   gap: 1rem;
 `;
 
-const Button = styled.button`
+export const Button = styled.button`
   width: 100%;
   padding: 1rem;
   font-size: 1rem;
@@ -64,7 +65,8 @@ const Button = styled.button`
   }
 `;
 
-export default function WelcomeScreen() {
+// Main component function
+function WelcomeScreen() {
   const navigate = useNavigate();
 
   const navigateToLogin = () => {
@@ -102,3 +104,6 @@ export default function WelcomeScreen() {
     </Wrapper>
   );
 }
+
+// Export default at the bottom
+export default WelcomeScreen;
