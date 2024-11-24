@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/router" // Importing Next.js router for navigation
 
+
 export default function WelcomeScreen() {
   const router = useRouter()
 
