@@ -16,12 +16,12 @@ const Wrapper = styled.div`
 const LogoWrapper = styled.div`
   width: 6rem;
   height: 6rem;
-  position: relative;
 `;
 
-const Logo = styled.svg`
+const Logo = styled.img`
   width: 100%;
   height: 100%;
+  object-fit: contain;
 `;
 
 const ContentWrapper = styled.div`
@@ -64,7 +64,6 @@ const Button = styled.button`
   }
 `;
 
-
 export default function WelcomeScreen() {
   const navigate = useNavigate();
 
@@ -80,10 +79,7 @@ export default function WelcomeScreen() {
     <Wrapper>
       {/* Logo */}
       <LogoWrapper>
-        <Logo viewBox="0 0 100 100" aria-hidden="true">
-          <path d="M20 40 L50 20 L80 40 L50 60 Z" fill="#374151" />
-          <path d="M20 60 L50 40 L80 60 L50 80 Z" fill="#6B7280" />
-        </Logo>
+        <Logo src="/images/tori_logo2.png" alt="Tori Logo" />
       </LogoWrapper>
 
       {/* Content */}

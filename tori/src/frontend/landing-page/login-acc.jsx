@@ -118,7 +118,7 @@ export default function SignInForm() {
         <CardHeader>
           <Logo>
             <img
-              src="/placeholder.svg"
+              src="/images/tori_logo2.png"
               alt="Logo"
               width={48}
               height={48}

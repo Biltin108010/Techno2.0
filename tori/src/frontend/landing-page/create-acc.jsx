@@ -122,20 +122,13 @@ export default function SignUpForm() {
       <Container>
         {/* Logo */}
         <Logo>
-          <svg
-            viewBox="0 0 100 100"
-            className="w-16 h-16"
-            aria-hidden="true"
-          >
-            <path
-              d="M20 20 L50 20 L50 50 L80 50 L80 80 L50 80 L50 50 L20 50 Z"
-              fill="#4B5563"
-            />
-            <path
-              d="M50 50 L80 20 L80 50 L50 80 L20 80 L20 50 L50 20"
-              fill="#9CA3AF"
-            />
-          </svg>
+          <img
+            src="/images/tori_logo2.png"
+            alt="Logo"
+            width={48}
+            height={48}
+            className="dark:invert"
+          />
         </Logo>
 
         {/* Heading */}
