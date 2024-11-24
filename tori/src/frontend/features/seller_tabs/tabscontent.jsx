@@ -1,31 +1,68 @@
 'use client'
 
 import React, { useState } from 'react'
-import Tab1 from './tab1'
-import Tab2 from './tab2'
-import Tab3 from './tab3'
+import Tab1 from './tab1/tab1'
+import Tab2 from './tab2/tab2'
+import Tab3 from './tab3/tab3'
+import EditTab1 from './tab1/edit_tab1'
+import EditTab2 from './tab2/edit_tab2'
+import EditTab3 from './tab3/edit_tab3'
 import './TabsContainer.css'
 
 export default function TabContainer() {
   const [activeTab, setActiveTab] = useState(0)
+  const [isEditing, setIsEditing] = useState(false)
 
+  // Function to handle Edit button click
+  const handleEditClick = () => {
+    setIsEditing(true); // Enable edit mode when Edit button is clicked
+  }
+
+  // Function to handle Back button click
+  const handleBackClick = () => {
+    setIsEditing(false); // Go back to the normal tab view
+  }
+
+  // Render tab content based on active tab and edit mode
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 0:
-        return <Tab1 />
-      case 1:
-        return <Tab2 />
-      case 2:
-        return <Tab3 />
-      default:
-        return null
+    if (isEditing) {
+      // Load the edit component based on active tab
+      switch (activeTab) {
+        case 0:
+          return <EditTab1 />
+        case 1:
+          return <EditTab2 />
+        case 2:
+          return <EditTab3 />
+        default:
+          return null
+      }
+    } else {
+      // Load the regular tab content based on active tab
+      switch (activeTab) {
+        case 0:
+          return <Tab1 />
+        case 1:
+          return <Tab2 />
+        case 2:
+          return <Tab3 />
+        default:
+          return null
+      }
     }
   }
 
   return (
     <div className="tab-container">
-      {/* Header */}
       <div className="header">
+        <div className="title">
+          {isEditing && (
+            <button className="back-button" onClick={handleBackClick}>
+              &#8592; {/* Unicode for left arrow */}
+            </button>
+          )}
+          <h2>Inventory</h2>
+        </div>
         <div className="search-box">
           <input
             type="search"
@@ -33,7 +70,9 @@ export default function TabContainer() {
             className="search-input"
           />
         </div>
-        <button className="edit-button">Edit</button>
+        <button className="edit-button" onClick={handleEditClick}>
+          Edit
+        </button>
       </div>
 
       {/* Tabs */}
@@ -51,11 +90,6 @@ export default function TabContainer() {
 
       {/* Content */}
       <div className="tab-content">{renderTabContent()}</div>
-
-      {/* Footer */}
-      <div className="footer">
-        <button className="review-order-button">Review Order</button>
-      </div>
     </div>
   )
 }

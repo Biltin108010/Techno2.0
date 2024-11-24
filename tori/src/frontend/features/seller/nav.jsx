@@ -12,6 +12,7 @@ const NavWrapper = styled.nav`
   position: fixed;
   bottom: 0;
   width: 100%;
+  z-index: 1;
 `;
 
 const NavLink = styled(Link)`

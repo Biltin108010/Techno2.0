@@ -9,21 +9,22 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 70px; /* Add space to avoid overlap with the navigation bar */
 }
 
 /* Header */
-.header {
+.tab-container .header {
   display: flex;
   align-items: center;
   padding: 16px;
   border-bottom: 1px solid #ddd;
 }
 
-.search-box {
+.tab-container .search-box {
   flex: 1;
 }
 
-.search-input {
+.tab-container .search-input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
@@ -31,7 +32,7 @@
   background-color: #f9f9f9;
 }
 
-.edit-button {
+.tab-container .edit-button {
   margin-left: 16px;
   padding: 10px 16px;
   font-size: 14px;
@@ -44,12 +45,12 @@
   transition: background-color 0.2s ease-in-out;
 }
 
-.edit-button:hover {
+.tab-container .edit-button:hover {
   background-color: #ddd;
 }
 
 /* Tabs */
-.tabs {
+.tab-container .tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
@@ -57,7 +58,7 @@
   background-color: #f9f9f9;
 }
 
-.tab {
+.tab-container .tab {
   padding: 10px 0;
   text-align: center;
   font-size: 14px;
@@ -70,27 +71,31 @@
   transition: all 0.2s ease-in-out;
 }
 
-.tab:hover {
+.tab-container .tab:hover {
   background-color: #f2f2f2;
 }
 
-.active-tab {
+.tab-container .active-tab {
   background-color: #000;
   color: #fff;
 }
 
 /* Tab Content */
-.tab-content {
+.tab-container .tab-content {
   padding: 16px;
 }
 
+.tab-content{
+  margin-top: -10px;
+}
+
 /* Footer */
-.footer {
+.tab-container .footer {
   padding: 16px;
   border-top: 1px solid #ddd;
 }
 
-.review-order-button {
+.tab-container .review-order-button {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -103,6 +108,64 @@
   transition: background-color 0.2s ease-in-out;
 }
 
-.review-order-button:hover {
+.tab-container .review-order-button:hover {
   background-color: #0f766e; /* Darker teal */
+}
+
+/* Back button style */
+.back-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 10px;
+  transition: color 0.3s ease;
+}
+
+.back-button:hover {
+  color: #007bff; /* Change color on hover */
+}
+
+.title {
+  display: flex;
+  align-items: center;
+}
+
+/* Title styling */
+.title h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Other button and header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #4CAF50; /* Green background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #45a049;
 }
