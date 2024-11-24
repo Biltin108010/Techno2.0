@@ -162,7 +162,7 @@ function ChooseYourPlan() {
 
   const handleContinue = () => {
     if (selectedPlan) {
-      navigate("/seller/history"); // Navigate to the next page
+      navigate("/seller/home"); // Navigate to the next page
     } else {
       setShowNotification(true); // Show popup notification
     }
