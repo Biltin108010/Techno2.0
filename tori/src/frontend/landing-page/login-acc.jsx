@@ -34,6 +34,7 @@ function SignInForm() {
               id="email"
               type="email"
               className="input-field"
+              placeholder='example@gmail.com'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
