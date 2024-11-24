@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Link } from 'react-router-dom' // Changed import to use react-router-dom
 import { Eye, EyeOff } from 'lucide-react'
 import styled from 'styled-components'
 
@@ -251,7 +251,7 @@ export default function SignUpForm() {
         {/* Login Link */}
         <AlreadyAccountText>
           Already have an account?{' '}
-          <Link href="/login" style={{ fontWeight: '600', color: '#3b82f6' }}>
+          <Link to="/login" style={{ fontWeight: '600', color: '#3b82f6' }}>
             Log in
           </Link>
         </AlreadyAccountText>

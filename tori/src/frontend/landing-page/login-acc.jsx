@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import { useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from 'react-router-dom' // Updated to use Link from react-router-dom
 import { Eye, EyeOff } from 'lucide-react'
 
 // Styled components
@@ -118,7 +117,7 @@ export default function SignInForm() {
       <Card>
         <CardHeader>
           <Logo>
-            <Image
+            <img
               src="/placeholder.svg"
               alt="Logo"
               width={48}
@@ -166,7 +165,7 @@ export default function SignInForm() {
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <ForgotPasswordLink href="#">Forgot password?</ForgotPasswordLink>
+            <ForgotPasswordLink to="#">Forgot password?</ForgotPasswordLink>
           </div>
           <Button primary>Log in</Button>
           <Divider>
@@ -177,7 +176,7 @@ export default function SignInForm() {
           </Divider>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <SocialButton variant="outline">
-              <Image
+              <img
                 src="/placeholder.svg"
                 alt="Facebook"
                 width={20}
@@ -187,7 +186,7 @@ export default function SignInForm() {
               Facebook
             </SocialButton>
             <SocialButton variant="outline">
-              <Image
+              <img
                 src="/placeholder.svg"
                 alt="Google"
                 width={20}
@@ -197,7 +196,7 @@ export default function SignInForm() {
               Google
             </SocialButton>
             <SocialButton variant="outline">
-              <Image
+              <img
                 src="/placeholder.svg"
                 alt="Apple"
                 width={20}
@@ -209,7 +208,7 @@ export default function SignInForm() {
           </div>
           <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
             Don't have an account?{' '}
-            <ForgotPasswordLink href="#">Sign up</ForgotPasswordLink>
+            <ForgotPasswordLink to="#">Sign up</ForgotPasswordLink>
           </div>
         </CardContent>
       </Card>
