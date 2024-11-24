@@ -12,7 +12,7 @@ function SignInForm() {
   const handleLogin = () => {
     if (email && password) {
       console.log('Login successful!');
-      navigate('/seller/*');
+      navigate('/seller/home'); // Navigate to the seller home page
     } else {
       alert('Please enter a valid email and password.');
     }
