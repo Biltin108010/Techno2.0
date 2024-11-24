@@ -208,7 +208,7 @@ export default function SignInForm() {
           </div>
           <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
             Don't have an account?{' '}
-            <ForgotPasswordLink to="#">Sign up</ForgotPasswordLink>
+            <ForgotPasswordLink to="/register">Sign up</ForgotPasswordLink>
           </div>
         </CardContent>
       </Card>
