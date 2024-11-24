@@ -3,7 +3,8 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* Two items per row */
     gap: 20px;
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-left: -10px;
   }
   
   /* Individual Item Box */
@@ -16,7 +17,7 @@
     padding: 10px;
     text-align: left;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 150px; /* Fixed height */
+    height: 100px; /* Fixed height */
     z-index: 0;
     align-items: center;
   }
@@ -76,9 +77,11 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    padding-bottom: 10px;
   }
   
   
   .review-order-button:focus {
     outline: none;
   }
+

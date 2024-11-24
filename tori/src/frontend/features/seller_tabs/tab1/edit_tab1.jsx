@@ -92,12 +92,10 @@ const EditTab1 = () => {
         )}
       </div>
 
-      {/* Footer with Add Product button */}
-      <div className="footer">
-        <button className="add-product-button" onClick={() => setIsModalOpen(true)}>
-          Add Product
-        </button>
-      </div>
+      {/* Add Product Button */}
+      <button className="add-product-button" onClick={() => setIsModalOpen(true)}>
+        Add Product
+      </button>
 
       {/* Modal */}
       <ProductModal

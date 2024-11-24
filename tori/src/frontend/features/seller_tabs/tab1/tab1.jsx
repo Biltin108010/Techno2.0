@@ -22,6 +22,7 @@ const Tab1 = () => {
       price: '$2.50',
       image: 'https://via.placeholder.com/100',
     },
+    // Add more items as needed...
   ];
 
   return (
@@ -44,10 +45,8 @@ const Tab1 = () => {
         )}
       </div>
 
-      {/* Footer with Review Order button */}
-      <div className="footer">
-        <button className="shared-button">Review Order</button>
-      </div>
+      {/* Review Order button */}
+      <button className="review-order-button">Review Order</button>
     </div>
   );
 };

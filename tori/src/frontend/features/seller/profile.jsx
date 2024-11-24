@@ -9,6 +9,7 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   background-color: #f3f4f6;
+  margine-top: -20px;
 `;
 
 const ProfileCard = styled.div`
