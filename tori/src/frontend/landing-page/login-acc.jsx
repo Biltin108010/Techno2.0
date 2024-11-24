@@ -92,6 +92,7 @@ const SocialButton = styled(Button)`
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
 `
 
 const Divider = styled.div`
@@ -106,7 +107,28 @@ const DividerText = styled.span`
   text-transform: uppercase;
   color: #6b7280;
 `
+const InputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
 
+const PasswordInput = styled(InputField)`
+  padding-right: 2.5rem; /* Add space for the eye icon */
+`;
+
+const EyeButton = styled.button`
+  position: absolute;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+`;
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('helloworld@gmail.com')
@@ -139,30 +161,20 @@ export default function SignInForm() {
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <div style={{ position: 'relative' }}>
-              <InputField
+            <InputContainer>
+              <PasswordInput
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <Button
+              <EyeButton
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '10px',
-                  padding: '0.5rem',
-                }}
                 type="button"
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-gray-500" />
-                ) : (
-                  <Eye className="h-4 w-4 text-gray-500" />
-                )}
-              </Button>
-            </div>
+                {showPassword ? <EyeOff /> : <Eye />}
+              </EyeButton>
+            </InputContainer>
           </div>
           <div style={{ textAlign: 'right' }}>
             <ForgotPasswordLink to="#">Forgot password?</ForgotPasswordLink>
@@ -175,33 +187,30 @@ export default function SignInForm() {
             <DividerText>Or Login with</DividerText>
           </Divider>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <SocialButton variant="outline">
+            <SocialButton>
               <img
-                src="/placeholder.svg"
+                src="/images/facebook_logo.png"
                 alt="Facebook"
                 width={20}
                 height={20}
-                className="mr-2"
               />
               Facebook
             </SocialButton>
-            <SocialButton variant="outline">
+            <SocialButton>
               <img
-                src="/placeholder.svg"
+                src="/images/google_logo.png"
                 alt="Google"
                 width={20}
                 height={20}
-                className="mr-2"
               />
               Google
             </SocialButton>
-            <SocialButton variant="outline">
+            <SocialButton>
               <img
-                src="/placeholder.svg"
+                src="/images/apple_logo.png"
                 alt="Apple"
                 width={20}
                 height={20}
-                className="mr-2"
               />
               Apple
             </SocialButton>
