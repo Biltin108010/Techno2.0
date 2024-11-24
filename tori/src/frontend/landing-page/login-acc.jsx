@@ -1,21 +1,123 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import styled from 'styled-components'
+import { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
+
+// Styled components
+const Wrapper = styled.div`
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 1rem;
+`
+
+const Card = styled.div`
+  width: 100%;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+`
+
+const CardHeader = styled.div`
+  text-align: center;
+  padding: 1.5rem;
+`
+
+const Logo = styled.div`
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+`
+
+const Title = styled.h1`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+`
+
+const CardContent = styled.div`
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`
+
+const Label = styled.label`
+  font-size: 0.875rem;
+  font-weight: 500;
+`
+
+const InputField = styled.input`
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  &:focus {
+    border-color: #3b82f6;
+  }
+`
+
+const Button = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background-color: ${(props) => (props.primary ? '#000' : 'transparent')};
+  color: ${(props) => (props.primary ? '#fff' : '#000')};
+  border: ${(props) => (props.primary ? 'none' : '1px solid #ddd')};
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+  &:hover {
+    background-color: ${(props) => (props.primary ? '#333' : '#f3f4f6')};
+  }
+`
+
+const ForgotPasswordLink = styled(Link)`
+  font-size: 0.875rem;
+  color: #3b82f6;
+  text-decoration: none;
+  &:hover {
+    color: #2563eb;
+  }
+`
+
+const SocialButton = styled(Button)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+const Divider = styled.div`
+  position: relative;
+  margin: 1rem 0;
+`
+
+const DividerText = styled.span`
+  background-color: white;
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #6b7280;
+`
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("helloworld@gmail.com")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState('helloworld@gmail.com')
+  const [password, setPassword] = useState('')
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-[400px]">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-12">
+    <Wrapper>
+      <Card>
+        <CardHeader>
+          <Logo>
             <Image
               src="/placeholder.svg"
               alt="Logo"
@@ -23,37 +125,36 @@ export default function SignInForm() {
               height={48}
               className="dark:invert"
             />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Sign In</h1>
+          </Logo>
+          <Title>Sign In</Title>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email address
-            </label>
-            <Input
+        <CardContent>
+          <div>
+            <Label htmlFor="email">Email address</Label>
+            <InputField
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <div className="relative">
-              <Input
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <div style={{ position: 'relative' }}>
+              <InputField
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '10px',
+                  padding: '0.5rem',
+                }}
                 type="button"
               >
                 {showPassword ? (
@@ -64,29 +165,18 @@ export default function SignInForm() {
               </Button>
             </div>
           </div>
-          <div className="text-right">
-            <Link
-              href="#"
-              className="text-sm text-primary hover:text-primary/90"
-            >
-              Forgot password?
-            </Link>
+          <div style={{ textAlign: 'right' }}>
+            <ForgotPasswordLink href="#">Forgot password?</ForgotPasswordLink>
           </div>
-          <Button className="w-full bg-black text-white hover:bg-black/90">
-            Log in
-          </Button>
-          <div className="relative my-4">
+          <Button primary>Log in</Button>
+          <Divider>
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t"></div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or Login with
-              </span>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <Button variant="outline" className="w-full">
+            <DividerText>Or Login with</DividerText>
+          </Divider>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <SocialButton variant="outline">
               <Image
                 src="/placeholder.svg"
                 alt="Facebook"
@@ -94,8 +184,9 @@ export default function SignInForm() {
                 height={20}
                 className="mr-2"
               />
-            </Button>
-            <Button variant="outline" className="w-full">
+              Facebook
+            </SocialButton>
+            <SocialButton variant="outline">
               <Image
                 src="/placeholder.svg"
                 alt="Google"
@@ -103,8 +194,9 @@ export default function SignInForm() {
                 height={20}
                 className="mr-2"
               />
-            </Button>
-            <Button variant="outline" className="w-full">
+              Google
+            </SocialButton>
+            <SocialButton variant="outline">
               <Image
                 src="/placeholder.svg"
                 alt="Apple"
@@ -112,20 +204,15 @@ export default function SignInForm() {
                 height={20}
                 className="mr-2"
               />
-            </Button>
+              Apple
+            </SocialButton>
           </div>
-          <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link
-              href="#"
-              className="text-primary hover:text-primary/90"
-            >
-              Sign up
-            </Link>
+          <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
+            Don't have an account?{' '}
+            <ForgotPasswordLink href="#">Sign up</ForgotPasswordLink>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </Wrapper>
   )
 }
-
