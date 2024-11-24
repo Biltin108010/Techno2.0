@@ -10,6 +10,7 @@ import Inventory from './frontend/features/seller/inventory';
 import History from './frontend/features/seller/history';
 import Profile from './frontend/features/seller/profile';
 import ChooseYourPlan from './frontend/landing-page/choose-ur-plan';
+import EditProfile from './frontend/features/seller/editprofile';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -53,6 +54,8 @@ function App() {
                   <Route path="inventory" element={<Inventory />} />
                   <Route path="history" element={<History />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path="/edit-profile" element={<EditProfile />} />
+
                 </Routes>
               </>
             }
