@@ -146,7 +146,15 @@ export default function SignUpForm() {
               required
             />
           </div>
-
+          <div>
+            <Label htmlFor="role">Role</Label>
+            <InputField
+              id="role"
+              type="role"
+              placeholder="enter role"
+              required
+            />
+          </div>
           {/* Password Input */}
           <div style={{ position: 'relative' }}>
             <Label htmlFor="password">Create a password</Label>
