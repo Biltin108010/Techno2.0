@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { IoIosArrowBack } from "react-icons/io";
 import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -13,24 +13,19 @@ const Container = styled.div`
 
 const ProfileCard = styled.div`
   width: 20rem;
+  margin-top:-8rem;
   background: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
+
 `;
 
 const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Space between title and logo */
   margin-bottom: 1.5rem; /* Adjusted spacing */
-`;
-
-const BackButton = styled(IoIosArrowBack)`
-  font-size: 1.5rem;
-  color: black;
-  margin-right: 0.5rem;
-
-  
 `;
 
 const Title = styled.h1`
@@ -38,6 +33,11 @@ const Title = styled.h1`
   font-weight: 700;
   color: #111827;
   margin: 0;
+`;
+
+const Logo = styled.img`
+  width: 3rem; /* Adjust the size of the logo */
+  height: auto;
 `;
 
 const Separator = styled.div`
@@ -70,11 +70,6 @@ const EditButton = styled.button`
   border: 1px solid #d1d5db;
   border-radius: 50%;
   padding: 0.2rem;
-  cursor: pointer;
-
-  &:hover {
-    color: #2563eb;
-  }
 `;
 
 const Name = styled.h2`
@@ -142,13 +137,15 @@ const ActionIcon = styled.div`
 `;
 
 function Profile() {
+  const navigate = useNavigate(); // Define navigate
+
   return (
     <Container>
       <ProfileCard>
-        {/* Header with Back Button and Title */}
+        {/* Header with Title and Logo */}
         <HeaderContainer>
-          <BackButton />
           <Title>Profile</Title>
+          <Logo src="/images/tori_logo2.png" alt="Logo" /> {/* Logo added */}
         </HeaderContainer>
         <Separator />
 
@@ -181,7 +178,7 @@ function Profile() {
         <Separator />
 
         {/* Action Buttons */}
-        <ActionButton>
+        <ActionButton onClick={() => navigate("/seller/edit-profile")}>
           <ActionIcon>
             <AiOutlineEdit />
           </ActionIcon>
