@@ -15,7 +15,7 @@
     max-width: 24rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
     background-color: #bfbfbf;
 }
 
@@ -36,6 +36,7 @@
     width: 48px;
     height: 48px;
     margin: 0 auto;
+    padding-top: 30px;
 }
 
 /* Header */

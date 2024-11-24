@@ -23,7 +23,7 @@ function SignInForm() {
       <div className="card">
         <div className="card-header">
           <div className="logo">
-            <img src="/images/tori_logo2.png" alt="Logo" width={48} height={48} />
+            <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
           </div>
           <h1 className="title">Sign In</h1>
         </div>

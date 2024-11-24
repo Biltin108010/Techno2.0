@@ -17,8 +17,8 @@ function SignUpForm() {
           <img
             src="/images/tori_logo2.png"
             alt="Logo"
-            width={48}
-            height={48}
+            width={68}
+            height={68}
             className="dark:invert"
           />
         </div>
