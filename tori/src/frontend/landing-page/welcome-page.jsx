@@ -69,11 +69,11 @@ export default function WelcomeScreen() {
   const navigate = useNavigate();
 
   const navigateToLogin = () => {
-    navigate('/landing-page/login-acc'); // Navigate to the login page
+    navigate('/login'); // Navigate to the login page
   };
 
   const navigateToCreateAccount = () => {
-    navigate('/landing-page/create-acc'); // Navigate to the create account page
+    navigate('/register'); // Navigate to the create account page
   };
 
   return (
