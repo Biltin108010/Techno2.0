@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 
-import supabase from '../../supabaseClient';
+import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
 
-
+import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const navigate = useNavigate();
 
   const handleLogin = () => {
@@ -21,7 +20,6 @@ function SignInForm() {
       alert('Please enter a valid email and password.');
     }
   };
-  
 
   return (
     <div className="wrapper">
@@ -39,7 +37,7 @@ function SignInForm() {
               id="email"
               type="email"
               className="input-field"
-              placeholder='example@gmail.com'
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
