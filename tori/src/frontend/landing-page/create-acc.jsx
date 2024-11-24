@@ -1,211 +1,181 @@
-'use client'
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import supabase from '../../supabaseClient'; // Import Supabase client
+import { Eye, EyeOff } from 'lucide-react';
+import './landing-page.css'; // Ensure the styling is included
 
-import { useState } from 'react'
-import { Link } from 'react-router-dom' // Changed import to use react-router-dom
-import { Eye, EyeOff } from 'lucide-react'
-import styled from 'styled-components'
+const SignupPage = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('seller'); // Default to seller role
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-// Styled components
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 1rem;
-  background-color: white;
-`
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-const Container = styled.div`
-  width: 100%;
-  max-width: 24rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`
+    try {
+      // Create user in Supabase Auth
+      const { user, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-const Logo = styled.div`
-  display: flex;
-  justify-content: center;
-`
+      if (authError) {
+        throw new Error(authError.message);
+      }
 
-const Heading = styled.h1`
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-`
+      // Insert user data into 'users' table without providing the 'id'
+      const { data, error: dbError } = await supabase
+        .from('users')
+        .insert([{ username, email, role }]);
 
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
+      if (dbError) {
+        throw new Error(dbError.message);
+      }
 
-const Label = styled.label`
-  font-size: 0.875rem;
-  font-weight: 500;
-`
-
-const InputField = styled.input`
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-  &:focus {
-    border-color: #3b82f6;
-  }
-`
-
-const Button = styled.button`
-  width: 100%;
-  padding: 1rem;
-  background-color: ${(props) => (props.primary ? '#000' : 'transparent')};
-  color: ${(props) => (props.primary ? '#fff' : '#000')};
-  border: ${(props) => (props.primary ? 'none' : '1px solid #ddd')};
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  text-align: center;
-  &:hover {
-    background-color: ${(props) => (props.primary ? '#333' : '#f3f4f6')};
-  }
-`
-
-const IconButton = styled.button`
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  padding: 0.75rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-`
-
-const SocialButtons = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-`
-
-const SocialButton = styled(Button)`
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #ddd;
-`
-
-const DividerText = styled.span`
-  font-size: 0.875rem;
-  color: #6b7280;
-  text-transform: uppercase;
-`
-
-const AlreadyAccountText = styled.div`
-  text-align: center;
-  font-size: 0.875rem;
-  color: #6b7280;
-`
-
-function SignUpForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+      alert('Signup successful!');
+      // Redirect to login or dashboard
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Wrapper>
-      <Container>
+    <div className="wrapper">
+      <div className="container">
         {/* Logo */}
-        <Logo>
+        <div className="logo">
           <img
             src="/images/tori_logo2.png"
             alt="Logo"
-            width={48}
-            height={48}
+            width={68}
+            height={68}
             className="dark:invert"
           />
-        </Logo>
+        </div>
 
         {/* Heading */}
-        <Heading>Sign Up</Heading>
+        <h1 className="heading">Sign Up</h1>
 
         {/* Form */}
-        <Form>
+        <form className="form" onSubmit={handleSubmit}>
+          {/* Username Input */}
+          <div>
+            <label htmlFor="username" className="label">
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              required
+              className="input-field"
+            />
+          </div>
+
           {/* Email Input */}
           <div>
-            <Label htmlFor="email">Email</Label>
-            <InputField
+            <label htmlFor="email" className="label">
+              Email
+            </label>
+            <input
               id="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="example@gmail.com"
               required
+              className="input-field"
             />
           </div>
-          <div>
-            <Label htmlFor="role">Role</Label>
-            <InputField
-              id="role"
-              type="role"
-              placeholder="enter role"
-              required
-            />
-          </div>
+
           {/* Password Input */}
-          <div style={{ position: 'relative' }}>
-            <Label htmlFor="password">Create a password</Label>
-            <InputField
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="must be 8 characters"
-              required
-            />
-            <IconButton
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              )}
-            </IconButton>
+          <div>
+            <label htmlFor="password" className="label">
+              Create a password
+            </label>
+            <div className="input-container">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Must be 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="input-field password-input"
+              />
+              <button
+                type="button"
+                className="eye-button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </button>
+            </div>
           </div>
 
           {/* Confirm Password Input */}
-          <div style={{ position: 'relative' }}>
-            <Label htmlFor="confirm-password">Confirm password</Label>
-            <InputField
-              id="confirm-password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="repeat password"
-              required
-            />
-            <IconButton
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? (
-                <EyeOff className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <Eye className="h-4 w-4 text-muted-foreground" />
-              )}
-            </IconButton>
+          <div>
+            <label htmlFor="confirm-password" className="label">
+              Confirm password
+            </label>
+            <div className="input-container">
+              <input
+                id="confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Repeat password"
+                required
+                className="input-field password-input"
+              />
+              <button
+                type="button"
+                className="eye-button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+              >
+                {showConfirmPassword ? <EyeOff /> : <Eye />}
+              </button>
+            </div>
           </div>
 
-          <Button primary>Create Account</Button>
-        </Form>
+          {/* Role Input */}
+          <div>
+            <label htmlFor="role" className="label">
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="input-field"
+            >
+              <option value="seller">Seller</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <button type="submit" className="button primary" disabled={loading}>
+            {loading ? 'Signing up...' : 'Create Account'}
+          </button>
+        </form>
 
         {/* Social Login */}
-        <div style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
-          Or Register with
-        </div>
-        <SocialButtons>
-          <SocialButton>
+        <div className="divider-text">Or Register with</div>
+        <div className="social-buttons">
+          <button className="social-button">
+            {/* Facebook SVG */}
             <svg
               className="w-5 h-5 text-[#1877F2]"
               viewBox="0 0 24 24"
@@ -213,8 +183,9 @@ function SignUpForm() {
             >
               <path d="M9.198 21.5h4v-8.01h3.604l.396-3.98h-4V7.5a1 1 0 0 1 1-1h3v-4h-3a5 5 0 0 0-5 5v2.01h-2l-.396 3.98h2.396v8.01Z" />
             </svg>
-          </SocialButton>
-          <SocialButton>
+          </button>
+          <button className="social-button">
+            {/* Google SVG */}
             <svg
               className="w-5 h-5"
               viewBox="0 0 24 24"
@@ -237,8 +208,9 @@ function SignUpForm() {
                 d="M5.277 14.268A7.12 7.12 0 0 1 4.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067Z"
               />
             </svg>
-          </SocialButton>
-          <SocialButton>
+          </button>
+          <button className="social-button">
+            {/* Apple SVG */}
             <svg
               className="w-5 h-5"
               xmlns="http://www.w3.org/2000/svg"
@@ -247,19 +219,19 @@ function SignUpForm() {
             >
               <path d="M16.365 1.43c.126 1.28-.477 2.523-1.24 3.31-.834.88-2.094 1.563-3.33 1.47-.145-1.23.506-2.563 1.26-3.326.866-.874 2.325-1.535 3.31-1.454zM19.965 15.373c-.654 1.48-.934 2.083-1.74 3.31-1.115 1.68-2.685 3.755-4.735 3.765-1.735.015-2.178-1.12-4.505-1.12-2.342 0-2.86 1.11-4.588 1.14-1.845.03-3.33-2-4.395-3.675-3.01-4.735-3.21-10.53-1.46-13.395 1.015-1.695 2.655-2.755 4.44-2.755 2.035 0 3.32 1.155 4.505 1.155 1.135 0 2.99-1.41 5.05-1.2.87.035 3.31.35 4.785 2.615-.125.09-2.915 1.705-2.78 4.735.1 2.67 3.14 3.665 3.225 3.7-.08.25-.505 1.48-1.42 2.95z" />
             </svg>
-          </SocialButton>
-        </SocialButtons>
+          </button>
+        </div>
 
         {/* Login Link */}
-        <AlreadyAccountText>
+        <div className="already-account-text">
           Already have an account?{' '}
-          <Link to="/login" style={{ fontWeight: '600', color: '#3b82f6' }}>
+          <Link to="/login" className="login-link">
             Log in
           </Link>
-        </AlreadyAccountText>
-      </Container>
-    </Wrapper>
-  )
-}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default SignUpForm
+export default SignupPage;

@@ -1,16 +1,15 @@
-import styled from 'styled-components';
+import React, { useState } from "react";
+import TabsContainer from "../seller_tabs/tabscontent";
+import "./inventory.css";  // We will create a CSS file for styling
 
-const ComingSoon = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 2rem;
-  color: #333;
-`;
+const Inventory = () => {
+  const [activeTab, setActiveTab] = useState(0);
 
-function Inventory() {
-  return <ComingSoon>Coming Soon</ComingSoon>;
-}
+  return (
+    <div className="inventory">
+      <TabsContainer activeTab={activeTab} setActiveTab={setActiveTab} />
+    </div>
+  );
+};
 
 export default Inventory;
