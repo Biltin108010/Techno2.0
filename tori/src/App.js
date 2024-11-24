@@ -8,6 +8,7 @@ import Home from './frontend/features/seller/home';
 import Inventory from './frontend/features/seller/inventory';
 import History from './frontend/features/seller/history';
 import Profile from './frontend/features/seller/profile';
+import ChooseYourPlan from './frontend/landing-page/choose-ur-plan';
 
 function App() {
   return (
@@ -17,7 +18,11 @@ function App() {
           {/* Landing Pages */}
           <Route path="/" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/choose-ur-plan" element={<ChooseYourPlan />} />
           <Route path="/register" element={<Register />} />
+
+
+
 
           {/* Seller Pages (with navigation bar) */}
           <Route
@@ -26,6 +31,7 @@ function App() {
               <>
                 <Nav />
                 <Routes>
+
                   <Route path="home" element={<Home />} />
                   <Route path="inventory" element={<Inventory />} />
                   <Route path="history" element={<History />} />
