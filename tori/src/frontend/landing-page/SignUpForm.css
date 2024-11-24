@@ -1,0 +1,104 @@
+/* Wrapper Styles */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 16px;
+    background-color: white;
+}
+
+/* Container Styles */
+.container {
+    width: 100%;
+    max-width: 384px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    text-align: center;
+}
+
+/* Heading Styles */
+.heading {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Form Styles */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Label Styles */
+.label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+/* Input Field Styles */
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-field:focus {
+    border-color: #3b82f6;
+}
+
+/* Button Styles */
+.button {
+    width: 100%;
+    padding: 12px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #333;
+}
+
+.button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Icon Button Styles */
+.icon-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* Error Message Styles */
+.error-message {
+    color: red;
+    font-size: 14px;
+}
+
+/* Already Have an Account Text */
+.already-account-text {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.login-link {
+    font-weight: 600;
+    color: #3b82f6;
+}

@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Eye, EyeOff } from 'lucide-react';
+import supabase from '../../supabaseClient';
 
 // Styled components
 export const Wrapper = styled.div`
@@ -116,17 +117,41 @@ function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('helloworld@gmail.com');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);  // Initialize loading state
+  const [error, setError] = useState(null);  // Initialize error state
   const navigate = useNavigate(); // Initialize the useNavigate hook
 
-  const handleLogin = () => {
-    // Dummy login validation (replace with real authentication logic)
-    if (email && password) {
-      console.log('Login successful!');
-      navigate('/seller/*'); // Navigate to the seller home page
-    } else {
-      alert('Please enter a valid email and password.');
+  const handleLogin = async () => {
+    setLoading(true);
+  
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+  
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+  
+      const user = data?.user;
+  
+      if (user) {
+        // If user exists, proceed with navigation
+        navigate('/seller/home');
+      } else {
+        // Handle case when the user is not found
+        setError('User not found');
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   return (
     <Wrapper>
@@ -173,9 +198,10 @@ function SignInForm() {
           <div style={{ textAlign: 'right' }}>
             <ForgotPasswordLink to="#">Forgot password?</ForgotPasswordLink>
           </div>
-          <Button primary onClick={handleLogin}>
-            Log in
+          <Button primary onClick={handleLogin} disabled={loading}>
+            {loading ? 'Logging in...' : 'Log in'}
           </Button>
+          {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
         </CardContent>
       </Card>
     </Wrapper>
