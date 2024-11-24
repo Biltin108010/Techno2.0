@@ -9,7 +9,7 @@ export const Wrapper = styled.div`
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1rem;
 `;
 

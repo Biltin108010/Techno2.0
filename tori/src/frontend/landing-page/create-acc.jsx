@@ -63,7 +63,7 @@ const SignupPage = () => {
         </div>
 
         {/* Heading */}
-        <h1 className="heading">Sign Up</h1>
+        <h1 className="signintitle">Sign Up</h1>
 
         {/* Form */}
         <form className="form" onSubmit={handleSubmit}>
