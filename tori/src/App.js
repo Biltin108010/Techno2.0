@@ -11,6 +11,7 @@ import History from './frontend/features/seller/history';
 import Profile from './frontend/features/seller/profile';
 import ChooseYourPlan from './frontend/landing-page/choose-ur-plan';
 import EditProfile from './frontend/features/seller/editprofile';
+import Review from './frontend/features/seller_tabs/review_page'
 
 function App() {
   const [user, setUser] = useState(null);
@@ -55,7 +56,7 @@ function App() {
                   <Route path="history" element={<History />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="/edit-profile" element={<EditProfile />} />
-
+                  <Route path="/review" element={<Review />} />
                 </Routes>
               </>
             }

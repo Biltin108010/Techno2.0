@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './edit_tab1.css';
 
 // Modal for adding a new product
@@ -58,6 +59,7 @@ const ProductModal = ({ isOpen, onClose, onAddProduct }) => {
 };
 
 const EditTab1 = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [items, setItems] = useState([
     { name: 'Apple', quantity: 10, price: '$2.00', image: 'https://via.placeholder.com/100' },
@@ -69,13 +71,21 @@ const EditTab1 = () => {
     setItems([...items, newProduct]);
   };
 
+  const handleItemClick = (item) => {
+    navigate('/review', { state: { item } }); // Pass item data to review_page.jsx
+  };
+
   return (
     <div className="tab1-container">
       {/* Product List */}
       <div className="tab-content">
         {items.length > 0 ? (
           items.map((item, index) => (
-            <div key={index} className="item-box">
+            <div
+              key={index}
+              className="item-box"
+              onClick={() => handleItemClick(item)} // Navigate to review page on click
+            >
               {/* Image on the left */}
               <img src={item.image} alt={item.name} className="item-image" />
               
