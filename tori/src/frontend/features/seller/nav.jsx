@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaHome, FaBox, FaHistory, FaUser } from 'react-icons/fa'; // For icons
 
@@ -15,7 +15,7 @@ const NavWrapper = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: white;
+  color: #676D75;
   text-decoration: none;
   font-size: 1rem;
   display: flex;
@@ -23,42 +23,47 @@ const NavLink = styled(Link)`
   align-items: center;
   padding: 0.5rem;
   transition: all 0.3s ease;
-  &:hover {
-    color: #aaa;
-  }
+
   &.active {
-    color: #3498db;  // Active link color
+    color: white;  // Active link color
     font-weight: bold;
   }
 `;
 
 const NavIcon = styled.div`
   font-size: 1.5rem;  // Icon size
+  color: #676D75;  // Default icon color
   margin-bottom: 0.3rem;
+
+  ${NavLink}.active & {
+    color: white;  // Change icon color to white when active
+  }
 `;
 
 function Nav() {
+  const location = useLocation(); // Get current route
+
   return (
     <NavWrapper>
-      <NavLink to="/seller/home" activeClassName="active">
+      <NavLink to="/seller/home" className={location.pathname === '/seller/home' ? 'active' : ''}>
         <NavIcon>
           <FaHome />
         </NavIcon>
         Home
       </NavLink>
-      <NavLink to="/seller/inventory" activeClassName="active">
+      <NavLink to="/seller/inventory" className={location.pathname === '/seller/inventory' ? 'active' : ''}>
         <NavIcon>
           <FaBox />
         </NavIcon>
         Inventory
       </NavLink>
-      <NavLink to="/seller/history" activeClassName="active">
+      <NavLink to="/seller/history" className={location.pathname === '/seller/history' ? 'active' : ''}>
         <NavIcon>
           <FaHistory />
         </NavIcon>
         History
       </NavLink>
-      <NavLink to="/seller/profile" activeClassName="active">
+      <NavLink to="/seller/profile" className={location.pathname === '/seller/profile' ? 'active' : ''}>
         <NavIcon>
           <FaUser />
         </NavIcon>

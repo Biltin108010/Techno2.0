@@ -122,7 +122,7 @@ function SignInForm() {
     // Dummy login validation (replace with real authentication logic)
     if (email && password) {
       console.log('Login successful!');
-      navigate('/seller/*'); // Navigate to the seller home page
+      navigate('/seller/home'); // Navigate to the seller home page
     } else {
       alert('Please enter a valid email and password.');
     }
