@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import './landing-page.css';
+
+import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
+
+import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +15,7 @@ function SignInForm() {
   const handleLogin = () => {
     if (email && password) {
       console.log('Login successful!');
-      navigate('/seller/home'); // Navigate to the seller home page
+      navigate('/choose-ur-plan'); // Navigate to the seller home page
     } else {
       alert('Please enter a valid email and password.');
     }
@@ -23,7 +26,7 @@ function SignInForm() {
       <div className="card">
         <div className="card-header">
           <div className="logo">
-            <img src="/images/tori_logo2.png" alt="Logo" width={48} height={48} />
+            <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
           </div>
           <h1 className="title">Sign In</h1>
         </div>
@@ -34,6 +37,7 @@ function SignInForm() {
               id="email"
               type="email"
               className="input-field"
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

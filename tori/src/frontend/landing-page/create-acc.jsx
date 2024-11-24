@@ -1,13 +1,52 @@
-'use client';
-
-import { useState } from 'react';
-import { Link } from 'react-router-dom'; // Ensure you're using BrowserRouter in the root
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import supabase from '../../supabaseClient'; // Import Supabase client
 import { Eye, EyeOff } from 'lucide-react';
-import './landing-page.css';
+import './landing-page.css'; // Ensure the styling is included
 
-function SignUpForm() {
+const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('seller'); // Default to seller role
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      // Create user in Supabase Auth
+      const { user, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) {
+        throw new Error(authError.message);
+      }
+
+      // Insert user data into 'users' table without providing the 'id'
+      const { data, error: dbError } = await supabase
+        .from('users')
+        .insert([{ username, email, role }]);
+
+      if (dbError) {
+        throw new Error(dbError.message);
+      }
+
+      alert('Signup successful!');
+      // Redirect to login or dashboard
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="wrapper">
@@ -17,8 +56,8 @@ function SignUpForm() {
           <img
             src="/images/tori_logo2.png"
             alt="Logo"
-            width={48}
-            height={48}
+            width={68}
+            height={68}
             className="dark:invert"
           />
         </div>
@@ -27,7 +66,23 @@ function SignUpForm() {
         <h1 className="heading">Sign Up</h1>
 
         {/* Form */}
-        <form className="form">
+        <form className="form" onSubmit={handleSubmit}>
+          {/* Username Input */}
+          <div>
+            <label htmlFor="username" className="label">
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              required
+              className="input-field"
+            />
+          </div>
+
           {/* Email Input */}
           <div>
             <label htmlFor="email" className="label">
@@ -36,21 +91,9 @@ function SignUpForm() {
             <input
               id="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="example@gmail.com"
-              required
-              className="input-field"
-            />
-          </div>
-
-          {/* Role Input */}
-          <div>
-            <label htmlFor="role" className="label">
-              Role
-            </label>
-            <input
-              id="role"
-              type="text"
-              placeholder="Enter role"
               required
               className="input-field"
             />
@@ -66,6 +109,8 @@ function SignUpForm() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Must be 8 characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="input-field password-input"
               />
@@ -104,9 +149,25 @@ function SignUpForm() {
             </div>
           </div>
 
+          {/* Role Input */}
+          <div>
+            <label htmlFor="role" className="label">
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="input-field"
+            >
+              <option value="seller">Seller</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
           {/* Submit Button */}
-          <button type="submit" className="button primary">
-            Create Account
+          <button type="submit" className="button primary" disabled={loading}>
+            {loading ? 'Signing up...' : 'Create Account'}
           </button>
         </form>
 
@@ -171,6 +232,6 @@ function SignUpForm() {
       </div>
     </div>
   );
-}
+};
 
-export default SignUpForm;
+export default SignupPage;
