@@ -70,7 +70,7 @@ function SignInForm() {
         {/* Or login with section */}
         <div className="or-login-with">
           <div className="divider">
-            <span className="divider-text">Or login with</span>
+            <span className="divider-text">Or Login with</span>
           </div>
           <div className="social-icons">
             <div className="social-icon facebook">
