@@ -17,12 +17,6 @@ body {
     height: 68px;
   }
 
-  .logo {
-    display: flex;
-    justify-content: flex-end;
-    flex: 1;
-  }
-
 /* Overall Container */
 .home-page-container {
   font-family: 'Inter', sans-serif;
