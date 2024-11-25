@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react'; // Eye icons for toggle
 import 'font-awesome/css/font-awesome.min.css';
-import supabase from '../../supabaseClient'; // Ensure this is your Supabase client configuration
+import supabase from '../../backend/supabaseClient'; // Ensure this is your Supabase client configuration
 import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
