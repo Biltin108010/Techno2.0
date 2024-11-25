@@ -7,6 +7,7 @@
     min-height: 100vh;
     padding: 1rem;
     background-color: #ffffff;
+    overflow: hidden;
 }
 
 /* Container */
@@ -19,6 +20,7 @@
     gap: 1.5rem; /* Increased spacing between fields */
     padding: 2rem;
     background-color: transparent; /* Removed card-like background */
+    overflow: hidden;
 }
 
 /* Logo */
@@ -35,7 +37,7 @@
     font-weight: 800;
     font-style: normal;
     text-align: center;
-    margin-bottom: 2rem; /* Space between title and form */
+    margin-bottom: 0px;
     color: #000000; /* Slightly darker for readability */
 }
 
@@ -67,6 +69,23 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
     background-color: #ffffff; /* White background */
+    margin-bottom: 5px;
+}
+
+.signininput-field {
+    width: 100%; /* Ensures both fields take the full width */
+    padding: 0.75rem;
+    margin-top: 3px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+    background-color: #ffffff; /* White background */
+    margin-bottom: -10px;
 }
 
 .input-field:focus {
@@ -81,22 +100,28 @@
 
 /* Buttons */
 .button {
-    width: 100%;
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
     cursor: pointer;
-    text-align: center;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.button-primary {
+    width: 100%;
     margin-top: 10px;
     background-color: #000000;
     color: #ffffff;
     padding: 1rem;
     border-radius: 5px;
-    font-size: 1rem;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+}
+
+.button-primary {
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    background-color: #000000;
+    color: #ffffff;
+    padding: 1rem;
+    border-radius: 5px;
     text-align: center;
     transition: background-color 0.3s ease;
     font-size: 14px;
@@ -114,6 +139,23 @@
     position: absolute;
     right: 0.75rem; /* Keeps it aligned with the right side */
     top: 55%; /* Move the button a little lower */
+    transform: translateY(-50%); /* Keeps the centering */
+    height: 1.5rem; /* Adjust button size */
+    width: 1.5rem;  /* Adjust button size */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.signupeye-button {
+    position: absolute;
+    right: 0.75rem; /* Keeps it aligned with the right side */
+    top: 50%; /* Move the button a little lower */
     transform: translateY(-50%); /* Keeps the centering */
     height: 1.5rem; /* Adjust button size */
     width: 1.5rem;  /* Adjust button size */
@@ -149,7 +191,7 @@
     font-family: "Inter", sans-serif;
     font-weight: 400;
     color: #000000;
-    transform: translateY(-13px);
+    transform: translateY(-6px);
 }
 
 .signuplink {
@@ -158,11 +200,6 @@
     font-family: "Inter", sans-serif;
     font-weight: 700;
     color: #000000;
-}
-
-.link:hover {
-    color: #2563eb;
-    text-decoration: underline;
 }
 
 /* Accessibility and Focus States */
@@ -177,6 +214,7 @@
     .container {
         max-width: 20rem;
         padding: 1rem;
+        overflow: hidden;
     }
 
     .or-login-with {
@@ -247,5 +285,60 @@
         background-color: #f0f0f0; /* Light background when hovered */
       }
       
+      .already-account {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #777;
+      }
       
+      .already-account span {
+        margin-right: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+      }
+      
+      .already-account a {
+        text-decoration: none;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+        font-weight: 700;
+        color: #000000;
+      }
+      
+      .already-account a:hover {
+        text-decoration: underline;
+      }
+
+      /* Style the role dropdown */
+#role {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  
+  /* Focus effect */
+  #role:focus {
+    outline: none;
+    background-color: #fff;
+  }
+  
+  /* Add a little padding and background to the options */
+  #role option {
+    padding: 8px;
+    background-color: #fff;
+    font-size: 13px;
+    font-family: "Inter", sans-serif;
+  }
+  
+  /* Add a hover effect for options */
+  #role option:hover {
+    background-color: #e6e6e6;
+  }
+  
 }

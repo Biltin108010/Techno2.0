@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react'; // Keep these for the eye icon toggle
+import 'font-awesome/css/font-awesome.min.css';
 
 import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
 
@@ -33,7 +34,7 @@ function SignInForm() {
           <input
             id="email"
             type="email"
-            className="input-field"
+            className="signininput-field"
             placeholder="example@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -45,7 +46,7 @@ function SignInForm() {
             <input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              className="input-field password-input"
+              className="signininput-field password-input"
               placeholder="must be 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
