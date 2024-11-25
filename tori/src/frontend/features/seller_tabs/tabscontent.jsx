@@ -13,20 +13,16 @@ export default function TabContainer() {
   const [activeTab, setActiveTab] = useState(0)
   const [isEditing, setIsEditing] = useState(false)
 
-  // Function to handle Edit button click
   const handleEditClick = () => {
-    setIsEditing(true); // Enable edit mode when Edit button is clicked
+    setIsEditing(true) // Enable edit mode when Edit button is clicked
   }
 
-  // Function to handle Back button click
   const handleBackClick = () => {
-    setIsEditing(false); // Go back to the normal tab view
+    setIsEditing(false) // Go back to the normal tab view
   }
 
-  // Render tab content based on active tab and edit mode
   const renderTabContent = () => {
     if (isEditing) {
-      // Load the edit component based on active tab
       switch (activeTab) {
         case 0:
           return <EditTab1 />
@@ -38,7 +34,6 @@ export default function TabContainer() {
           return null
       }
     } else {
-      // Load the regular tab content based on active tab
       switch (activeTab) {
         case 0:
           return <Tab1 />
@@ -70,9 +65,12 @@ export default function TabContainer() {
             className="search-input"
           />
         </div>
-        <button className="edit-button" onClick={handleEditClick}>
-          Edit
-        </button>
+        {/* Show Edit button only when in Tab1 or EditTab1 */}
+        {!isEditing && activeTab === 0 && (
+          <button className="edit-button" onClick={handleEditClick}>
+            Edit
+          </button>
+        )}
       </div>
 
       {/* Tabs */}

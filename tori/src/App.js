@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import supabase from './supabaseClient'; // Import your supabase client
+import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import supabase from './supabaseClient';
 import LoginPage from './frontend/landing-page/login-acc';
 import WelcomePage from './frontend/landing-page/welcome-page';
 import Register from './frontend/landing-page/create-acc';
@@ -11,13 +11,13 @@ import History from './frontend/features/seller/history';
 import Profile from './frontend/features/seller/profile';
 import ChooseYourPlan from './frontend/landing-page/choose-ur-plan';
 import EditProfile from './frontend/features/seller/editprofile';
-import Review from './frontend/features/seller_tabs/review_page'
+import Review from './frontend/features/seller_tabs/review_page';
 
 function App() {
   const [user, setUser] = useState(null);
 
+  // Fetch the user session on component mount
   useEffect(() => {
-    // Check if a user is already logged in on initial load using getSession
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getSession();
       setUser(user);
@@ -25,11 +25,32 @@ function App() {
 
     fetchUser();
 
-    // Subscribe to auth state changes (e.g., login or logout)
+    // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
     });
+
+    // Cleanup the listener on component unmount
+    return () => {
+      authListener?.unsubscribe();
+    };
   }, []);
+
+  // ProtectedRoute component to restrict access to authenticated users
+  const ProtectedRoute = ({ children }) => {
+    if (!user) {
+      return <Navigate to="/login" />;
+    }
+    return children;
+  };
+
+  // Layout for seller pages (includes Nav + nested routes)
+  const SellerLayout = () => (
+    <>
+      <Nav />
+      <Outlet /> {/* Nested routes will render here */}
+    </>
+  );
 
   return (
     <Router>
@@ -41,26 +62,25 @@ function App() {
           <Route path="/choose-ur-plan" element={<ChooseYourPlan />} />
           <Route path="/register" element={<Register />} />
 
-
-
-
-          {/* Seller Pages (protected routes) */}
+          {/* Seller Pages (Protected Route) */}
           <Route
             path="/seller/*"
             element={
-              <>
-                <Nav />
-                <Routes>
-                  <Route path="home" element={<Home />} />
-                  <Route path="inventory" element={<Inventory />} />
-                  <Route path="history" element={<History />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="/edit-profile" element={<EditProfile />} />
-                  <Route path="/review" element={<Review />} />
-                </Routes>
-              </>
+              <ProtectedRoute>
+                <SellerLayout />
+              </ProtectedRoute>
             }
-          />
+          >
+            <Route path="home" element={<Home />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="history" element={<History />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="edit-profile" element={<EditProfile />} />
+            <Route path="review" element={<Review />} />
+          </Route>
+
+          {/* Redirect to home for undefined routes */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
     </Router>

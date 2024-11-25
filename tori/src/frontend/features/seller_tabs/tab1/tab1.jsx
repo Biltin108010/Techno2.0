@@ -1,29 +1,38 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './tab1.css';
 
 const Tab1 = () => {
-  // Example data for displaying items
+  const navigate = useNavigate(); // Initialize navigation
+
   const items = [
     {
       name: 'Apple',
       quantity: 10,
-      price: '$2.00',
+      price: 2.0,
+      stock: 30,
       image: 'https://via.placeholder.com/100', // Placeholder image
     },
     {
       name: 'Banana',
       quantity: 20,
-      price: '$1.50',
+      price: 1.5,
+      stock: 50,
       image: 'https://via.placeholder.com/100',
     },
     {
       name: 'Orange',
       quantity: 15,
-      price: '$2.50',
+      price: 2.5,
+      stock: 40,
       image: 'https://via.placeholder.com/100',
     },
-    // Add more items as needed...
   ];
+
+  const handleReviewOrder = () => {
+    // Pass items to the ReviewPage
+    navigate('/review', { state: { items } });
+  };
 
   return (
     <div className="tab1-container">
@@ -36,7 +45,7 @@ const Tab1 = () => {
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">Qty: {item.quantity}</p>
-                <p className="item-price">Price: {item.price}</p>
+                <p className="item-price">Price: ₱{item.price}</p>
               </div>
             </div>
           ))
@@ -46,7 +55,9 @@ const Tab1 = () => {
       </div>
 
       {/* Review Order button */}
-      <button className="review-order-button">Review Order</button>
+      <button className="review-order-button" onClick={handleReviewOrder}>
+        Review Order
+      </button>
     </div>
   );
 };

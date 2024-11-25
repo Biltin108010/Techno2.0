@@ -92,11 +92,6 @@ const EditTab2 = () => {
         )}
       </div>
 
-      {/* Add Product Button */}
-      <button className="add-product-button" onClick={() => setIsModalOpen(true)}>
-        Add Product
-      </button>
-
       {/* Modal */}
       <ProductModal
         isOpen={isModalOpen}

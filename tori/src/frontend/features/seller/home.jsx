@@ -90,31 +90,30 @@ function Home() {
     <div className="home-page-container">
       {/* Header */}
       <div className="home-page-header">
-  <h1 className="home-title">Home</h1>
-  <div className="logo">
-    <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
-  </div>
-</div>
+        <h1 className="home-title">Home</h1>
+        <div className="logo">
+          <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
+        </div>
+      </div>
 
-<div className="home-divider"></div>
+      <div className="home-divider"></div>
 
-{/* Controls below the title */}
-<div className="home-controls-container">
-  <div className="home-controls">
-    <select className="home-dropdown">
-      <option value="Daily">Daily</option>
-      <option value="Weekly">Weekly</option>
-      <option value="Monthly">Monthly</option>
-    </select>
-    <button className="home-export-button" onClick={handleExport}>
-      Export
-    </button>
-    <button className="home-filter-button" onClick={toggleFilter}>
-      Filter
-    </button>
-  </div>
-</div>
-
+      {/* Controls below the title */}
+      <div className="home-controls-container">
+        <div className="home-controls">
+          <select className="home-dropdown">
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Monthly">Monthly</option>
+          </select>
+          <button className="home-export-button" onClick={handleExport}>
+            Export
+          </button>
+          <button className="home-filter-button" onClick={toggleFilter}>
+            Filter
+          </button>
+        </div>
+      </div>
 
       {/* Card Section */}
       <div className="home-card-section">
@@ -168,35 +167,34 @@ function Home() {
       {isFilterVisible && (
         <div className="filter-modal">
           <div className="filter-container">
-            <h3>Filter</h3>
             <button className="close-filter" onClick={toggleFilter}>
-              X
+              &times;
             </button>
+            <h3>Filter</h3>
             {/* Filter Inputs */}
-<div className="filter-input-group">
-  <label htmlFor="filter-date-range">Date Range:</label>
-  <input type="date" id="start-date" className="filter-date" />
-  <span>to</span>
-  <input type="date" id="end-date" className="filter-date" />
-</div>
-<div className="filter-input-group">
-  <label htmlFor="filter-category">Category:</label>
-  <select id="filter-category" className="filter-select">
-    <option value="All">All</option>
-    <option value="Vendors">Vendors</option>
-    <option value="Sales">Sales</option>
-    <option value="Orders">Orders</option>
-  </select>
-</div>
-<div className="filter-buttons">
-  <button className="filter-apply-btn" onClick={() => alert("Filters applied!")}>
-    Apply
-  </button>
-  <button className="filter-reset-btn" onClick={() => alert("Filters reset!")}>
-    Reset
-  </button>
-</div>
-
+            <div className="filter-input-group">
+              <label htmlFor="filter-date-range">Date Range:</label>
+              <input type="date" id="start-date" className="filter-date" />
+              <span>to</span>
+              <input type="date" id="end-date" className="filter-date" />
+            </div>
+            <div className="filter-input-group">
+              <label htmlFor="filter-category">Category:</label>
+              <select id="filter-category" className="filter-select">
+                <option value="All">All</option>
+                <option value="Vendors">Vendors</option>
+                <option value="Sales">Sales</option>
+                <option value="Orders">Orders</option>
+              </select>
+            </div>
+            <div className="filter-buttons">
+              <button className="filter-apply-btn" onClick={() => alert("Filters applied!")}>
+                Apply
+              </button>
+              <button className="filter-reset-btn" onClick={() => alert("Filters reset!")}>
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       )}
