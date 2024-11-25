@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Eye, EyeOff } from 'lucide-react';
 import supabase from '../../backend/supabaseClient'; // Ensure this is correctly set up
 =======
@@ -10,12 +11,18 @@ import 'font-awesome/css/font-awesome.min.css';
 import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
 
 >>>>>>> ff01174b3217167f35e019a5e0e3caa6ae655ca7
+=======
+import { Eye, EyeOff } from 'lucide-react'; // Eye icons for toggle
+import 'font-awesome/css/font-awesome.min.css';
+import supabase from '../../supabaseClient'; // Ensure this is your Supabase client configuration
+>>>>>>> 85fbee6015c3db178e165e9d6a3ff8a95ffc1cdc
 import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -49,6 +56,31 @@ function SignInForm() {
       setErrorMessage(error.message || 'An error occurred during login.');
     } finally {
       setLoading(false);
+=======
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    if (email && password) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          setErrorMessage(error.message); // Display the error message to the user
+        } else {
+          console.log('Login successful:', data);
+          navigate('/choose-ur-plan'); // Navigate to the desired page upon successful login
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        setErrorMessage('An unexpected error occurred. Please try again.');
+      }
+    } else {
+      setErrorMessage('Please enter both email and password.');
+>>>>>>> 85fbee6015c3db178e165e9d6a3ff8a95ffc1cdc
     }
   };
 
@@ -129,6 +161,7 @@ function SignInForm() {
           </button>
 =======
         </div>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <div style={{ textAlign: 'right' }}>
           <Link to="#" className="forgotpasslink">Forgot password?</Link>
         </div>
@@ -154,8 +187,6 @@ function SignInForm() {
           </div>
 >>>>>>> ff01174b3217167f35e019a5e0e3caa6ae655ca7
         </div>
-
-
 
         <div className="signuptext">
           Don't have an account?{' '}
