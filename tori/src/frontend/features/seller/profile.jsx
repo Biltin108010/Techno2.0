@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import supabase from "../../../backend/supabaseClient"; // Ensure supabaseClient is correctly imported
 
 const Container = styled.div`
   display: flex;
@@ -25,8 +24,8 @@ const ProfileCard = styled.div`
 const HeaderContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Space between title and logo */
-  margin-bottom: 1.5rem; /* Adjusted spacing */
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 `;
 
 const Title = styled.h1`
@@ -37,19 +36,19 @@ const Title = styled.h1`
 `;
 
 const Logo = styled.img`
-  width: 3rem; /* Adjust the size of the logo */
+  width: 3rem;
   height: auto;
 `;
 
 const Separator = styled.div`
   height: 1px;
   background-color: #e5e7eb;
-  margin: 1.5rem 0; /* Adjusted spacing */
+  margin: 1.5rem 0;
 `;
 
 const ProfileHeader = styled.div`
   text-align: center;
-  margin-bottom: 1.5rem; /* Adjusted spacing */
+  margin-bottom: 1.5rem;
 `;
 
 const ProfileImageWrapper = styled.div`
@@ -97,7 +96,7 @@ const Stat = styled.div`
   padding: 1rem;
   border-radius: 0.5rem;
   width: 40%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Drop shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const StatValue = styled.p`
@@ -138,55 +137,27 @@ const ActionIcon = styled.div`
 `;
 
 function Profile() {
-  const navigate = useNavigate(); // For navigation
-  const [user, setUser] = useState(null); // To store user data
-  const [loading, setLoading] = useState(true); // For loading state
-  const [error, setError] = useState(null); // For error handling
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null); // Simulating user data
+  const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
-    // Fetch user data from Supabase after the component mounts
-    const fetchUserData = async () => {
-      try {
-        // Get authenticated user data
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-
-        if (userError) {
-          throw new Error(userError.message);
-        }
-
-        // Fetch user profile data from 'users' table
-        const { data: userDetails, error: profileError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", userData.id)
-          .single();
-
-        if (profileError) {
-          throw new Error(profileError.message);
-        }
-
-        setUser(userDetails); // Set user data in the state
-      } catch (err) {
-        setError(err.message); // Set error message
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    };
-
-    fetchUserData();
+    // Simulate data fetching
+    setTimeout(() => {
+      setUser({
+        username: "John Doe",
+        email: "john.doe@example.com",
+        profile_picture: "https://via.placeholder.com/80",
+      });
+      setLoading(false);
+    }, 1000); // Simulate 1-second delay
   }, []);
 
-  const handleLogout = async () => {
-    // Sign out from Supabase
-    await supabase.auth.signOut();
+  const handleLogout = () => {
     navigate("/login"); // Redirect to login page
   };
 
-  // Show loading message while data is being fetched
   if (loading) return <p>Loading...</p>;
-
-  // Show error message if there was an issue fetching data
-  if (error) return <p>Error: {error}</p>;
 
   return (
     <Container>

@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './edit_tab1.css';
 
-// Modal for adding a new product
-const ProductModal = ({ isOpen, onClose, onAddProduct }) => {
-  const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [price, setPrice] = useState('');
+// Modal for editing an existing product or adding a new one
+const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
+  const [name, setName] = useState(item ? item.name : '');
+  const [quantity, setQuantity] = useState(item ? item.quantity : '');
+  const [price, setPrice] = useState(item ? item.price : '');
 
-  const handleSubmit = () => {
+  const handleSave = () => {
     if (name && quantity && price) {
-      onAddProduct({ name, quantity, price });
-      setName('');
-      setQuantity('');
-      setPrice('');
+      onSave({ ...item, name, quantity, price }); // Pass updated or new item
       onClose();
     }
   };
@@ -23,7 +19,7 @@ const ProductModal = ({ isOpen, onClose, onAddProduct }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Add Product</h2>
+        <h2>{item ? 'Edit Product' : 'Add Product'}</h2>
         <label>
           Name:
           <input
@@ -51,7 +47,7 @@ const ProductModal = ({ isOpen, onClose, onAddProduct }) => {
             placeholder="Price"
           />
         </label>
-        <button onClick={handleSubmit}>Add Product</button>
+        <button onClick={handleSave}>{item ? 'Save' : 'Add'}</button>
         <button onClick={onClose}>Cancel</button>
       </div>
     </div>
@@ -59,20 +55,30 @@ const ProductModal = ({ isOpen, onClose, onAddProduct }) => {
 };
 
 const EditTab1 = () => {
-  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([
     { name: 'Apple', quantity: 10, price: '$2.00', image: 'https://via.placeholder.com/100' },
     { name: 'Banana', quantity: 20, price: '$1.50', image: 'https://via.placeholder.com/100' },
     { name: 'Orange', quantity: 15, price: '$2.50', image: 'https://via.placeholder.com/100' },
   ]);
 
-  const handleAddProduct = (newProduct) => {
-    setItems([...items, newProduct]);
+  const handleEditProduct = (updatedItem) => {
+    if (updatedItem.name) {
+      const updatedItems = items.map((item) =>
+        item.name === updatedItem.name ? updatedItem : item // Ensure items are updated by name
+      );
+      setItems(updatedItems);
+    }
+  };
+
+  const handleAddProduct = (newItem) => {
+    setItems([...items, newItem]); // Add new item to the list
   };
 
   const handleItemClick = (item) => {
-    navigate('/review', { state: { item } }); // Pass item data to review_page.jsx
+    setSelectedItem(item); // Set the selected item for editing
+    setIsModalOpen(true);   // Open the edit modal
   };
 
   return (
@@ -84,7 +90,7 @@ const EditTab1 = () => {
             <div
               key={index}
               className="item-box"
-              onClick={() => handleItemClick(item)} // Navigate to review page on click
+              onClick={() => handleItemClick(item)} // Open edit modal
             >
               {/* Image on the left */}
               <img src={item.image} alt={item.name} className="item-image" />
@@ -103,15 +109,16 @@ const EditTab1 = () => {
       </div>
 
       {/* Add Product Button */}
-      <button className="add-product-button" onClick={() => setIsModalOpen(true)}>
+      <button className="add-product-button" onClick={() => { setSelectedItem(null); setIsModalOpen(true); }}>
         Add Product
       </button>
 
-      {/* Modal */}
-      <ProductModal
+      {/* Edit Product Modal */}
+      <EditProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onAddProduct={handleAddProduct}
+        item={selectedItem || {}}
+        onSave={selectedItem ? handleEditProduct : handleAddProduct}
       />
     </div>
   );

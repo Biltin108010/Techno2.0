@@ -54,13 +54,6 @@ function App() {
     return children;
   };
 
-  // Layout for seller pages (includes Nav + nested routes)
-  const SellerLayout = () => (
-    <>
-      <Nav />
-      <Outlet /> {/* Nested routes will render here */}
-    </>
-  );
 
   return (
     <UserProvider value={{ user, setUser }}>

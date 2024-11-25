@@ -9,7 +9,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 70px; /* Add space to avoid overlap with the navigation bar */
+  margin-bottom: 50px; /* Add space to avoid overlap with the navigation bar */
 }
 
 /* Header */
@@ -114,6 +114,7 @@
 }
 
 /* Back button style */
+/* Back button style */
 .back-button {
   display: flex;
   justify-content: center;
@@ -137,6 +138,7 @@
   color: #007bff; /* Blue color on hover */
   border-color: #ccc; /* Slightly darker border on hover */
 }
+
 
 
 .title {

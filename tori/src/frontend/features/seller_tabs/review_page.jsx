@@ -52,7 +52,7 @@ const ReviewPage = () => {
     return (
         <div className="review-container">
             <button className="back-button" onClick={() => navigate(-1)}>
-                &#x2190; Back
+                &#x2190; 
             </button>
             <h1>Review Order</h1>
             <div className="seller-info">
