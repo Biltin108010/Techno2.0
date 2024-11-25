@@ -1,8 +1,8 @@
 import React from 'react';
 import './tab1.css';
-
+import { Link, useNavigate } from 'react-router-dom';
 const Tab1 = () => {
-  // Example data for displaying items
+  const navigate = useNavigate();
   const items = [
     {
       name: 'Apple',
@@ -46,7 +46,12 @@ const Tab1 = () => {
       </div>
 
       {/* Review Order button */}
-      <button className="review-order-button">Review Order</button>
+      <button
+        className="review-order-button"
+        onClick={() => navigate('../review')}
+      >
+        Review Order
+      </button>
     </div>
   );
 };
