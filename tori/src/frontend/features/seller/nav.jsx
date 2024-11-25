@@ -4,16 +4,18 @@ import { FaHome, FaBox, FaHistory, FaUser } from 'react-icons/fa'; // For icons
 
 const NavWrapper = styled.nav`
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly; /* Even spacing between items */
   align-items: center;
-  background-color: #222;  // Dark background
+  background-color: #2E2D2D; /* Dark background */
   color: white;
-  padding: 1rem;
+  padding: 0.7rem 0rem; /* Adjusted padding for balanced spacing */
   position: fixed;
   bottom: 0;
   width: 100%;
   z-index: 1;
+  gap: 1.5rem; /* Consistent spacing between nav items */
 `;
+
 
 const NavLink = styled(Link)`
   color: #676D75;
