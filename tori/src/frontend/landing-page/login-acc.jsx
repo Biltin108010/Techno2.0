@@ -1,23 +1,46 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-
-import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
-
+import supabase from '../../backend/supabaseClient'; // Ensure this is correctly set up
 import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (email && password) {
-      console.log('Login successful!');
-      navigate('/choose-ur-plan'); // Navigate to the seller home page
-    } else {
+  const handleLogin = async (e) => {
+    e.preventDefault();  // Prevent default form submission behavior
+
+    if (!email || !password) {
       alert('Please enter a valid email and password.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage(''); // Reset error message
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Display alert message on successful login
+      alert('Login successful! Welcome back.');
+
+      console.log('Login successful:', data);
+      navigate('/choose-ur-plan'); // Navigate to the appropriate page after login
+    } catch (error) {
+      console.error('Login failed:', error);
+      setErrorMessage(error.message || 'An error occurred during login.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,6 +54,7 @@ function SignInForm() {
           <h1 className="title">Sign In</h1>
         </div>
         <div className="card-content">
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
           <div>
             <label htmlFor="email" className="label">Email address</label>
             <input
@@ -49,6 +73,7 @@ function SignInForm() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 className="input-field password-input"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -62,10 +87,14 @@ function SignInForm() {
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <Link to="#" className="link">Forgot password?</Link>
+            <Link to="/forgot-password" className="link">Forgot password?</Link>
           </div>
-          <button className="button button-primary" onClick={handleLogin}>
-            Log in
+          <button
+            className="button button-primary"
+            onClick={handleLogin}
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Log in'}
           </button>
         </div>
         <div className="text">
