@@ -1,24 +1,37 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react'; // Keep these for the eye icon toggle
+import { Eye, EyeOff } from 'lucide-react'; // Eye icons for toggle
 import 'font-awesome/css/font-awesome.min.css';
-
-import supabase from '../../supabaseClient'; // Assuming this is used elsewhere in your code
-
+import supabase from '../../supabaseClient'; // Ensure this is your Supabase client configuration
 import './landing-page.css'; // Ensure the CSS file is imported for styling
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (email && password) {
-      console.log('Login successful!');
-      navigate('/choose-ur-plan'); // Navigate to the seller home page
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          setErrorMessage(error.message); // Display the error message to the user
+        } else {
+          console.log('Login successful:', data);
+          navigate('/choose-ur-plan'); // Navigate to the desired page upon successful login
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        setErrorMessage('An unexpected error occurred. Please try again.');
+      }
     } else {
-      alert('Please enter a valid email and password.');
+      setErrorMessage('Please enter both email and password.');
     }
   };
 
@@ -60,6 +73,7 @@ function SignInForm() {
             </button>
           </div>
         </div>
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <div style={{ textAlign: 'right' }}>
           <Link to="#" className="forgotpasslink">Forgot password?</Link>
         </div>
@@ -84,8 +98,6 @@ function SignInForm() {
             </div>
           </div>
         </div>
-
-
 
         <div className="signuptext">
           Don't have an account?{' '}

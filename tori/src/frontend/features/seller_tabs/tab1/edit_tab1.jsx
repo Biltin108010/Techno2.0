@@ -88,7 +88,7 @@ const EditTab1 = () => {
             >
               {/* Image on the left */}
               <img src={item.image} alt={item.name} className="item-image" />
-              
+
               {/* Product Details */}
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
