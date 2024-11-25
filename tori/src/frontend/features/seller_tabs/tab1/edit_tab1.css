@@ -109,27 +109,4 @@
     background-color: #0f766e;
   }
   
-  /* Back button style */
-.back-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px; /* Adjust width */
-  height: 40px; /* Adjust height */
-  background-color: #f9f9f9; /* Background color for the square */
-  border: 1px solid #ddd; /* Border for the square */
-  border-radius: 8px; /* Slightly rounded corners */
-  font-size: 18px; /* Size of the < symbol */
-  font-weight: bold; /* Make < bold */
-  color: #333; /* Text color */
-  cursor: pointer;
-  transition: all 0.3s ease; /* Smooth hover transition */
-  padding: 0; /* Remove default padding */
-  margin-right: 10px; /* Add space before the title */
-}
-
-.back-button:hover {
-  background-color: #f2f2f2; /* Light grey background on hover */
-  color: #007bff; /* Blue color on hover */
-  border-color: #ccc; /* Slightly darker border on hover */
-}
+  
