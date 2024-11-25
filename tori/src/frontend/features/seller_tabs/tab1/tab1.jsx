@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './tab1.css';
-
+import { Link, useNavigate } from 'react-router-dom';
 const Tab1 = () => {
-  const navigate = useNavigate(); // Initialize navigation
-
+  const navigate = useNavigate();
   const items = [
     {
       name: 'Apple',
@@ -55,7 +54,10 @@ const Tab1 = () => {
       </div>
 
       {/* Review Order button */}
-      <button className="review-order-button" onClick={handleReviewOrder}>
+      <button
+        className="review-order-button"
+        onClick={() => navigate('../review')}
+      >
         Review Order
       </button>
     </div>

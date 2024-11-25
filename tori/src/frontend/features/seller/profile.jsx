@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import supabase from "../../../backend/supabaseClient"; // Ensure supabaseClient is correctly imported
 
 const Container = styled.div`
   display: flex;
@@ -9,17 +10,16 @@ const Container = styled.div`
   align-items: center;
   height: 100vh;
   background-color: #f3f4f6;
-  margine-top: -20px;
+  margin-top: -20px;
 `;
 
 const ProfileCard = styled.div`
   width: 20rem;
-  margin-top:-8rem;
+  margin-top: -8rem;
   background: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
-
 `;
 
 const HeaderContainer = styled.div`
@@ -138,32 +138,77 @@ const ActionIcon = styled.div`
 `;
 
 function Profile() {
-  const navigate = useNavigate(); // Define navigate
+  const navigate = useNavigate(); // For navigation
+  const [user, setUser] = useState(null); // To store user data
+  const [loading, setLoading] = useState(true); // For loading state
+  const [error, setError] = useState(null); // For error handling
+
+  useEffect(() => {
+    // Fetch user data from Supabase after the component mounts
+    const fetchUserData = async () => {
+      try {
+        // Get authenticated user data
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+
+        if (userError) {
+          throw new Error(userError.message);
+        }
+
+        // Fetch user profile data from 'users' table
+        const { data: userDetails, error: profileError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userData.id)
+          .single();
+
+        if (profileError) {
+          throw new Error(profileError.message);
+        }
+
+        setUser(userDetails); // Set user data in the state
+      } catch (err) {
+        setError(err.message); // Set error message
+      } finally {
+        setLoading(false); // Stop loading
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const handleLogout = async () => {
+    // Sign out from Supabase
+    await supabase.auth.signOut();
+    navigate("/login"); // Redirect to login page
+  };
+
+  // Show loading message while data is being fetched
+  if (loading) return <p>Loading...</p>;
+
+  // Show error message if there was an issue fetching data
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <Container>
       <ProfileCard>
-        {/* Header with Title and Logo */}
         <HeaderContainer>
           <Title>Profile</Title>
-          <Logo src="/images/tori_logo2.png" alt="Logo" /> {/* Logo added */}
+          <Logo src="/images/tori_logo2.png" alt="Logo" />
         </HeaderContainer>
         <Separator />
 
-        {/* Profile Header */}
         <ProfileHeader>
           <ProfileImageWrapper>
             <ProfileImage
-              src="https://via.placeholder.com/80"
+              src={user?.profile_picture || "https://via.placeholder.com/80"}
               alt="Profile"
             />
             <EditButton>✏️</EditButton>
           </ProfileImageWrapper>
-          <Name>Moo Deng</Name>
-          <Contact>youremail@domain.com | +01 234 567 89</Contact>
+          <Name>{user?.username || "Your Name"}</Name>
+          <Contact>{user?.email || "your.email@example.com"}</Contact>
         </ProfileHeader>
 
-        {/* Stats Section */}
         <StatsContainer>
           <Stat>
             <StatValue>3</StatValue>
@@ -175,10 +220,8 @@ function Profile() {
           </Stat>
         </StatsContainer>
 
-        {/* Separator */}
         <Separator />
 
-        {/* Action Buttons */}
         <ActionButton onClick={() => navigate("/seller/edit-profile")}>
           <ActionIcon>
             <AiOutlineEdit />
@@ -191,7 +234,7 @@ function Profile() {
           </ActionIcon>
           Settings
         </ActionButton>
-        <ActionButton danger>
+        <ActionButton danger onClick={handleLogout}>
           <ActionIcon danger>
             <AiOutlineLogout />
           </ActionIcon>
