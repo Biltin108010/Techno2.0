@@ -6,155 +6,131 @@ import { useNavigate } from "react-router-dom";
 // Styled components
 export const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
-  padding: 1rem;
+  background-color: #ffffff;
+  padding: 2rem;
 `;
 
-export const Card = styled.div`
-  width: 100%;
-  max-width: 400px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-`;
-
-export const CardHeader = styled.div`
+export const Header = styled.div`
   display: flex;
   align-items: center;
-  padding: 1.5rem;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px; /* Restrict to the same width as choices and button */
+  margin-bottom: 1rem;
 `;
 
 export const BackButton = styled(IoIosArrowBack)`
   font-size: 1.5rem;
   color: #333;
   cursor: pointer;
-  margin-right: 1rem;
-
-  &:hover {
-    color: #000;
-  }
 `;
 
 export const Logo = styled.img`
-  margin-left: auto;
-  width: 2rem;
-  height: 2rem;
+  width: 4rem;
+  height: 4rem;
 `;
 
 export const Title = styled.h1`
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-align: center;
-  margin-top: 0.5rem;
+  font-size: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  text-align: left; /* Align title to the left */
+  margin: 1rem 0 0.5rem;
+  width: 100%;
+  max-width: 400px;
 `;
 
 export const Subtitle = styled.p`
+  font-family: 'Inter', sans-serif;
   color: #555;
-  margin: 0.5rem 1.5rem 1.5rem;
-  font-size: 0.875rem;
-  text-align: center;
+  font-size: 16px;
+  text-align: left; /* Left-aligned text */
+  margin: 0 0 1rem;
+  width: 100%;
+  max-width: 400px;
 `;
 
 const PlanCard = styled.div`
-  border: 1px solid ${({ selected }) => (selected ? "#000" : "#ccc")};
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid ${({ selected }) => (selected ? "#000" : "#ddd")};
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 10px; /* Close spacing between cards */
   cursor: pointer;
-  transition: border-color 0.3s ease;
   background-color: ${({ selected }) => (selected ? "#f9f9f9" : "#fff")};
+  width: 100%;
+  max-width: 310px; /* Match the button width */
+  transition: border-color 0.3s ease;
 
   &:hover {
     border-color: #000;
   }
 `;
 
+const PlanInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: left; /* Ensure text inside is left-aligned */
+`;
+
 const PlanTitle = styled.h2`
+  font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
-  color: #111;
 `;
 
 const PlanPrice = styled.p`
+  font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
   color: #333;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 0;
 `;
 
 const PlanDetails = styled.p`
+  font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   color: #555;
+  margin: 0;
 `;
 
-export const CardContent = styled.div`
-  padding: 1.5rem;
+const CircleButton = styled.div`
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid ${({ selected }) => (selected ? "#000" : "#ddd")};
+  border-radius: 50%;
+  background-color: ${({ selected }) => (selected ? "#000" : "transparent")};
 `;
 
 export const ContinueButton = styled.button`
   width: 100%;
+  max-width: 400px; /* Align width with plan cards */
   padding: 1rem;
+  margin-top: 30px; /* Space between the continue button and choices */
   background-color: #000;
   color: #fff;
+  font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 1.5rem;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #333;
   }
 `;
 
-// Styled notification popup
-const Notification = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #fff;
-  padding: 1rem 3rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  text-align: center;
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-`;
-
-const CloseButton = styled.button`
-  margin-top: 1rem;
-  background-color: #000;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #333;
-  }
-`;
-
-// Component definition
 function ChooseYourPlan() {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState("");
-  const [showNotification, setShowNotification] = useState(false);
 
   const handlePlanSelection = (plan) => {
     setSelectedPlan(plan);
@@ -162,51 +138,44 @@ function ChooseYourPlan() {
 
   const handleContinue = () => {
     if (selectedPlan) {
-      navigate("/seller/home"); // Navigate to the next page
+      navigate("/seller/home");
     } else {
-      setShowNotification(true); // Show popup notification
+      alert("Please select a plan before continuing.");
     }
-  };
-
-  const closeNotification = () => {
-    setShowNotification(false); // Close popup notification
   };
 
   return (
     <Wrapper>
-      <Card>
-        <CardHeader>
-          <BackButton onClick={() => navigate(-1)} />
-          <Title>Choose Your Plan</Title>
-          <Logo src="/images/tori_logo2.png" alt="Logo" />
-        </CardHeader>
-        <Subtitle>To complete the sign-up process, please choose a subscription plan.</Subtitle>
-        <CardContent>
-          <PlanCard selected={selectedPlan === "starter"} onClick={() => handlePlanSelection("starter")}>
-            <PlanTitle>Starter (up to 4 users)</PlanTitle>
-            <PlanPrice>₱250.00 / mo</PlanPrice>
-          </PlanCard>
-          <PlanCard selected={selectedPlan === "premium"} onClick={() => handlePlanSelection("premium")}>
-            <PlanTitle>Premium (up to 10 users)</PlanTitle>
-            <PlanPrice>₱500.00 / mo</PlanPrice>
-          </PlanCard>
-          <PlanCard selected={selectedPlan === "free"} onClick={() => handlePlanSelection("free")}>
-            <PlanTitle>Free</PlanTitle>
-            <PlanDetails>Up to 2 users only</PlanDetails>
-          </PlanCard>
-          <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
-        </CardContent>
-      </Card>
-
-      {showNotification && (
-        <>
-          <Overlay />
-          <Notification>
-            <p>Please select a plan before continuing.</p>
-            <CloseButton onClick={closeNotification}>OK</CloseButton>
-          </Notification>
-        </>
-      )}
+      <Header>
+        <BackButton onClick={() => navigate(-1)} />
+        <Logo src="/images/tori_logo2.png" alt="Logo" />
+      </Header>
+      <Title>Choose your plan</Title>
+      <Subtitle>
+        To complete the sign-up process, please choose a subscription plan.
+      </Subtitle>
+      <PlanCard selected={selectedPlan === "starter"} onClick={() => handlePlanSelection("starter")}>
+        <PlanInfo>
+          <PlanTitle>Starter (up to 4 users)</PlanTitle>
+          <PlanPrice>₱250.00 / mo</PlanPrice>
+        </PlanInfo>
+        <CircleButton selected={selectedPlan === "starter"} />
+      </PlanCard>
+      <PlanCard selected={selectedPlan === "premium"} onClick={() => handlePlanSelection("premium")}>
+        <PlanInfo>
+          <PlanTitle>Premium (up to 10 users)</PlanTitle>
+          <PlanPrice>₱500.00 / mo</PlanPrice>
+        </PlanInfo>
+        <CircleButton selected={selectedPlan === "premium"} />
+      </PlanCard>
+      <PlanCard selected={selectedPlan === "free"} onClick={() => handlePlanSelection("free")}>
+        <PlanInfo>
+          <PlanTitle>Free</PlanTitle>
+          <PlanDetails>Up to 2 users only</PlanDetails>
+        </PlanInfo>
+        <CircleButton selected={selectedPlan === "free"} />
+      </PlanCard>
+      <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
     </Wrapper>
   );
 }

@@ -6,17 +6,18 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
   min-height: 100vh;
   background-color: #f4f4f4;
-  padding: 1.5rem;
+  padding: 0rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
+  font-family: 'Inter', sans-serif; /* Use Inter font for body text */
 `;
 
 export const LogoWrapper = styled.div`
-  width: 6rem;
-  height: 6rem;
+  width: 20rem;
+  height: 20rem;
 `;
 
 export const Logo = styled.img`
@@ -27,18 +28,19 @@ export const Logo = styled.img`
 
 export const ContentWrapper = styled.div`
   text-align: center;
-  max-width: 17.5rem;
+  max-width: 18.5rem;
   gap: 1rem;
 `;
 
 export const Heading = styled.h1`
-  font-size: 1.5rem;
+  font-size: 36px;
   font-weight: bold;
   letter-spacing: -0.015em;
+  font-family: 'Poppins', sans-serif; /* Use Poppins font for headings */
 `;
 
 export const Paragraph = styled.p`
-  font-size: 0.875rem;
+  font-size: 18px;
   color: #6b7280;
 `;
 
@@ -54,6 +56,7 @@ export const Button = styled.button`
   width: 100%;
   padding: 1rem;
   font-size: 1rem;
+  font-family: 'Inter', sans-serif;
   border-radius: 0.375rem;
   border: ${(props) => (props.variant === 'outline' ? '1px solid #ddd' : 'none')};
   background-color: ${(props) => (props.variant === 'default' ? '#000' : 'transparent')};
@@ -105,5 +108,4 @@ function WelcomeScreen() {
   );
 }
 
-// Export default at the bottom
 export default WelcomeScreen;
