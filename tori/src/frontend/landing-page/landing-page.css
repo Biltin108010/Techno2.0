@@ -187,7 +187,7 @@
     text-decoration: none;
     position: absolute;
     right: 60px;
-    font-size: 12px;
+    font-size: 13px;
     font-family: "Inter", sans-serif;
     font-weight: 400;
     color: #000000;
@@ -339,6 +339,12 @@
   /* Add a hover effect for options */
   #role option:hover {
     background-color: #e6e6e6;
+  }
+
+  .error-message {
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    color: tomato;
   }
   
 }
