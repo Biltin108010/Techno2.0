@@ -15,16 +15,33 @@ function SignInForm() {
   const handleLogin = async () => {
     if (email && password) {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        // Sign in with email and password
+        const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) {
-          setErrorMessage(error.message); // Display the error message to the user
+        if (loginError) {
+          setErrorMessage(loginError.message); // Display the error message
         } else {
-          console.log('Login successful:', data);
-          navigate('/choose-ur-plan'); // Navigate to the desired page upon successful login
+          // Fetch user profile using email as the matching field
+          const { data: userData, error: fetchError } = await supabase
+            .from('users')
+            .select('plan')
+            .eq('email', authData.user.email) // Match by email
+            .single();
+
+          if (fetchError) {
+            console.error('Error fetching user profile:', fetchError);
+            setErrorMessage('Unable to fetch user profile. Please try again.');
+          } else {
+            // Check the plan field and navigate accordingly
+            if (!userData.plan) {
+              navigate('/choose-ur-plan'); // Redirect to plan selection page if plan is null or empty
+            } else {
+              navigate('/seller/home'); // Redirect to seller's home page if plan exists
+            }
+          }
         }
       } catch (err) {
         console.error('Login error:', err);
@@ -34,6 +51,8 @@ function SignInForm() {
       setErrorMessage('Please enter both email and password.');
     }
   };
+
+
 
   return (
     <div className="wrapper">
