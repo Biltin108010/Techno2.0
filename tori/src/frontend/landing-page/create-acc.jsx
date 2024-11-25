@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import supabase from '../../supabaseClient'; // Import Supabase client
+import supabase from '../../backend/supabaseClient'; // Import Supabase client
 import { Eye, EyeOff } from 'lucide-react';
 import './landing-page.css'; // Ensure the styling is included
 
