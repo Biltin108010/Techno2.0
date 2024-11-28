@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react'; // Eye icons for toggle
-import 'font-awesome/css/font-awesome.min.css';
-import supabase from '../../backend/supabaseClient'; // Ensure this is your Supabase client configuration
-import './landing-page.css'; // Ensure the CSS file is imported for styling
+import { Eye, EyeOff } from 'lucide-react';
+import supabase from '../../backend/supabaseClient';
+import './landing-page.css';
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,47 +11,81 @@ function SignInForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    if (email && password) {
-      try {
-        // Sign in with email and password
-        const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (loginError) {
-          setErrorMessage(loginError.message); // Display the error message
-        } else {
-          // Fetch user profile using email as the matching field
-          const { data: userData, error: fetchError } = await supabase
-            .from('users')
-            .select('plan')
-            .eq('email', authData.user.email) // Match by email
-            .single();
-
-          if (fetchError) {
-            console.error('Error fetching user profile:', fetchError);
-            setErrorMessage('Unable to fetch user profile. Please try again.');
-          } else {
-            // Check the plan field and navigate accordingly
-            if (!userData.plan) {
-              navigate('/choose-ur-plan'); // Redirect to plan selection page if plan is null or empty
-            } else {
-              navigate('/seller/home'); // Redirect to seller's home page if plan exists
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Login error:', err);
-        setErrorMessage('An unexpected error occurred. Please try again.');
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        handleRedirectAfterLogin(session.user);
       }
-    } else {
-      setErrorMessage('Please enter both email and password.');
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleRedirectAfterLogin = async (user) => {
+    try {
+      const { data: userData, error: fetchError } = await supabase
+        .from('users')
+        .select('plan')
+        .eq('email', user.email)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching user profile:', fetchError);
+        setErrorMessage('Unable to fetch user profile. Please try again.');
+        return;
+      }
+
+      if (!userData.plan) {
+        navigate('/choose-ur-plan');
+      } else {
+        navigate('/seller/home');
+      }
+    } catch (err) {
+      console.error('Redirect error:', err);
+      setErrorMessage('An unexpected error occurred. Please try again.');
     }
   };
 
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setErrorMessage('Please enter both email and password.');
+      return;
+    }
 
+    try {
+      const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError) {
+        setErrorMessage(loginError.message);
+        return;
+      }
+
+      handleRedirectAfterLogin(authData.user);
+    } catch (err) {
+      console.error('Login error:', err);
+      setErrorMessage('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+
+      if (error) {
+        setErrorMessage('Google sign-in failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Google login error:', err);
+      setErrorMessage('An unexpected error occurred. Please try again.');
+    }
+  };
 
   return (
     <div className="wrapper">
@@ -79,7 +112,7 @@ function SignInForm() {
               id="password"
               type={showPassword ? 'text' : 'password'}
               className="signininput-field password-input"
-              placeholder="must be 8 characters"
+              placeholder="Must be 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -100,20 +133,13 @@ function SignInForm() {
           Log in
         </button>
 
-        {/* Or login with section */}
         <div className="or-login-with">
           <div className="divider">
             <span className="divider-text">Or Login with</span>
           </div>
           <div className="social-icons">
-            <div className="social-icon facebook">
-              <i className="fab fa-facebook-f"></i>
-            </div>
-            <div className="social-icon google">
+            <div className="social-icon google" onClick={handleGoogleLogin}>
               <i className="fab fa-google"></i>
-            </div>
-            <div className="social-icon apple">
-              <i className="fab fa-apple"></i>
             </div>
           </div>
         </div>
@@ -124,8 +150,8 @@ function SignInForm() {
             Sign up
           </Link>
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
 
