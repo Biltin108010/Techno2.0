@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TabsContainer from "../seller_tabs/tabscontent";
+import TabsContainer from "../admin_tabs/admin_tabscontent";
 import "./inventory.css";  // We will create a CSS file for styling
 
 const Inventory = () => {
