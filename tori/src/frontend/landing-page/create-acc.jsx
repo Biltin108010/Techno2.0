@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import supabase from '../../backend/supabaseClient'; // Import Supabase client
 import { Eye, EyeOff } from 'lucide-react';
 import './landing-page.css'; // Ensure the styling is included
@@ -13,6 +13,7 @@ const SignupPage = () => {
   const [role, setRole] = useState('seller'); // Default to seller role
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +41,7 @@ const SignupPage = () => {
       }
 
       alert('Signup successful!');
-      // Redirect to login or dashboard
+      navigate('/login');
     } catch (err) {
       setError(err.message);
     } finally {
