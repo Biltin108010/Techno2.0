@@ -5,13 +5,18 @@ import { fetchUserSession, subscribeToAuthState } from "./backend/supabaseAuth";
 import LoginPage from "./frontend/landing-page/login-acc";
 import WelcomePage from "./frontend/landing-page/welcome-page";
 import Register from "./frontend/landing-page/create-acc";
-import Nav from "./frontend/features/seller/nav";
+import ChooseYourPlan from "./frontend/landing-page/choose-ur-plan";
 
+// Seller Pages
+import Nav from "./frontend/features/seller/nav";
 import Home from "./frontend/features/seller/home";
 import Inventory from "./frontend/features/seller/inventory";
 import History from "./frontend/features/seller/history";
 import Profile from "./frontend/features/seller/profile";
+import EditProfile from "./frontend/features/seller/editprofile";
+import Review from "./frontend/features/seller_tabs/review_page";
 
+// Admin Pages
 import ADMINNav from "./frontend/features/admin/nav";
 import ADMINHome from "./frontend/features/admin/home";
 import ADMINInventory from "./frontend/features/admin/inventory";
@@ -19,10 +24,6 @@ import ADMINHistory from "./frontend/features/admin/history";
 import ADMINProfile from "./frontend/features/admin/profile";
 import ADMINReview from "./frontend/features/admin_tabs/admin_review_page";
 
-
-import ChooseYourPlan from "./frontend/landing-page/choose-ur-plan";
-import EditProfile from "./frontend/features/seller/editprofile";
-import Review from "./frontend/features/seller_tabs/review_page";
 import { UserProvider } from "./backend/UserContext"; // Import UserContext
 
 function App() {
@@ -30,19 +31,30 @@ function App() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await fetchUserSession();
-      if (user) {
-        setUser(user);
+      // Try to restore user session from localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser)); // Restore user from localStorage
+      } else {
+        // Fetch session from Supabase if not in localStorage
+        const session = await fetchUserSession();
+        if (session?.user) {
+          setUser(session.user);
+          localStorage.setItem("user", JSON.stringify(session.user)); // Store in localStorage
+        }
       }
     };
 
     fetchUser();
 
+    // Subscribe to auth state changes to update user state on login/logout
     const authListener = subscribeToAuthState((event, session) => {
       if (session) {
         setUser(session.user);
+        localStorage.setItem("user", JSON.stringify(session.user)); // Save to localStorage on login
       } else {
-        setUser(null);
+        setUser(null); // Clear user state on logout
+        localStorage.removeItem("user"); // Remove from localStorage on logout
       }
     });
 
@@ -53,6 +65,7 @@ function App() {
     };
   }, []);
 
+  // Protected Route for general user authentication
   const ProtectedRoute = ({ children }) => {
     if (!user) {
       return <Navigate to="/login" />;
@@ -60,8 +73,9 @@ function App() {
     return children;
   };
 
+  // Protected Route for admin authentication
   const AdminRoute = ({ children }) => {
-    if (!user || user.role !== 'admin') { // Ensure user is admin
+    if (!user || user.role !== 'admin') {
       return <Navigate to="/login" />;
     }
     return children;
@@ -78,43 +92,39 @@ function App() {
             <Route path="/choose-ur-plan" element={<ChooseYourPlan />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Seller Pages (protected routes) */}
+            {/* Seller Pages */}
             <Route
               path="/seller/*"
               element={
-                user ? (
-                  <>
-                    <Nav />
-                    <Routes>
-                      <Route path="home" element={<Home />} />
-                      <Route path="inventory" element={<Inventory />} />
-                      <Route path="history" element={<History />} />
-                      <Route path="profile" element={<Profile />} />
-                      <Route path="edit-profile" element={<EditProfile />} />
-                      <Route path="review" element={<Review />} />
-                    </Routes>
-                  </>
-                ) : (
-                  <Navigate to="/login" />
-                )
+                <ProtectedRoute>
+                  <Nav />
+                  <Routes>
+                    <Route path="home" element={<Home />} />
+                    <Route path="inventory" element={<Inventory />} />
+                    <Route path="history" element={<History />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="edit-profile" element={<EditProfile />} />
+                    <Route path="review" element={<Review />} />
+                  </Routes>
+                </ProtectedRoute>
               }
             />
 
-            {/* Admin Pages (protected routes for admin only) */}
+            {/* Admin Pages */}
             <Route
               path="/admin/*"
               element={
-                  <>
-                    <ADMINNav />
-                    <Routes>
+                <AdminRoute>
+                  <ADMINNav />
+                  <Routes>
                     <Route path="admin_home" element={<ADMINHome />} />
-                      <Route path="admin_inventory" element={<ADMINInventory />} />
-                      <Route path="admin_history" element={<ADMINHistory />} />
-                      <Route path="admin_profile" element={<ADMINProfile />} />
-                      <Route path="admin_edit-profile" element={<EditProfile />} />
-                      <Route path="admin_review" element={<ADMINReview />} />
-                    </Routes>
-                  </>
+                    <Route path="admin_inventory" element={<ADMINInventory />} />
+                    <Route path="admin_history" element={<ADMINHistory />} />
+                    <Route path="admin_profile" element={<ADMINProfile />} />
+                    <Route path="admin_edit-profile" element={<EditProfile />} />
+                    <Route path="admin_review" element={<ADMINReview />} />
+                  </Routes>
+                </AdminRoute>
               }
             />
           </Routes>

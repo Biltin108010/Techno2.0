@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 
 const Container = styled.div`
   display: flex;
@@ -153,8 +154,15 @@ function Profile() {
     }, 1000); // Simulate 1-second delay
   }, []);
 
-  const handleLogout = () => {
-    navigate("/login"); // Redirect to login page
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/login"); // Redirect to login page
+    } catch (err) {
+      console.error("Error during logout:", err.message);
+      alert("Failed to log out. Please try again.");
+    }
   };
 
   if (loading) return <p>Loading...</p>;
