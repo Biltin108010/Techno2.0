@@ -95,7 +95,8 @@ const PlanPrice = styled.p`
 
 const PlanDetails = styled.p`
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: 14px;
+  font-weight: 500;
   color: #555;
   margin: 0;
 `;
