@@ -3,25 +3,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import supabase from '../../backend/supabaseClient';
 import './landing-page.css';
+import { useUser } from '../../backend/UserContext';
 
 function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { user } = useUser(); // Access the user from UserContext
   const navigate = useNavigate();
 
+  // Redirect the user if logged in
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        handleRedirectAfterLogin(session.user);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+    if (user) {
+      handleRedirectAfterLogin(user);
+    }
+  }, [user]);
 
   const handleRedirectAfterLogin = async (user) => {
     try {
@@ -65,7 +62,7 @@ function SignInForm() {
         return;
       }
 
-      handleRedirectAfterLogin(authData.user);
+      // Redirect will be handled by the useEffect when the user context updates
     } catch (err) {
       console.error('Login error:', err);
       setErrorMessage('An unexpected error occurred. Please try again.');

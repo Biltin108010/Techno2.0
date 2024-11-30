@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-
+import supabase from '../../backend/supabaseClient';
 // Styled components
 export const Wrapper = styled.div`
   display: flex;
@@ -132,16 +132,46 @@ export const ContinueButton = styled.button`
 function ChooseYourPlan() {
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState("");
+  const [loading, setLoading] = useState(false); // To handle loading state
 
   const handlePlanSelection = (plan) => {
     setSelectedPlan(plan);
   };
 
-  const handleContinue = () => {
-    if (selectedPlan) {
-      navigate("/seller/home");
-    } else {
+  const handleContinue = async () => {
+    if (!selectedPlan) {
       alert("Please select a plan before continuing.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Assuming `user` is already authenticated and you can get their ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+
+      // Update the user's plan in the database
+      const { error } = await supabase
+        .from("users") // Replace with your actual table name
+        .update({ plan: selectedPlan })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating plan:", error.message);
+        alert("An error occurred while updating your plan. Please try again.");
+      } else {
+        alert(`Plan updated to "${selectedPlan}".`);
+        navigate("/seller/home"); // Redirect after successful update
+      }
+    } catch (error) {
+      console.error("Error updating plan:", error.message);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -176,7 +206,9 @@ function ChooseYourPlan() {
         </PlanInfo>
         <CircleButton selected={selectedPlan === "free"} />
       </PlanCard>
-      <ContinueButton onClick={handleContinue}>Continue</ContinueButton>
+      <ContinueButton onClick={handleContinue} disabled={loading}>
+        {loading ? "Updating..." : "Continue"}
+      </ContinueButton>
     </Wrapper>
   );
 }
