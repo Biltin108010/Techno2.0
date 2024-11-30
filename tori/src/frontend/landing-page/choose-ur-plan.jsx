@@ -147,18 +147,21 @@ function ChooseYourPlan() {
     setLoading(true);
 
     try {
-      // Assuming `user` is already authenticated and you can get their ID
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      // Fetch the authenticated user's details
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
         alert("User not authenticated.");
+        console.error("Error fetching user:", userError);
         return;
       }
 
-      // Update the user's plan in the database
+      const userEmail = user.email;
+
+      // Update the user's plan in the database using the email
       const { error } = await supabase
         .from("users") // Replace with your actual table name
         .update({ plan: selectedPlan })
-        .eq("id", user.id);
+        .eq("email", userEmail); // Match the user by email
 
       if (error) {
         console.error("Error updating plan:", error.message);
@@ -168,7 +171,7 @@ function ChooseYourPlan() {
         navigate("/seller/home"); // Redirect after successful update
       }
     } catch (error) {
-      console.error("Error updating plan:", error.message);
+      console.error("Unexpected error:", error.message);
       alert("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
