@@ -4,89 +4,54 @@ import { Navigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab2.css";
 
-const Tab2 = ({ isEditing, handleEditMode }) => {
+const Tab2 = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
+  const [emailInput, setEmailInput] = useState(""); // Email input for search
+  const [searchEmail, setSearchEmail] = useState(""); // Email to search in the database
 
-  // Fetch items from the database on component mount
+  // Fetch items from the database based on the email input
   useEffect(() => {
     const fetchItems = async () => {
+      if (!searchEmail) return; // If no email is provided, don't fetch data
+
       const { data, error } = await supabase
         .from("inventory") // Replace with your actual table name
-        .select("*");
+        .select("*")
+        .eq("email", searchEmail); // Search by email
 
       if (error) {
         console.error("Error fetching items:", error.message);
         setFeedbackMessage("Failed to fetch items. Please try again later.");
       } else {
-        setItems(data);
+        setItems(data); // Set fetched items to state
       }
     };
 
     fetchItems();
-  }, []);
+  }, [searchEmail]); // Trigger fetching when the email changes
 
-  const handleAddProduct = async (newItem) => {
-    try {
-      const { data, error } = await supabase
-        .from("inventory") // Replace with your actual table name
-        .insert([newItem]);
-
-      if (error) {
-        console.error("Error adding item to database:", error.message);
-        setFeedbackMessage("Failed to add the product. Please try again.");
-        return;
-      }
-
-      setItems([...items, ...data]); // Update local state with the new item
-      setIsModalOpen(false);
-      setFeedbackMessage("Product successfully added!");
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
+  // Handle search by email
+  const handleSearchEmail = () => {
+    if (emailInput) {
+      setSearchEmail(emailInput); // Set the email to search
+      setIsModalOpen(false); // Close modal after searching
+    } else {
+      setFeedbackMessage("Please enter a valid Gmail address.");
     }
   };
 
-  const handleEditProduct = async (updatedItem) => {
-    try {
-      const { error } = await supabase
-        .from("inventory") // Replace with your actual table name
-        .update({
-          name: updatedItem.name,
-          quantity: updatedItem.quantity,
-          price: updatedItem.price,
-        })
-        .eq("id", updatedItem.id);
-
-      if (error) {
-        console.error("Error updating item:", error.message);
-        setFeedbackMessage("Failed to update the product. Please try again.");
-        return;
-      }
-
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === updatedItem.id ? updatedItem : item
-        )
-      );
-      setIsModalOpen(false);
-      setFeedbackMessage("Product successfully updated!");
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
-    }
-  };
-
+  // Increase quantity
   const increaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
 
     if (item) {
       try {
         const { error } = await supabase
-          .from("inventory") // Replace with your actual table name
+          .from("inventory")
           .update({ quantity: item.quantity + 1 })
           .eq("id", id);
 
@@ -109,13 +74,14 @@ const Tab2 = ({ isEditing, handleEditMode }) => {
     }
   };
 
+  // Decrease quantity
   const decreaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
 
     if (item && item.quantity > 1) {
       try {
         const { error } = await supabase
-          .from("inventory") // Replace with your actual table name
+          .from("inventory")
           .update({ quantity: item.quantity - 1 })
           .eq("id", id);
 
@@ -143,59 +109,23 @@ const Tab2 = ({ isEditing, handleEditMode }) => {
   const handleItemClick = (item, e) => {
     e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
     setSelectedItem(item);
-    setIsModalOpen(true);
   };
 
-  const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
-    const [name, setName] = useState(item ? item.name : "");
-    const [quantity, setQuantity] = useState(item ? item.quantity : "");
-    const [price, setPrice] = useState(item ? item.price : "");
-
-    const handleSave = () => {
-      if (name && quantity && price) {
-        onSave({
-          ...item,
-          name,
-          quantity: parseInt(quantity, 10),
-          price: parseFloat(price),
-        });
-      }
-    };
-
+  // Modal to input email
+  const EmailInputModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
       <div className="modal-overlay">
         <div className="modal-content">
-          <h2>{item ? "Edit Product" : "Add Product"}</h2>
-          <label>
-            Name:
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Product Name"
-            />
-          </label>
-          <label>
-            Quantity:
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Quantity"
-            />
-          </label>
-          <label>
-            Price:
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-            />
-          </label>
-          <button onClick={handleSave}>{item ? "Save" : "Add"}</button>
+          <h2>Enter Gmail Address</h2>
+          <input
+            type="email"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            placeholder="Enter Gmail address"
+          />
+          <button onClick={handleSearchEmail}>Search</button>
           <button onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -207,96 +137,59 @@ const Tab2 = ({ isEditing, handleEditMode }) => {
   }
 
   return (
-    <div className="tab1-container">
+    <div className="tab2-container">
       {feedbackMessage && (
         <div className="feedback-message">
           <p>{feedbackMessage}</p>
         </div>
       )}
 
-      {isEditing ? (
-        <div className="tab-content">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="item-box"
-              onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
-            >
-              <img
-                src={item.image || "https://via.placeholder.com/100"}
-                alt={item.name}
-                className="item-image"
-              />
-              <div className="item-text-container">
-                <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      increaseQuantity(item.id);
-                    }}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      decreaseQuantity(item.id);
-                    }}
-                  />
-                </p>
-                <p className="item-price">Price: ₱{item.price}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="tab-content">
-          {items.map((item) => (
-            <div key={item.id} className="item-box">
-              <img
-                src={item.image || "https://via.placeholder.com/100"}
-                alt={item.name}
-                className="item-image"
-              />
-              <div className="item-text-container">
-                <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      increaseQuantity(item.id);
-                    }}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      decreaseQuantity(item.id);
-                    }}
-                  />
-                </p>
-                <p className="item-price">Price: ₱{item.price}</p>
-              </div>
-            </div>
-          ))}
-          <button
-            className="review-order-button"
-            onClick={() => setNavigateToReview(true)}
-          >
-            Review Order
-          </button>
-        </div>
-      )}
+      {/* Add button */}
+      <div className="plus-button-container">
+        <AiOutlinePlus
+          className="huge-plus-icon"
+          onClick={() => setIsModalOpen(true)}
+        />
+      </div>
 
-      <EditProductModal
+      {/* Display items if email is found */}
+      <div className="tab-content">
+        {items.map((item) => (
+          <div key={item.id} className="item-box" onClick={(e) => handleItemClick(item, e)}>
+            <img
+              src={item.image || "https://via.placeholder.com/100"}
+              alt={item.name}
+              className="item-image"
+            />
+            <div className="item-text-container">
+              <p className="item-title">{item.name}</p>
+              <p className="item-quantity">
+                Qty: {item.quantity}
+                <AiOutlinePlus
+                  className="plus-icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    increaseQuantity(item.id);
+                  }}
+                />
+                <AiOutlineMinus
+                  className="minus-icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    decreaseQuantity(item.id);
+                  }}
+                />
+              </p>
+              <p className="item-price">Price: ₱{item.price}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Email input modal */}
+      <EmailInputModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        item={selectedItem}
-        onSave={selectedItem ? handleEditProduct : handleAddProduct}
       />
     </div>
   );

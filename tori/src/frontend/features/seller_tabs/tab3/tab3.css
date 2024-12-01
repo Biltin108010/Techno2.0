@@ -192,4 +192,20 @@
   .plus-icon, .minus-icon {
     font-size: 18px;
   }
+  .huge-plus-icon {
+    font-size: 80px;
+    color: #000000;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .huge-plus-icon:hover {
+    transform: scale(1.2);
+  }
+  
+  .plus-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
 }
