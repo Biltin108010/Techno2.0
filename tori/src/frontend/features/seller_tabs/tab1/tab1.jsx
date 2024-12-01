@@ -10,6 +10,26 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
+  const [userEmail, setUserEmail] = useState(""); // User email state
+
+  // Fetch the user's email on component mount
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching user session:", error.message);
+        setFeedbackMessage("Failed to fetch user session. Please try again.");
+      } else if (session) {
+        setUserEmail(session.user.email);
+      }
+    };
+
+    fetchUserEmail();
+  }, []);
 
   // Fetch items from the database on component mount
   useEffect(() => {
@@ -30,10 +50,17 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   }, []);
 
   const handleAddProduct = async (newItem) => {
+    if (!userEmail) {
+      setFeedbackMessage("You must be logged in to add a product.");
+      return;
+    }
+
+    const itemWithEmail = { ...newItem, email: userEmail };
+
     try {
       const { data, error } = await supabase
         .from("inventory") // Replace with your actual table name
-        .insert([newItem]);
+        .insert([itemWithEmail]);
 
       if (error) {
         console.error("Error adding item to database:", error.message);
@@ -259,53 +286,18 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                       }}
                     />
                   </p>
-                  <p className="item-price">Price: ₱{item.price}</p>
+                  <p className="item-price">Price: ${item.price}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="tab-content">
-          {items.map((item) => (
-            <div key={item.id} className="item-box">
-              <img
-                src={item.image || "https://via.placeholder.com/100"}
-                alt={item.name}
-                className="item-image"
-              />
-              <div className="item-text-container">
-                <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      increaseQuantity(item.id);
-                    }}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      decreaseQuantity(item.id);
-                    }}
-                  />
-                </p>
-                <p className="item-price">Price: ₱{item.price}</p>
-              </div>
-            </div>
-          ))}
-          <button
-            className="review-order-button"
-            onClick={() => setNavigateToReview(true)}
-          >
-            Review Order
-          </button>
+        <div>
+          {/* Content to show when isEditing is false */}
+          <h1>Sales Overview</h1>
         </div>
       )}
-
       <EditProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
