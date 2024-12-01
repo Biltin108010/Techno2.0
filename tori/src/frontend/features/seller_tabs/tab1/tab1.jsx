@@ -9,11 +9,11 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
-  const [userEmail, setUserEmail] = useState(""); // User email state
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
 
-  // Fetch the user's email on component mount
+  // Fetch the logged-in user's email
   useEffect(() => {
     const fetchUserEmail = async () => {
       const {
@@ -32,51 +32,60 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     fetchUserEmail();
   }, []);
 
-  // Fetch items from the database on component mount
-  useEffect(() => {
-    const fetchItems = async () => {
-      const { data, error } = await supabase
-        .from("inventory") // Replace with your actual table name
-        .select("*");
+  // Fetch inventory items for the logged-in user
+  const fetchItems = async () => {
+    if (!userEmail) return; // Wait until the email is set
+  
+    const { data, error } = await supabase
+      .from("inventory") // Replace with your actual table name
+      .select("*")
+      .eq("email", userEmail); // Fetch only items belonging to the logged-in user
+  
+    if (error) {
+      console.error("Error fetching items:", error.message);
+      setFeedbackMessage("Failed to fetch items. Please try again later.");
+    } else {
+      // Sort items alphabetically by name
+      const sortedItems = (data || []).sort((a, b) => 
+        a.name.localeCompare(b.name)
+      );
+  
+      setItems(sortedItems);
+    }
+  };
 
-      if (error) {
-        console.error("Error fetching items:", error.message);
-        setFeedbackMessage("Failed to fetch items. Please try again later.");
-      } else {
-        setItems(data);
-      }
-    };
+useEffect(() => {
+  fetchItems(); // Call fetchItems to get the latest data
+}, [userEmail]);
 
-    fetchItems();
-  }, []);
+const handleAddProduct = async (newItem) => {
+  if (!userEmail) {
+    setFeedbackMessage("You must be logged in to add a product.");
+    return;
+  }
 
-  const handleAddProduct = async (newItem) => {
-    if (!userEmail) {
-      setFeedbackMessage("You must be logged in to add a product.");
+  const itemWithEmail = { ...newItem, email: userEmail };
+
+  try {
+    const { error } = await supabase
+      .from("inventory") // Replace with your actual table name
+      .insert([itemWithEmail]);
+
+    if (error) {
+      console.error("Error adding item to database:", error.message);
+      setFeedbackMessage("Failed to add the product. Please try again.");
       return;
     }
 
-    const itemWithEmail = { ...newItem, email: userEmail };
+    await fetchItems(); // Fetch the latest items
+    setIsModalOpen(false);
+    setFeedbackMessage("Product successfully added!");
+  } catch (err) {
+    console.error("Unexpected error:", err.message);
+    setFeedbackMessage("An unexpected error occurred. Please try again.");
+  }
+};
 
-    try {
-      const { data, error } = await supabase
-        .from("inventory") // Replace with your actual table name
-        .insert([itemWithEmail]);
-
-      if (error) {
-        console.error("Error adding item to database:", error.message);
-        setFeedbackMessage("Failed to add the product. Please try again.");
-        return;
-      }
-
-      setItems([...items, ...data]); // Update local state with the new item
-      setIsModalOpen(false);
-      setFeedbackMessage("Product successfully added!");
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
-    }
-  };
 
   const handleNavigateToReview = () => {
     // Navigate to the Review page and pass the items as state
@@ -93,18 +102,14 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
           price: updatedItem.price,
         })
         .eq("id", updatedItem.id);
-
+  
       if (error) {
         console.error("Error updating item:", error.message);
         setFeedbackMessage("Failed to update the product. Please try again.");
         return;
       }
-
-      setItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === updatedItem.id ? updatedItem : item
-        )
-      );
+  
+      await fetchItems(); // Refresh the data
       setIsModalOpen(false);
       setFeedbackMessage("Product successfully updated!");
     } catch (err) {
@@ -112,28 +117,25 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       setFeedbackMessage("An unexpected error occurred. Please try again.");
     }
   };
+  
 
   const increaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
-
+  
     if (item) {
       try {
         const { error } = await supabase
           .from("inventory") // Replace with your actual table name
           .update({ quantity: item.quantity + 1 })
           .eq("id", id);
-
+  
         if (error) {
           console.error("Error increasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
           return;
         }
-
-        setItems((prevItems) =>
-          prevItems.map((i) =>
-            i.id === id ? { ...i, quantity: i.quantity + 1 } : i
-          )
-        );
+  
+        await fetchItems(); // Refresh the data
         setFeedbackMessage("Quantity successfully increased!");
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -141,28 +143,25 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       }
     }
   };
+  
 
   const decreaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
-
+  
     if (item && item.quantity > 1) {
       try {
         const { error } = await supabase
           .from("inventory") // Replace with your actual table name
           .update({ quantity: item.quantity - 1 })
           .eq("id", id);
-
+  
         if (error) {
           console.error("Error decreasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
           return;
         }
-
-        setItems((prevItems) =>
-          prevItems.map((i) =>
-            i.id === id ? { ...i, quantity: i.quantity - 1 } : i
-          )
-        );
+  
+        await fetchItems(); // Refresh the data
         setFeedbackMessage("Quantity successfully decreased!");
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -172,6 +171,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       setFeedbackMessage("Quantity cannot be less than 1.");
     }
   };
+  
 
   const handleItemClick = (item, e) => {
     e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
@@ -250,7 +250,6 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
 
       {isEditing ? (
         <div>
-          {/* Sticky Add Product Button */}
           <div className="sticky-button-container">
             <button
               className="add-product-button"
@@ -267,7 +266,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               <div
                 key={item.id}
                 className="item-box"
-                onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
+                onClick={(e) => handleItemClick(item, e)}
               >
                 <img
                   src={item.image || "https://via.placeholder.com/100"}
@@ -281,14 +280,14 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                     <AiOutlinePlus
                       className="plus-icon"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent item click
+                        e.stopPropagation();
                         increaseQuantity(item.id);
                       }}
                     />
                     <AiOutlineMinus
                       className="minus-icon"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent item click
+                        e.stopPropagation();
                         decreaseQuantity(item.id);
                       }}
                     />
@@ -310,33 +309,14 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      increaseQuantity(item.id);
-                    }}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      decreaseQuantity(item.id);
-                    }}
-                  />
-                </p>
+                <p className="item-quantity">Qty: {item.quantity}</p>
                 <p className="item-price">Price: ₱{item.price}</p>
               </div>
             </div>
           ))}
-          <button
-  className="review-order-button"
-  onClick={handleNavigateToReview}
->
-  Review Order
-</button>
+          <button className="review-order-button" onClick={handleNavigateToReview}>
+            Review Order
+          </button>
         </div>
       )}
 
