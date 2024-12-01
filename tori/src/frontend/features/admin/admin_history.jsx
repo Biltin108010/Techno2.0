@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './history.css';
+import './admin_history.css';
 
 function History() {
   const [selectedDate, setSelectedDate] = useState('Today');

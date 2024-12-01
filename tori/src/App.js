@@ -17,11 +17,11 @@ import EditProfile from "./frontend/features/seller/editprofile";
 import Review from "./frontend/features/seller_tabs/review_page";
 
 // Admin Pages
-import ADMINNav from "./frontend/features/admin/nav";
-import ADMINHome from "./frontend/features/admin/home";
-import ADMINInventory from "./frontend/features/admin/inventory";
-import ADMINHistory from "./frontend/features/admin/history";
-import ADMINProfile from "./frontend/features/admin/profile";
+import ADMINNav from "./frontend/features/admin/admin_nav";
+import ADMINHome from "./frontend/features/admin/admin_home";
+import ADMINInventory from "./frontend/features/admin/admin_inventory";
+import ADMINHistory from "./frontend/features/admin/admin_history";
+import ADMINProfile from "./frontend/features/admin/admin_profile";
 import ADMINReview from "./frontend/features/admin_tabs/admin_review_page";
 
 import { UserProvider } from "./backend/UserContext"; // Import UserContext

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
-import "./profile.css"; // Import the CSS file for styling
+import "./admin_profile.css"; // Import the CSS file for styling
 
 function Profile() {
   const navigate = useNavigate();

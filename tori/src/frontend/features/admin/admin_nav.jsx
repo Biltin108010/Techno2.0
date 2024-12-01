@@ -1,20 +1,21 @@
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaHome, FaBox, FaHistory, FaUser, FaUsers } from 'react-icons/fa'; // Additional Admin icon
+import { FaHome, FaBox, FaHistory, FaUser } from 'react-icons/fa'; // For icons
 
 const NavWrapper = styled.nav`
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-evenly; /* Even spacing between items */
   align-items: center;
   background-color: #2E2D2D; /* Dark background */
   color: white;
-  padding: 0.7rem 0rem;
+  padding: 0.7rem 0rem; /* Adjusted padding for balanced spacing */
   position: fixed;
   bottom: 0;
   width: 100%;
   z-index: 1;
-  gap: 1.5rem;
+  gap: 1.5rem; /* Consistent spacing between nav items */
 `;
+
 
 const NavLink = styled(Link)`
   color: #676D75;
@@ -33,16 +34,16 @@ const NavLink = styled(Link)`
 `;
 
 const NavIcon = styled.div`
-  font-size: 1.5rem;
-  color: #676D75;
+  font-size: 1.5rem;  // Icon size
+  color: #676D75;  // Default icon color
   margin-bottom: 0.3rem;
 
   ${NavLink}.active & {
-    color: white;
+    color: white;  // Change icon color to white when active
   }
 `;
 
-function AdminNav() {
+function Nav() {
   const location = useLocation(); // Get current route
 
   return (
@@ -51,7 +52,7 @@ function AdminNav() {
         <NavIcon>
           <FaHome />
         </NavIcon>
-        Dashboard
+        Home
       </NavLink>
       <NavLink to="/admin/admin_inventory" className={location.pathname === '/admin/admin_inventory' ? 'active' : ''}>
         <NavIcon>
@@ -71,14 +72,8 @@ function AdminNav() {
         </NavIcon>
         Profile
       </NavLink>
-      <NavLink to="/admin/manage-users" className={location.pathname === '/admin/manage-users' ? 'active' : ''}>
-        <NavIcon>
-          <FaUsers />
-        </NavIcon>
-        Manage Users
-      </NavLink>
     </NavWrapper>
   );
 }
 
-export default AdminNav;
+export default Nav;
