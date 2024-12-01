@@ -9,7 +9,8 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 50px; /* Add space to avoid overlap with the navigation bar */
+  margin-bottom: 50px;
+  /* Add space to avoid overlap with the navigation bar */
 }
 
 /* Header */
@@ -86,7 +87,7 @@
   padding: 16px;
 }
 
-.tab-content{
+.tab-content {
   margin-top: -10px;
 }
 
@@ -102,7 +103,8 @@
   font-size: 16px;
   font-weight: bold;
   color: #fff;
-  background-color: #14b8a6; /* Teal */
+  background-color: #14b8a6;
+  /* Teal */
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -110,7 +112,8 @@
 }
 
 .tab-container .review-order-button:hover {
-  background-color: #0f766e; /* Darker teal */
+  background-color: #0f766e;
+  /* Darker teal */
 }
 
 /* Back button style */
@@ -119,24 +122,38 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px; /* Adjust width */
-  height: 40px; /* Adjust height */
-  background-color: #f9f9f9; /* Background color for the square */
-  border: 1px solid #ddd; /* Border for the square */
-  border-radius: 8px; /* Slightly rounded corners */
-  font-size: 18px; /* Size of the < symbol */
-  font-weight: bold; /* Make < bold */
-  color: #333; /* Text color */
+  width: 40px;
+  /* Adjust width */
+  height: 40px;
+  /* Adjust height */
+  background-color: #f9f9f9;
+  /* Background color for the square */
+  border: 1px solid #ddd;
+  /* Border for the square */
+  border-radius: 8px;
+  /* Slightly rounded corners */
+  font-size: 18px;
+  /* Size of the < symbol */
+  font-weight: bold;
+  /* Make < bold */
+  color: #333;
+  /* Text color */
   cursor: pointer;
-  transition: all 0.3s ease; /* Smooth hover transition */
-  padding: 0; /* Remove default padding */
-  margin-right: 10px; /* Add space before the title */
+  transition: all 0.3s ease;
+  /* Smooth hover transition */
+  padding: 0;
+  /* Remove default padding */
+  margin-right: 10px;
+  /* Add space before the title */
 }
 
 .back-button:hover {
-  background-color: #f2f2f2; /* Light grey background on hover */
-  color: #007bff; /* Blue color on hover */
-  border-color: #ccc; /* Slightly darker border on hover */
+  background-color: #f2f2f2;
+  /* Light grey background on hover */
+  color: #007bff;
+  /* Blue color on hover */
+  border-color: #ccc;
+  /* Slightly darker border on hover */
 }
 
 
@@ -171,7 +188,8 @@
 .edit-button {
   padding: 10px 15px;
   font-size: 16px;
-  background-color: #4CAF50; /* Green background */
+  background-color: #4CAF50;
+  /* Green background */
   color: white;
   border: none;
   border-radius: 5px;
