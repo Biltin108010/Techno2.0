@@ -17,15 +17,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000; /* Ensure it appears above other content */
 }
 
-/* Modal Content */
 .modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
   width: 400px;
   max-width: 90%;
+  z-index: 1001; /* Ensure it appears above the overlay */
 }
 
 .modal-content h2 {
@@ -130,19 +131,6 @@
   background-color: #007bb5;
 }
 
-/* Back Button */
-.back-button {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
-
-.back-button:hover {
-  text-decoration: underline;
-}
 
 /* Review Order Button */
 .review-order-button {

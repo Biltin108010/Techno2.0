@@ -64,7 +64,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     setIsModalOpen(true);
   };
 
-  // Modal for adding/editing products
+
   const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
     const [name, setName] = useState(item ? item.name : "");
     const [quantity, setQuantity] = useState(item ? item.quantity : "");
@@ -125,9 +125,6 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     <div className="tab1-container">
       {isEditing ? (
         <div>
-          <button className="back-button" onClick={handleEditMode}>
-            &#8592; Back
-          </button>
           <div className="tab-content">
             {items.map((item) => (
               <div
