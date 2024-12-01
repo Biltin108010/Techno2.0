@@ -13,32 +13,38 @@ const Tab3 = () => {
   const [emailInput, setEmailInput] = useState(""); // Email input for search
   const [searchEmail, setSearchEmail] = useState(""); // Email to search in the database
 
-  // Fetch items from the database based on the email input
+  // Fetch items from the database based on the email input (only when the "Search" button is clicked)
+  const fetchItems = async () => {
+    if (!searchEmail) return; // If no email is provided, don't fetch data
+
+    const { data, error } = await supabase
+      .from("inventory") // Replace with your actual table name
+      .select("*")
+      .eq("email", searchEmail); // Search by email
+
+    if (error) {
+      console.error("Error fetching items:", error.message);
+      setFeedbackMessage("Failed to fetch items. Please try again later.");
+    } else if (data.length === 0) {
+      setFeedbackMessage("No items found for this Gmail address.");
+    } else {
+      setItems(data); // Set fetched items to state
+      setFeedbackMessage(""); // Clear feedback if items found
+      setIsModalOpen(false); // Close modal after finding Gmail
+    }
+  };
+
+  // Effect hook to fetch items when searchEmail changes
   useEffect(() => {
-    const fetchItems = async () => {
-      if (!searchEmail) return; // If no email is provided, don't fetch data
+    if (searchEmail) {
+      fetchItems(); // Fetch items when the email changes
+    }
+  }, [searchEmail]); // Only run when searchEmail changes
 
-      const { data, error } = await supabase
-        .from("inventory") // Replace with your actual table name
-        .select("*")
-        .eq("email", searchEmail); // Search by email
-
-      if (error) {
-        console.error("Error fetching items:", error.message);
-        setFeedbackMessage("Failed to fetch items. Please try again later.");
-      } else {
-        setItems(data); // Set fetched items to state
-      }
-    };
-
-    fetchItems();
-  }, [searchEmail]); // Trigger fetching when the email changes
-
-  // Handle search by email
+  // Handle search by email (trigger fetching)
   const handleSearchEmail = () => {
     if (emailInput) {
       setSearchEmail(emailInput); // Set the email to search
-      setIsModalOpen(false); // Close modal after searching
     } else {
       setFeedbackMessage("Please enter a valid Gmail address.");
     }
@@ -126,7 +132,14 @@ const Tab3 = () => {
             placeholder="Enter Gmail address"
           />
           <button onClick={handleSearchEmail}>Search</button>
-          <button onClick={onClose}>Cancel</button>
+          <button
+            onClick={() => {
+              if (!feedbackMessage) onClose();
+            }}
+            disabled={feedbackMessage} // Prevent closing if there's an error message
+          >
+            Cancel
+          </button>
         </div>
       </div>
     );
@@ -144,13 +157,15 @@ const Tab3 = () => {
         </div>
       )}
 
-      {/* Add button */}
-      <div className="plus-button-container">
-        <AiOutlinePlus
-          className="huge-plus-icon"
-          onClick={() => setIsModalOpen(true)}
-        />
-      </div>
+      {/* Only show the plus icon if items are not found */}
+      {items.length === 0 && !feedbackMessage && (
+        <div className="plus-button-container">
+          <AiOutlinePlus
+            className="huge-plus-icon"
+            onClick={() => setIsModalOpen(true)}
+          />
+        </div>
+      )}
 
       {/* Display items if email is found */}
       <div className="tab-content">
