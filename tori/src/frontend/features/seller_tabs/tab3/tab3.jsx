@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { Navigate, useNavigate } from "react-router-dom";
-import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
+import supabase from "../../../../backend/supabaseClient";
 import "./tab3.css";
 
 const Tab3 = () => {
@@ -11,43 +11,45 @@ const Tab3 = () => {
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
   const [emailInput, setEmailInput] = useState(""); // Email input for search
-  const [searchEmail, setSearchEmail] = useState(""); // Email to search in the database
+  const [isSearching, setIsSearching] = useState(false); // Add loading state for search
   const navigate = useNavigate();
-  // Fetch items from the database based on the email input (only when the "Search" button is clicked)
+
+  // Fetch items from the database based on the email input
   const fetchItems = async () => {
-    if (!searchEmail) return; // If no email is provided, don't fetch data
-
-    const { data, error } = await supabase
-      .from("inventory") // Replace with your actual table name
-      .select("*")
-      .eq("email", searchEmail); // Search by email
-
-    if (error) {
-      console.error("Error fetching items:", error.message);
-      setFeedbackMessage("Failed to fetch items. Please try again later.");
-    } else if (data.length === 0) {
-      setFeedbackMessage("No items found for this Gmail address.");
-    } else {
-      setItems(data); // Set fetched items to state
-      setFeedbackMessage(""); // Clear feedback if items found
-      setIsModalOpen(false); // Close modal after finding Gmail
+    if (!emailInput.trim()) {
+      setFeedbackMessage("Please enter a valid Gmail address.");
+      return;
     }
+
+    setIsSearching(true); // Show loading state
+
+    try {
+      const { data, error } = await supabase
+        .from("inventory")
+        .select("*")
+        .eq("email", emailInput.trim());
+
+      if (error) {
+        console.error("Error fetching items:", error.message);
+        setFeedbackMessage("Failed to fetch items. Please try again later.");
+      } else if (data.length === 0) {
+        setFeedbackMessage("No items found for this Gmail address.");
+      } else {
+        setItems(data); // Set fetched items to state
+        setFeedbackMessage(""); // Clear feedback if items found
+        setIsModalOpen(false); // Close modal after finding Gmail
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    }
+
+    setIsSearching(false); // Hide loading state
   };
 
-  // Effect hook to fetch items when searchEmail changes
-  useEffect(() => {
-    if (searchEmail) {
-      fetchItems(); // Fetch items when the email changes
-    }
-  }, [searchEmail]); // Only run when searchEmail changes
-
-  // Handle search by email (trigger fetching)
+  // Ensure fetchItems is only triggered when the button is clicked
   const handleSearchEmail = () => {
-    if (emailInput) {
-      setSearchEmail(emailInput); // Set the email to search
-    } else {
-      setFeedbackMessage("Please enter a valid Gmail address.");
-    }
+    fetchItems(); // Explicitly trigger the search
   };
 
   // Increase quantity
@@ -117,6 +119,10 @@ const Tab3 = () => {
     setSelectedItem(item);
   };
 
+  const handleNavigateToReview = () => {
+    navigate("/seller/review", { state: { items } }); // Navigate to the Review page
+  };
+
   // Modal to input email
   const EmailInputModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -127,33 +133,28 @@ const Tab3 = () => {
           <h2>Enter Gmail Address</h2>
           <input
             type="email"
+            id="email-input"
+            name="email"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
             placeholder="Enter Gmail address"
+            autoComplete="email"
           />
-          <button onClick={handleSearchEmail}>Search</button>
-          <button
-            onClick={() => {
-              if (!feedbackMessage) onClose();
-            }}
-            disabled={feedbackMessage} // Prevent closing if there's an error message
-          >
-            Cancel
+          <button onClick={handleSearchEmail} disabled={isSearching}>
+            {isSearching ? "Searching..." : "Search"}
           </button>
+          <button onClick={onClose}>Close</button>
         </div>
       </div>
     );
   };
-  const handleNavigateToReview = () => {
-    // Navigate to the Review page and pass the items as state
-    navigate('/seller/review', { state: { items } });
-  };
+
   if (navigateToReview) {
     return <Navigate to="/seller/review" />;
   }
 
   return (
-    <div className="tab2-container">
+    <div className="tab3-container">
       {feedbackMessage && (
         <div className="feedback-message">
           <p>{feedbackMessage}</p>
