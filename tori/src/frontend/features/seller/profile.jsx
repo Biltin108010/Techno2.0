@@ -6,19 +6,43 @@ import "./profile.css"; // Import the CSS file for styling
 
 function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null); // Simulating user data
+  const [user, setUser] = useState(null); // Stores user data
   const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
-    // Simulate data fetching
-    setTimeout(() => {
-      setUser({
-        username: "John Doe",
-        email: "john.doe@example.com",
-        profile_picture: "https://via.placeholder.com/80",
-      });
-      setLoading(false);
-    }, 1000); // Simulate 1-second delay
+    const fetchUser = async () => {
+      try {
+        // Get the logged-in user
+        const { data: { user }, error } = await supabase.auth.getUser();
+
+        if (error) {
+          console.error("Error fetching auth user:", error.message);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch user details from your database using the user's email
+        const { data, error: queryError } = await supabase
+          .from("users") // Replace with your actual table name
+          .select("*")
+          .eq("email", user.email) // Match by email
+          .single(); // Retrieve a single row
+
+        if (queryError) {
+          console.error("Error fetching user from DB:", queryError.message);
+          setLoading(false);
+          return;
+        }
+
+        setUser(data); // Update state with the fetched user
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+      } finally {
+        setLoading(false); // Stop loading spinner
+      }
+    };
+
+    fetchUser();
   }, []);
 
   const handleLogout = async () => {
@@ -47,7 +71,7 @@ function Profile() {
           <div className="profile-image-wrapper">
             <img
               className="profile-image"
-              src={user?.profile_picture || "https://via.placeholder.com/80"}
+              src={user?.profile_picture || "https://via.placeholder.com/80"} // Default image if profile picture is null
               alt="Profile"
             />
             <button className="edit-button">✏️</button>
@@ -98,7 +122,6 @@ function Profile() {
         <div className="footer-button active">History</div>
         <div className="footer-button">Profile</div>
       </div>
-     
     </div>
   );
 }
