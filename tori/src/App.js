@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { fetchUserSession, subscribeToAuthState } from "./backend/supabaseAuth"; 
+import { fetchUserSession, subscribeToAuthState } from "./backend/supabaseAuth";
 
 import LoginPage from "./frontend/landing-page/login-acc";
 import WelcomePage from "./frontend/landing-page/welcome-page";
