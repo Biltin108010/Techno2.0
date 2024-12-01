@@ -8,17 +8,19 @@ import './TabsContainer.css';
 import supabase from '../../../backend/supabaseClient'; // Ensure you import your Supabase client
 
 export default function TabContainer() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);  // Default to Tab 2 (index 1)
   const [isEditing, setIsEditing] = useState(false);
   const [userRole, setUserRole] = useState(null); // To store the user's role
   const [email, setEmail] = useState(null); // To store the user's email
+  const [username, setUsername] = useState(''); // To store the username
+  const [users, setUsers] = useState([]); // To store all users from the database
 
   // Function to toggle edit mode
   const toggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Fetch user details
+  // Fetch user details and users list
   useEffect(() => {
     const fetchUserDetails = async () => {
       const { data: { user }, error } = await supabase.auth.getUser(); // Fetch the current user
@@ -31,22 +33,36 @@ export default function TabContainer() {
       if (user) {
         setEmail(user.email); // Set the user's email
 
-        // Fetch the role of the user based on their email
+        // Fetch the username and role of the user based on their email
         const { data, error: roleError } = await supabase
-          .from('users') // Replace 'users' with your actual table name that stores roles
-          .select('role')
+          .from('users') // Replace 'users' with your actual table name that stores roles and usernames
+          .select('username, role')
           .eq('email', user.email)
           .single();
 
         if (roleError) {
-          console.error("Error fetching user role:", roleError);
+          console.error("Error fetching user role and username:", roleError);
         } else if (data) {
+          setUsername(data.username); // Set the user's username
           setUserRole(data.role); // Set the user's role
         }
       }
     };
 
+    const fetchAllUsers = async () => {
+      const { data: allUsers, error } = await supabase
+        .from('users') // Fetch all users
+        .select('username');
+
+      if (error) {
+        console.error("Error fetching users:", error);
+      } else {
+        setUsers(allUsers); // Set the list of users
+      }
+    };
+
     fetchUserDetails();
+    fetchAllUsers();
   }, []);
 
   // Render the correct tab content
@@ -73,6 +89,13 @@ export default function TabContainer() {
     }
     return false; // Otherwise, no edit button
   };
+
+  // Default to Tab 2 if no users exist
+  useEffect(() => {
+    if (users.length === 0) {
+      setActiveTab(1);  // Default to Tab 2
+    }
+  }, [users]);
 
   return (
     <div className="tab-container">
@@ -105,15 +128,30 @@ export default function TabContainer() {
 
       {/* Tabs */}
       <div className="tabs">
-        {['Person 1', 'Person 2', 'Person 3'].map((tab, index) => (
+        {username && (
           <button
-            key={index}
-            onClick={() => setActiveTab(index)}
-            className={`tab ${activeTab === index ? 'active-tab' : ''}`}
+            onClick={() => setActiveTab(0)}
+            className={`tab ${activeTab === 0 ? 'active-tab' : ''}`}
           >
-            {tab}
+            {username}
           </button>
-        ))}
+        )}
+        {users.length > 0 && (
+          <>
+            <button
+              onClick={() => setActiveTab(1)}
+              className={`tab ${activeTab === 1 ? 'active-tab' : ''}`}
+            >
+              Tab 2
+            </button>
+            <button
+              onClick={() => setActiveTab(2)}
+              className={`tab ${activeTab === 2 ? 'active-tab' : ''}`}
+            >
+              Tab 3
+            </button>
+          </>
+        )}
       </div>
 
       {/* Content */}
