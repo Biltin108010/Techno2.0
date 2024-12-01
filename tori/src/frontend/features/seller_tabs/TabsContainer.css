@@ -4,25 +4,42 @@
   flex-direction: column;
   width: 100%;
   max-width: auto;
-
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 50px; /* Add space to avoid overlap with the navigation bar */
+  margin-bottom: 50px;
 }
 
 /* Header */
 .tab-container .header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 16px;
   border-bottom: 1px solid #ddd;
 }
 
+.tab-container .title {
+  display: flex;
+  align-items: center;
+}
+
+.tab-container .title h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Search and Edit Button Wrapper */
+.tab-container .search-edit-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Add space between search bar and button */
+}
+
 .tab-container .search-box {
   flex: 1;
-  margin-left: 20px;
 }
 
 .tab-container .search-input {
@@ -33,21 +50,45 @@
   background-color: #f9f9f9;
 }
 
+/* Edit Button */
 .tab-container .edit-button {
-  margin-left: 16px;
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
-  color: #555;
+  color: #fff;
+  background-color: #14b8a6; /* Teal */
   border: none;
-  background-color: #f0f0f0;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
 
 .tab-container .edit-button:hover {
-  background-color: #ddd;
+  background-color: #0f766e; /* Darker teal */
+}
+
+/* Back Button */
+.back-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+}
+
+.back-button:hover {
+  background-color: #f2f2f2;
+  color: #007bff;
+  border-color: #ccc;
 }
 
 /* Tabs */
@@ -84,101 +125,5 @@
 /* Tab Content */
 .tab-container .tab-content {
   padding: 16px;
-}
-
-.tab-content{
   margin-top: -10px;
-}
-
-/* Footer */
-.tab-container .footer {
-  padding: 16px;
-  border-top: 1px solid #ddd;
-}
-
-.tab-container .review-order-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  background-color: #14b8a6; /* Teal */
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.tab-container .review-order-button:hover {
-  background-color: #0f766e; /* Darker teal */
-}
-
-/* Back button style */
-/* Back button style */
-.back-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px; /* Adjust width */
-  height: 40px; /* Adjust height */
-  background-color: #f9f9f9; /* Background color for the square */
-  border: 1px solid #ddd; /* Border for the square */
-  border-radius: 8px; /* Slightly rounded corners */
-  font-size: 18px; /* Size of the < symbol */
-  font-weight: bold; /* Make < bold */
-  color: #333; /* Text color */
-  cursor: pointer;
-  transition: all 0.3s ease; /* Smooth hover transition */
-  padding: 0; /* Remove default padding */
-  margin-right: 10px; /* Add space before the title */
-}
-
-.back-button:hover {
-  background-color: #f2f2f2; /* Light grey background on hover */
-  color: #007bff; /* Blue color on hover */
-  border-color: #ccc; /* Slightly darker border on hover */
-}
-
-
-
-.title {
-  display: flex;
-  align-items: center;
-}
-
-/* Title styling */
-.title h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-/* Other button and header styles */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.search-box input {
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.edit-button {
-  padding: 10px 15px;
-  font-size: 16px;
-  background-color: #4CAF50; /* Green background */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.edit-button:hover {
-  background-color: #45a049;
 }
