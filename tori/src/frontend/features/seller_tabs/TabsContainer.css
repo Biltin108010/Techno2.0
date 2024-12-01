@@ -9,6 +9,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 50px;
+  /* Add space to avoid overlap with the navigation bar */
 }
 
 /* Header */
@@ -125,5 +126,118 @@
 /* Tab Content */
 .tab-container .tab-content {
   padding: 16px;
+}
+
+.tab-content {
   margin-top: -10px;
+}
+
+/* Footer */
+.tab-container .footer {
+  padding: 16px;
+  border-top: 1px solid #ddd;
+}
+
+.tab-container .review-order-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #14b8a6;
+  /* Teal */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.tab-container .review-order-button:hover {
+  background-color: #0f766e;
+  /* Darker teal */
+}
+
+/* Back button style */
+/* Back button style */
+.back-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  /* Adjust width */
+  height: 40px;
+  /* Adjust height */
+  background-color: #f9f9f9;
+  /* Background color for the square */
+  border: 1px solid #ddd;
+  /* Border for the square */
+  border-radius: 8px;
+  /* Slightly rounded corners */
+  font-size: 18px;
+  /* Size of the < symbol */
+  font-weight: bold;
+  /* Make < bold */
+  color: #333;
+  /* Text color */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* Smooth hover transition */
+  padding: 0;
+  /* Remove default padding */
+  margin-right: 10px;
+  /* Add space before the title */
+}
+
+.back-button:hover {
+  background-color: #f2f2f2;
+  /* Light grey background on hover */
+  color: #007bff;
+  /* Blue color on hover */
+  border-color: #ccc;
+  /* Slightly darker border on hover */
+}
+
+
+
+.title {
+  display: flex;
+  align-items: center;
+}
+
+/* Title styling */
+.title h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Other button and header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  /* Green background */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #45a049;
 }
