@@ -10,6 +10,26 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
+  const [userEmail, setUserEmail] = useState(""); // User email state
+
+  // Fetch the user's email on component mount
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching user session:", error.message);
+        setFeedbackMessage("Failed to fetch user session. Please try again.");
+      } else if (session) {
+        setUserEmail(session.user.email);
+      }
+    };
+
+    fetchUserEmail();
+  }, []);
 
   // Fetch items from the database on component mount
   useEffect(() => {
@@ -30,10 +50,17 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   }, []);
 
   const handleAddProduct = async (newItem) => {
+    if (!userEmail) {
+      setFeedbackMessage("You must be logged in to add a product.");
+      return;
+    }
+
+    const itemWithEmail = { ...newItem, email: userEmail };
+
     try {
       const { data, error } = await supabase
         .from("inventory") // Replace with your actual table name
-        .insert([newItem]);
+        .insert([itemWithEmail]);
 
       if (error) {
         console.error("Error adding item to database:", error.message);
@@ -161,6 +188,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         });
       }
     };
+
 
     if (!isOpen) return null;
 
