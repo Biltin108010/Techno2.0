@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { Navigate, useNavigate } from "react-router-dom";
-import supabase from "../../../../backend/supabaseClient";
+import supabase from "../../../../backend/supabaseClient"; // Your Supabase client
 import "./tab2.css";
 
 const Tab2 = () => {
@@ -9,20 +9,58 @@ const Tab2 = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
-  const [emailInput, setEmailInput] = useState(""); // Email input for search
-  const [isSearching, setIsSearching] = useState(false); // Add loading state for search
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // Admin state
   const navigate = useNavigate();
 
-  // Fetch items from the database based on the email input
+  // Check if the current user is an admin
+  const checkUserRole = async () => {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error || !session) {
+      console.error("Error fetching session or no session found:", error);
+      return;
+    }
+
+    const userEmail = session.user.email; // Get the logged-in user's email
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("role")
+        .eq("email", userEmail)
+        .single();
+
+      if (error) {
+        console.error("Error checking user role:", error.message);
+        return;
+      }
+
+      if (data && (data.role === "admin" || data.role === "coadmin")) {
+        setIsAdmin(true); // Set admin flag
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (err) {
+      console.error("Unexpected error checking role:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    checkUserRole(); // Check role on component mount
+  }, []);
+
   const fetchItems = async () => {
     if (!emailInput.trim()) {
       setFeedbackMessage("Please enter a valid Gmail address.");
       return;
     }
 
-    setIsSearching(true); // Show loading state
-
+    setIsSearching(true);
     try {
       const { data, error } = await supabase
         .from("inventory")
@@ -35,24 +73,21 @@ const Tab2 = () => {
       } else if (data.length === 0) {
         setFeedbackMessage("No items found for this Gmail address.");
       } else {
-        setItems(data); // Set fetched items to state
-        setFeedbackMessage(""); // Clear feedback if items found
-        setIsModalOpen(false); // Close modal after finding Gmail
+        setItems(data);
+        setFeedbackMessage("");
+        setIsModalOpen(false);
       }
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
     }
-
-    setIsSearching(false); // Hide loading state
+    setIsSearching(false);
   };
 
-  // Ensure fetchItems is only triggered when the button is clicked
   const handleSearchEmail = () => {
-    fetchItems(); // Explicitly trigger the search
+    fetchItems();
   };
 
-  // Increase quantity
   const increaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
 
@@ -82,7 +117,6 @@ const Tab2 = () => {
     }
   };
 
-  // Decrease quantity
   const decreaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
 
@@ -114,16 +148,10 @@ const Tab2 = () => {
     }
   };
 
-  const handleItemClick = (item, e) => {
-    e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
-    setSelectedItem(item);
-  };
-
   const handleNavigateToReview = () => {
-    navigate("/seller/review", { state: { items } }); // Navigate to the Review page
+    navigate("/seller/review", { state: { items } });
   };
 
-  // Modal to input email
   const EmailInputModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
@@ -161,8 +189,7 @@ const Tab2 = () => {
         </div>
       )}
 
-      {/* Only show the plus icon if items are not found */}
-      {items.length === 0 && !feedbackMessage && (
+      {isAdmin && items.length === 0 && !feedbackMessage && (
         <div className="plus-button-container">
           <AiOutlinePlus
             className="huge-plus-icon"
@@ -171,10 +198,9 @@ const Tab2 = () => {
         </div>
       )}
 
-      {/* Display items if email is found */}
       <div className="tab-content">
         {items.map((item) => (
-          <div key={item.id} className="item-box" onClick={(e) => handleItemClick(item, e)}>
+          <div key={item.id} className="item-box">
             <img
               src={item.image || "https://via.placeholder.com/100"}
               alt={item.name}
@@ -208,7 +234,6 @@ const Tab2 = () => {
         </button>
       </div>
 
-      {/* Email input modal */}
       <EmailInputModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
