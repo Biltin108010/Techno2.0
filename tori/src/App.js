@@ -16,7 +16,13 @@ import Profile from "./frontend/features/seller/profile";
 import EditProfile from "./frontend/features/seller/editprofile";
 import Review from "./frontend/features/seller_tabs/review_page";
 
-
+// Admin Pages
+import ADMINNav from "./frontend/features/admin/admin_nav";
+import ADMINHome from "./frontend/features/admin/admin_home";
+import ADMINInventory from "./frontend/features/admin/admin_inventory";
+import ADMINHistory from "./frontend/features/admin/admin_history";
+import ADMINProfile from "./frontend/features/admin/admin_profile";
+import ADMINReview from "./frontend/features/admin_tabs/admin_review_page";
 
 import { UserProvider } from "./backend/UserContext"; // Import UserContext
 
@@ -68,6 +74,13 @@ function App() {
   };
 
   // Protected Route for admin authentication
+  const AdminRoute = ({ children }) => {
+    if (!user || user.role !== 'admin') {
+      return <Navigate to="/login" />;
+    }
+    return children;
+  };
+
   return (
     <UserProvider value={{ user, setUser }}>
       <Router>
@@ -98,8 +111,22 @@ function App() {
             />
 
             {/* Admin Pages */}
-  
-            
+            <Route
+              path="/admin/*"
+              element={
+                <AdminRoute>
+                  <ADMINNav />
+                  <Routes>
+                    <Route path="admin_home" element={<ADMINHome />} />
+                    <Route path="admin_inventory" element={<ADMINInventory />} />
+                    <Route path="admin_history" element={<ADMINHistory />} />
+                    <Route path="admin_profile" element={<ADMINProfile />} />
+                    <Route path="admin_edit-profile" element={<EditProfile />} />
+                    <Route path="admin_review" element={<ADMINReview />} />
+                  </Routes>
+                </AdminRoute>
+              }
+            />
           </Routes>
         </div>
       </Router>
