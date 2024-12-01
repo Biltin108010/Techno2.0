@@ -28,25 +28,7 @@ body {
 }
 
 /* Header */
-.home-page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0px;
-  }
-  
-  .home-title {
-    font-family: 'Poppins', 'Inter', sans-serif;
-    font-size: 40px;
-    font-weight: 800;
-    color: #1a1a1a;
-    flex: 1;
-  }
 
-  .home-controls-container {
-    margin-top: 15px; /* Space between title/logo and controls */
-    margin-bottom: 15px;
-  }
   
   .home-controls {
     display: flex;
