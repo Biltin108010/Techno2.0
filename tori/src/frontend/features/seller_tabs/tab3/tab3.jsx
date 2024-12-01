@@ -1,77 +1,147 @@
-import React, { useState } from "react";
-import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai"; // Import AiOutlineMinus icon
-import { Navigate } from "react-router-dom"; // Import Navigate component
+import React, { useState, useEffect } from "react";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
+import { Navigate } from "react-router-dom";
+import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab3.css";
 
 const Tab3 = ({ isEditing, handleEditMode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Apple",
-      quantity: 10,
-      price: 2.0,
-      stock: 30,
-      image: "https://via.placeholder.com/100",
-    },
-    {
-      id: 2,
-      name: "Banana",
-      quantity: 20,
-      price: 1.5,
-      stock: 50,
-      image: "https://via.placeholder.com/100",
-    },
-    {
-      id: 3,
-      name: "Orange",
-      quantity: 15,
-      price: 2.5,
-      stock: 40,
-      image: "https://via.placeholder.com/100",
-    },
-  ]);
+  const [items, setItems] = useState([]);
+  const [navigateToReview, setNavigateToReview] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
 
-  const [navigateToReview, setNavigateToReview] = useState(false); // State for navigation
+  // Fetch items from the database on component mount
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data, error } = await supabase
+        .from("inventory") // Replace with your actual table name
+        .select("*");
 
-  const decreaseQuantity = (id, e) => {
-    e.stopPropagation(); // Prevent modal from opening when minus is clicked
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
+      if (error) {
+        console.error("Error fetching items:", error.message);
+        setFeedbackMessage("Failed to fetch items. Please try again later.");
+      } else {
+        setItems(data);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  const handleAddProduct = async (newItem) => {
+    try {
+      const { data, error } = await supabase
+        .from("inventory") // Replace with your actual table name
+        .insert([newItem]);
+
+      if (error) {
+        console.error("Error adding item to database:", error.message);
+        setFeedbackMessage("Failed to add the product. Please try again.");
+        return;
+      }
+
+      setItems([...items, ...data]); // Update local state with the new item
+      setIsModalOpen(false);
+      setFeedbackMessage("Product successfully added!");
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    }
   };
 
-  const increaseQuantity = (id, e) => {
-    e.stopPropagation(); // Prevent modal from opening when plus is clicked
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.quantity < item.stock
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
+  const handleEditProduct = async (updatedItem) => {
+    try {
+      const { error } = await supabase
+        .from("inventory") // Replace with your actual table name
+        .update({
+          name: updatedItem.name,
+          quantity: updatedItem.quantity,
+          price: updatedItem.price,
+        })
+        .eq("id", updatedItem.id);
+
+      if (error) {
+        console.error("Error updating item:", error.message);
+        setFeedbackMessage("Failed to update the product. Please try again.");
+        return;
+      }
+
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === updatedItem.id ? updatedItem : item
+        )
+      );
+      setIsModalOpen(false);
+      setFeedbackMessage("Product successfully updated!");
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    }
   };
 
-  const handleAddProduct = (newItem) => {
-    setItems([...items, newItem]);
-    setIsModalOpen(false);
+  const increaseQuantity = async (id) => {
+    const item = items.find((i) => i.id === id);
+
+    if (item) {
+      try {
+        const { error } = await supabase
+          .from("inventory") // Replace with your actual table name
+          .update({ quantity: item.quantity + 1 })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error increasing quantity:", error.message);
+          setFeedbackMessage("Failed to update quantity. Please try again.");
+          return;
+        }
+
+        setItems((prevItems) =>
+          prevItems.map((i) =>
+            i.id === id ? { ...i, quantity: i.quantity + 1 } : i
+          )
+        );
+        setFeedbackMessage("Quantity successfully increased!");
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        setFeedbackMessage("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
-  const handleEditProduct = (updatedItem) => {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === updatedItem.id ? updatedItem : item
-      )
-    );
-    setIsModalOpen(false);
+  const decreaseQuantity = async (id) => {
+    const item = items.find((i) => i.id === id);
+
+    if (item && item.quantity > 1) {
+      try {
+        const { error } = await supabase
+          .from("inventory") // Replace with your actual table name
+          .update({ quantity: item.quantity - 1 })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error decreasing quantity:", error.message);
+          setFeedbackMessage("Failed to update quantity. Please try again.");
+          return;
+        }
+
+        setItems((prevItems) =>
+          prevItems.map((i) =>
+            i.id === id ? { ...i, quantity: i.quantity - 1 } : i
+          )
+        );
+        setFeedbackMessage("Quantity successfully decreased!");
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        setFeedbackMessage("An unexpected error occurred. Please try again.");
+      }
+    } else {
+      setFeedbackMessage("Quantity cannot be less than 1.");
+    }
   };
 
-  const handleItemClick = (item) => {
+  const handleItemClick = (item, e) => {
+    e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
     setSelectedItem(item);
     setIsModalOpen(true);
   };
@@ -83,7 +153,12 @@ const Tab3 = ({ isEditing, handleEditMode }) => {
 
     const handleSave = () => {
       if (name && quantity && price) {
-        onSave({ ...item, name, quantity, price });
+        onSave({
+          ...item,
+          name,
+          quantity: parseInt(quantity, 10),
+          price: parseFloat(price),
+        });
       }
     };
 
@@ -127,67 +202,82 @@ const Tab3 = ({ isEditing, handleEditMode }) => {
     );
   };
 
-  // Check if we should navigate to the Review page
   if (navigateToReview) {
-    return <Navigate to="/seller/review" />; // Navigate to the Review page
+    return <Navigate to="/seller/review" />;
   }
 
   return (
     <div className="tab1-container">
+      {feedbackMessage && (
+        <div className="feedback-message">
+          <p>{feedbackMessage}</p>
+        </div>
+      )}
+
       {isEditing ? (
-        <div>
-          <div className="tab-content">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="item-box"
-                onClick={() => handleItemClick(item)} // Opens the modal only when item box is clicked
-              >
-                <img src={item.image} alt={item.name} className="item-image" />
-                <div className="item-text-container">
-                  <p className="item-title">{item.name}</p>
-                  <p className="item-quantity">
-                    Qty: {item.quantity}
-                    <button
-                      className="plus-icon-button"
-                      onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
-                    >
-                      <AiOutlinePlus />
-                    </button>
-                    <button
-                      className="minus-icon-button"
-                      onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
-                    >
-                      <AiOutlineMinus />
-                    </button>
-                  </p>
-                  <p className="item-price">Price: ₱{item.price}</p>
-                </div>
+        <div className="tab-content">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="item-box"
+              onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
+            >
+              <img
+                src={item.image || "https://via.placeholder.com/100"}
+                alt={item.name}
+                className="item-image"
+              />
+              <div className="item-text-container">
+                <p className="item-title">{item.name}</p>
+                <p className="item-quantity">
+                  Qty: {item.quantity}
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      increaseQuantity(item.id);
+                    }}
+                  />
+                  <AiOutlineMinus
+                    className="minus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      decreaseQuantity(item.id);
+                    }}
+                  />
+                </p>
+                <p className="item-price">Price: ₱{item.price}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="tab-content">
           {items.map((item) => (
             <div key={item.id} className="item-box">
-              <img src={item.image} alt={item.name} className="item-image" />
+              <img
+                src={item.image || "https://via.placeholder.com/100"}
+                alt={item.name}
+                className="item-image"
+              />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">
                   Qty: {item.quantity}
-                  <button
-                    className="plus-icon-button"
-                    onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
-                  >
-                    <AiOutlinePlus />
-                  </button>
-                  <button
-                    className="minus-icon-button"
-                    onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
-                  >
-                    <AiOutlineMinus />
-                  </button>
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      increaseQuantity(item.id);
+                    }}
+                  />
+                  <AiOutlineMinus
+                    className="minus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      decreaseQuantity(item.id);
+                    }}
+                  />
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>
               </div>
@@ -195,7 +285,7 @@ const Tab3 = ({ isEditing, handleEditMode }) => {
           ))}
           <button
             className="review-order-button"
-            onClick={() => setNavigateToReview(true)} // Trigger navigation state change
+            onClick={() => setNavigateToReview(true)}
           >
             Review Order
           </button>

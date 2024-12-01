@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlinePlus } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
 import { Navigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab1.css";
@@ -80,6 +80,35 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     }
   };
 
+  const increaseQuantity = async (id) => {
+    const item = items.find((i) => i.id === id);
+
+    if (item) {
+      try {
+        const { error } = await supabase
+          .from("inventory") // Replace with your actual table name
+          .update({ quantity: item.quantity + 1 })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error increasing quantity:", error.message);
+          setFeedbackMessage("Failed to update quantity. Please try again.");
+          return;
+        }
+
+        setItems((prevItems) =>
+          prevItems.map((i) =>
+            i.id === id ? { ...i, quantity: i.quantity + 1 } : i
+          )
+        );
+        setFeedbackMessage("Quantity successfully increased!");
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        setFeedbackMessage("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
+
   const decreaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
 
@@ -111,7 +140,8 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     }
   };
 
-  const handleItemClick = (item) => {
+  const handleItemClick = (item, e) => {
+    e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
     setSelectedItem(item);
     setIsModalOpen(true);
   };
@@ -203,7 +233,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               <div
                 key={item.id}
                 className="item-box"
-                onClick={() => handleItemClick(item)} // Opens the modal only when item box is clicked
+                onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
               >
                 <img
                   src={item.image || "https://via.placeholder.com/100"}
@@ -214,18 +244,20 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                   <p className="item-title">{item.name}</p>
                   <p className="item-quantity">
                     Qty: {item.quantity}
-                    <button
-                      className="plus-icon-button"
-                      onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
-                    >
-                      <AiOutlinePlus />
-                    </button>
-                    <button
-                      className="minus-icon-button"
-                      onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
-                    >
-                      <AiOutlineMinus />
-                    </button>
+                    <AiOutlinePlus
+                      className="plus-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent item click
+                        increaseQuantity(item.id);
+                      }}
+                    />
+                    <AiOutlineMinus
+                      className="minus-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent item click
+                        decreaseQuantity(item.id);
+                      }}
+                    />
                   </p>
                   <p className="item-price">Price: ₱{item.price}</p>
                 </div>
@@ -246,18 +278,20 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">
                   Qty: {item.quantity}
-                  <button
-                    className="plus-icon-button"
-                    onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
-                  >
-                    <AiOutlinePlus />
-                  </button>
-                  <button
-                    className="minus-icon-button"
-                    onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
-                  >
-                    <AiOutlineMinus />
-                  </button>
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      increaseQuantity(item.id);
+                    }}
+                  />
+                  <AiOutlineMinus
+                    className="minus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent item click
+                      decreaseQuantity(item.id);
+                    }}
+                  />
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>
               </div>
