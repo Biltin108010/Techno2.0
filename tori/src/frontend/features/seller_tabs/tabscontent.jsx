@@ -63,6 +63,17 @@ export default function TabContainer() {
     }
   };
 
+  // Determine if the Edit button should be visible
+  const shouldShowEditButton = () => {
+    if (userRole === 'admin') {
+      return true; // Admin can see the edit button on all tabs
+    }
+    if (userRole === 'seller' && activeTab === 0) {
+      return true; // Seller can only see the edit button on Tab 1
+    }
+    return false; // Otherwise, no edit button
+  };
+
   return (
     <div className="tab-container">
       <div className="header">
@@ -82,8 +93,8 @@ export default function TabContainer() {
               placeholder="Search product"
               className="search-input"
             />
-            {/* Render Edit button only if the user is an admin */}
-            {!isEditing && activeTab === 0 && userRole === 'admin' && (
+            {/* Render Edit button based on userRole and activeTab */}
+            {!isEditing && shouldShowEditButton() && (
               <button className="edit-button" onClick={toggleEditMode}>
                 Edit
               </button>
