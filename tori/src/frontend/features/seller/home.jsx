@@ -163,41 +163,59 @@ function Home() {
         </div>
       </div>
 
-      {/* Filter Popup */}
-      {isFilterVisible && (
-        <div className="filter-modal">
-          <div className="filter-container">
-            <button className="close-filter" onClick={toggleFilter}>
-              &times;
-            </button>
-            <h3>Filter</h3>
-            {/* Filter Inputs */}
-            <div className="filter-input-group">
-              <label htmlFor="filter-date-range">Date Range:</label>
-              <input type="date" id="start-date" className="filter-date" />
-              <span>to</span>
-              <input type="date" id="end-date" className="filter-date" />
-            </div>
-            <div className="filter-input-group">
-              <label htmlFor="filter-category">Category:</label>
-              <select id="filter-category" className="filter-select">
-                <option value="All">All</option>
-                <option value="Vendors">Vendors</option>
-                <option value="Sales">Sales</option>
-                <option value="Orders">Orders</option>
-              </select>
-            </div>
-            <div className="filter-buttons">
-              <button className="filter-apply-btn" onClick={() => alert("Filters applied!")}>
-                Apply
-              </button>
-              <button className="filter-reset-btn" onClick={() => alert("Filters reset!")}>
-                Reset
-              </button>
-            </div>
-          </div>
+     {/* Filter Popup */}
+{isFilterVisible && (
+  <div className="filter-modal">
+    <div className="filter-container">
+      <button className="close-filter" onClick={toggleFilter}>
+         ✕
+      </button>
+      <h1>Filter</h1>
+      {/* Filter Inputs */}
+      <div className="filter-input-group">
+        <label htmlFor="filter-date-range">Date Range:</label>
+        <div className="date-range-container">
+          <input
+            type="date"
+            id="start-date"
+            className="filter-date"
+            placeholder="Start Date"
+          />
+          <span className="date-range-separator">to</span>
+          <input
+            type="date"
+            id="end-date"
+            className="filter-date"
+            placeholder="End Date"
+          />
         </div>
-      )}
+      </div>
+      <div className="filter-input-group">
+        <label htmlFor="filter-category">Category:</label>
+        <select id="filter-category" className="filter-select">
+          <option value="All">All</option>
+          <option value="Vendors">Vendors</option>
+          <option value="Sales">Sales</option>
+          <option value="Orders">Orders</option>
+        </select>
+      </div>
+      <div className="filter-buttons">
+        <button
+          className="filter-apply-btn"
+          onClick={() => alert("Filters applied!")}
+        >
+          Apply
+        </button>
+        <button
+          className="filter-reset-btn"
+          onClick={() => alert("Filters reset!")}
+        >
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Footer */}
       <div className="home-footer">

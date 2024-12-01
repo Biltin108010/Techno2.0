@@ -215,41 +215,55 @@ const Tab2 = ({ isEditing, handleEditMode }) => {
       )}
 
       {isEditing ? (
-        <div className="tab-content">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="item-box"
-              onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
+        <div>
+          {/* Sticky Add Product Button */}
+          <div className="sticky-button-container">
+            <button
+              className="add-product-button"
+              onClick={() => {
+                setSelectedItem(null); // Ensure no item is selected
+                setIsModalOpen(true); // Open modal to add a new product
+              }}
             >
-              <img
-                src={item.image || "https://via.placeholder.com/100"}
-                alt={item.name}
-                className="item-image"
-              />
-              <div className="item-text-container">
-                <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      increaseQuantity(item.id);
-                    }}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent item click
-                      decreaseQuantity(item.id);
-                    }}
-                  />
-                </p>
-                <p className="item-price">Price: ₱{item.price}</p>
+              Add Product
+            </button>
+          </div>
+          <div className="tab-content">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="item-box"
+                onClick={(e) => handleItemClick(item, e)} // Opens the modal only when item box is clicked
+              >
+                <img
+                  src={item.image || "https://via.placeholder.com/100"}
+                  alt={item.name}
+                  className="item-image"
+                />
+                <div className="item-text-container">
+                  <p className="item-title">{item.name}</p>
+                  <p className="item-quantity">
+                    Qty: {item.quantity}
+                    <AiOutlinePlus
+                      className="plus-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent item click
+                        increaseQuantity(item.id);
+                      }}
+                    />
+                    <AiOutlineMinus
+                      className="minus-icon"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent item click
+                        decreaseQuantity(item.id);
+                      }}
+                    />
+                  </p>
+                  <p className="item-price">Price: ₱{item.price}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
         <div className="tab-content">

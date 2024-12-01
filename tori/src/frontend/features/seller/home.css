@@ -268,31 +268,25 @@ body {
   max-width: 400px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
-}
-
-.filter-container h3 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 20px;
+  position: relative; /* Ensures button aligns properly */
 }
 
 .close-filter {
   position: absolute;
-  top: 15px; /* Adjust to position inside the modal */
-  right: 15px; /* Adjust to position inside the modal */
-  background: none; /* Transparent background */
-  border: none; /* Remove borders */
-  font-size: 1.5rem; /* Larger size for visibility */
-  font-weight: bold; /* Bold text for emphasis */
-  color: #333; /* Default color */
-  cursor: pointer; /* Pointer cursor for interactivity */
-  transition: color 0.3s ease; /* Smooth color transition on hover */
+  top: 15px; 
+  right: 15px; 
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
 .close-filter:hover {
-  color: #e74c3c; /* Red color on hover */
+  color: #e74c3c;
 }
-
 
 .filter-input-group {
   margin-bottom: 15px;
@@ -301,9 +295,15 @@ body {
 
 .filter-input-group label {
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
   margin-bottom: 5px;
   display: block;
+  font-size: 1rem;
+}
+
+.date-range-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .filter-date {
@@ -311,6 +311,11 @@ body {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
+  font-size: 1rem;
+}
+
+.date-range-separator {
+  margin: 0 10px;
   font-size: 1rem;
 }
 
@@ -347,6 +352,20 @@ body {
   color: black;
 }
 
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .filter-container {
+    width: 95%;
+    padding: 15px;
+  }
+  .filter-buttons button {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
+}
+
+
+
   
   /* Profit Section */
   .home-profit-section {
@@ -380,4 +399,22 @@ body {
     height: 1px;
     background-color: #ddd; /* Light gray color for the divider */
     margin: 0px 0; /* Space above and below the divider */
+  }
+  .close-modal-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    z-index: 1001;
+    transition: color 0.2s ease;
+  }
+  
+  .close-modal-button:hover {
+    color: #007bff;
   }
