@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab1.css";
 
@@ -11,6 +11,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
   const [userEmail, setUserEmail] = useState(""); // User email state
+  const navigate = useNavigate();
 
   // Fetch the user's email on component mount
   useEffect(() => {
@@ -75,6 +76,11 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
     }
+  };
+
+  const handleNavigateToReview = () => {
+    // Navigate to the Review page and pass the items as state
+    navigate('/seller/review', { state: { items } });
   };
 
   const handleEditProduct = async (updatedItem) => {
@@ -326,11 +332,11 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
             </div>
           ))}
           <button
-            className="review-order-button"
-            onClick={() => setNavigateToReview(true)}
-          >
-            Review Order
-          </button>
+  className="review-order-button"
+  onClick={handleNavigateToReview}
+>
+  Review Order
+</button>
         </div>
       )}
 

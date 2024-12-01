@@ -5,54 +5,47 @@ import './review_page.css'; // Make sure to style the page properly
 const ReviewPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [orderItems, setOrderItems] = useState([
-        {
-            name: 'Apple',
-            quantity: 1,
-            price: 60.0,
-            stock: 5,
-            image: 'https://via.placeholder.com/100?text=Impression+1',
-        },
-        {
-            name: 'Banana',
-            quantity: 9,
-            price: 60.0,
-            stock: 20,
-            image: 'https://via.placeholder.com/100?text=Impression+2',
-        },
-    ]);
+
+    // Set initial state for orderItems with default quantity if it's not provided
+    const [orderItems, setOrderItems] = useState(
+        (location.state?.items || []).map(item => ({
+            ...item,
+            quantity: item.quantity || 1, // Ensure quantity is at least 1
+        }))
+    );
 
     const handleQuantityChange = (index, delta) => {
+        // Ensure delta is numeric and quantity is updated correctly
         const updatedItems = orderItems.map((item, i) =>
             i === index
                 ? {
                     ...item,
-                    quantity: Math.max(1, Math.min(item.stock, item.quantity + delta)),
+                    quantity: Math.max(1, Math.min(item.stock, item.quantity + (delta || 0))),
                 }
                 : item
         );
-        setOrderItems(updatedItems);
+        setOrderItems(updatedItems); // Update state with the modified items
     };
 
     const handleRemoveItem = (index) => {
-        setOrderItems(orderItems.filter((_, i) => i !== index));
+        setOrderItems(orderItems.filter((_, i) => i !== index)); // Remove item from state
     };
 
     const handleConfirmOrder = () => {
-        // Logic to confirm the order
+        // Ensure the orderItems are valid before confirming
         console.log('Order Confirmed:', orderItems);
         navigate('../inventory'); // Navigate back or to another page after confirmation
     };
 
     const totalAmount = orderItems.reduce(
-        (sum, item) => sum + item.quantity * item.price,
+        (sum, item) => sum + (item.quantity * item.price || 0), // Ensure price is valid
         0
     );
 
     return (
         <div className="review-container">
             <button className="back-button" onClick={() => navigate(-1)}>
-                &#x2190; 
+                &#x2190;
             </button>
             <h1>Review Order</h1>
             <div className="seller-info">
