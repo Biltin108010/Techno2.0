@@ -10,7 +10,7 @@ const Tab3 = () => {
   const [items, setItems] = useState([]);
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [emailInput, setEmailInput] = useState("");
+  const [emailInput, setEmailInput] = useState(localStorage.getItem("savedEmail2") || ""); // Load email from localStorage
   const [isSearching, setIsSearching] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false); // Admin state
   const navigate = useNavigate();
@@ -52,6 +52,7 @@ const Tab3 = () => {
 
   useEffect(() => {
     checkUserRole(); // Check role on component mount
+    if (emailInput) fetchItems(); // Fetch items automatically if email exists
   }, []);
 
   const fetchItems = async () => {
@@ -85,6 +86,7 @@ const Tab3 = () => {
   };
 
   const handleSearchEmail = () => {
+    localStorage.setItem("savedEmail2", emailInput.trim()); // Save email to localStorage
     fetchItems();
   };
 
@@ -152,6 +154,13 @@ const Tab3 = () => {
     navigate("/seller/review", { state: { items } });
   };
 
+  const handleRemoveEmail = () => {
+    localStorage.removeItem("savedEmail2"); // Clear email from localStorage
+    setEmailInput(""); // Reset email input
+    setItems([]); // Clear items
+    setFeedbackMessage("Email removed successfully.");
+  };
+
   const EmailInputModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
@@ -188,6 +197,10 @@ const Tab3 = () => {
           <p>{feedbackMessage}</p>
         </div>
       )}
+
+      <button onClick={handleRemoveEmail} className="remove-email-button">
+        Remove Email
+      </button>
 
       {isAdmin && items.length === 0 && !feedbackMessage && (
         <div className="plus-button-container">
