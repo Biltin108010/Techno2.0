@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab2.css";
 
@@ -12,7 +12,7 @@ const Tab2 = () => {
   const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message state
   const [emailInput, setEmailInput] = useState(""); // Email input for search
   const [searchEmail, setSearchEmail] = useState(""); // Email to search in the database
-
+  const navigate = useNavigate();
   // Fetch items from the database based on the email input (only when the "Search" button is clicked)
   const fetchItems = async () => {
     if (!searchEmail) return; // If no email is provided, don't fetch data
@@ -116,7 +116,10 @@ const Tab2 = () => {
     e.stopPropagation(); // Prevent the click event from firing when the + or - icon is clicked
     setSelectedItem(item);
   };
-
+  const handleNavigateToReview = () => {
+    // Navigate to the Review page and pass the items as state
+    navigate('/seller/review', { state: { items } });
+  };
   // Modal to input email
   const EmailInputModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
@@ -193,12 +196,16 @@ const Tab2 = () => {
                     e.stopPropagation();
                     decreaseQuantity(item.id);
                   }}
+
                 />
               </p>
               <p className="item-price">Price: ₱{item.price}</p>
             </div>
           </div>
         ))}
+        <button className="review-order-button" onClick={handleNavigateToReview}>
+          Review Order
+        </button>
       </div>
 
       {/* Email input modal */}
