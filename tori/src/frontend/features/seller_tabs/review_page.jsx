@@ -1,49 +1,114 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import './review_page.css'; // Make sure to style the page properly
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import supabase from "../../../../src/backend/supabaseClient"; // Import your Supabase client
+import "./review_page.css"; // Ensure the page is styled properly
 
 const ReviewPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Set initial state for orderItems with default quantity if it's not provided
+    // Set initial state for orderItems with default quantity
     const [orderItems, setOrderItems] = useState(
-        (location.state?.items || []).map(item => ({
+        (location.state?.items || []).map((item) => ({
             ...item,
             quantity: item.quantity || 1, // Ensure quantity is at least 1
         }))
     );
+    const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message
 
-    const handleQuantityChange = (index, delta) => {
-        // Ensure delta is numeric and quantity is updated correctly
-        const updatedItems = orderItems.map((item, i) =>
-            i === index
-                ? {
-                    ...item,
-                    quantity: Math.max(1, Math.min(item.stock, item.quantity + (delta || 0))),
-                }
-                : item
-        );
-        setOrderItems(updatedItems); // Update state with the modified items
+    const handleQuantityChange = async (index, delta) => {
+        const item = orderItems[index];
+        const newQuantity = (item.quantity || 1) + delta;
+
+        // Prevent invalid quantities before making any changes
+        if (newQuantity < 1 || newQuantity > item.stock) {
+            return; // Exit early if the new quantity is out of valid bounds
+        }
+
+        try {
+            const { error } = await supabase
+                .from("inventory")
+                .update({ quantity: newQuantity })
+                .eq("id", item.id);
+
+            if (error) {
+                console.error("Error updating quantity:", error.message);
+                setFeedbackMessage("Failed to update quantity. Please try again.");
+                return;
+            }
+
+            // Update state after successful database update
+            const updatedItems = orderItems.map((orderItem, i) =>
+                i === index ? { ...orderItem, quantity: newQuantity } : orderItem
+            );
+            setOrderItems(updatedItems);
+            setFeedbackMessage("Quantity updated successfully!");
+        } catch (err) {
+            console.error("Unexpected error:", err.message);
+            setFeedbackMessage("An unexpected error occurred. Please try again.");
+        }
     };
 
-    const handleRemoveItem = (index) => {
-        setOrderItems(orderItems.filter((_, i) => i !== index)); // Remove item from state
+
+    const handleRemoveItem = async (index) => {
+        const item = orderItems[index];
+
+        try {
+            const { error } = await supabase
+                .from("inventory") // Replace with your table name
+                .delete()
+                .eq("id", item.id);
+
+            if (error) {
+                console.error("Error removing item:", error.message);
+                setFeedbackMessage("Failed to remove item. Please try again.");
+                return;
+            }
+
+            // Remove item from state if the database delete is successful
+            setOrderItems(orderItems.filter((_, i) => i !== index));
+            setFeedbackMessage("Item removed successfully!");
+        } catch (err) {
+            console.error("Unexpected error:", err.message);
+            setFeedbackMessage("An unexpected error occurred. Please try again.");
+        }
     };
 
-    const handleConfirmOrder = () => {
-        // Ensure the orderItems are valid before confirming
-        console.log('Order Confirmed:', orderItems);
-        navigate('../inventory'); // Navigate back or to another page after confirmation
+    const handleConfirmOrder = async () => {
+        try {
+            // Optional: Save the final order state to a different table (e.g., "orders")
+            const { error } = await supabase
+                .from("orders") // Replace with your orders table
+                .insert(orderItems.map(({ id, ...item }) => item)); // Adjust as needed
+
+            if (error) {
+                console.error("Error confirming order:", error.message);
+                setFeedbackMessage("Failed to confirm order. Please try again.");
+                return;
+            }
+
+            console.log("Order confirmed:", orderItems);
+            setFeedbackMessage("Order confirmed successfully!");
+            navigate("../inventory"); // Navigate after confirming
+        } catch (err) {
+            console.error("Unexpected error:", err.message);
+            setFeedbackMessage("An unexpected error occurred. Please try again.");
+        }
     };
 
     const totalAmount = orderItems.reduce(
-        (sum, item) => sum + (item.quantity * item.price || 0), // Ensure price is valid
+        (sum, item) => sum + (item.quantity || 0) * (item.price || 0), // Default to 0 for invalid values
         0
     );
 
+
     return (
         <div className="review-container">
+            {feedbackMessage && (
+                <div className="feedback-message">
+                    <p>{feedbackMessage}</p>
+                </div>
+            )}
             <button className="back-button" onClick={() => navigate(-1)}>
                 &#x2190;
             </button>
@@ -54,7 +119,7 @@ const ReviewPage = () => {
             </div>
             <div className="order-list">
                 {orderItems.map((item, index) => (
-                    <div key={index} className="order-item">
+                    <div key={item.id} className="order-item">
                         <img src={item.image} alt={item.name} className="item-image" />
                         <div className="item-details">
                             <h3 className="item-name">{item.name}</h3>
