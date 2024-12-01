@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AiOutlinePlus } from "react-icons/ai";
+import { AiOutlinePlus, AiOutlineMinus } from "react-icons/ai"; // Import AiOutlineMinus icon
 import { Navigate } from "react-router-dom"; // Import Navigate component
 import "./tab1.css";
 
@@ -35,11 +35,23 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
 
   const [navigateToReview, setNavigateToReview] = useState(false); // State for navigation
 
-  const decreaseQuantity = (id) => {
+  const decreaseQuantity = (id, e) => {
+    e.stopPropagation(); // Prevent modal from opening when minus is clicked
     setItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id && item.quantity > 1
           ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
+  };
+
+  const increaseQuantity = (id, e) => {
+    e.stopPropagation(); // Prevent modal from opening when plus is clicked
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id && item.quantity < item.stock
+          ? { ...item, quantity: item.quantity + 1 }
           : item
       )
     );
@@ -63,7 +75,6 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
-
 
   const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
     const [name, setName] = useState(item ? item.name : "");
@@ -125,31 +136,48 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     <div className="tab1-container">
       {isEditing ? (
         <div>
+          {/* Sticky Add Product Button */}
+          <div className="sticky-button-container">
+            <button
+              className="add-product-button"
+              onClick={() => {
+                setSelectedItem(null); // Ensure no item is selected
+                setIsModalOpen(true); // Open modal to add a new product
+              }}
+            >
+              Add Product
+            </button>
+          </div>
           <div className="tab-content">
             {items.map((item) => (
               <div
                 key={item.id}
                 className="item-box"
-                onClick={() => handleItemClick(item)}
+                onClick={() => handleItemClick(item)} // Opens the modal only when item box is clicked
               >
                 <img src={item.image} alt={item.name} className="item-image" />
                 <div className="item-text-container">
                   <p className="item-title">{item.name}</p>
-                  <p className="item-quantity">Qty: {item.quantity}</p>
+                  <p className="item-quantity">
+                    Qty: {item.quantity}
+                    <button
+                      className="plus-icon-button"
+                      onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
+                    >
+                      <AiOutlinePlus />
+                    </button>
+                    <button
+                      className="minus-icon-button"
+                      onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
+                    >
+                      <AiOutlineMinus />
+                    </button>
+                  </p>
                   <p className="item-price">Price: ₱{item.price}</p>
                 </div>
               </div>
             ))}
           </div>
-          <button
-            className="add-product-button"
-            onClick={() => {
-              setSelectedItem(null);
-              setIsModalOpen(true);
-            }}
-          >
-            Add Product
-          </button>
         </div>
       ) : (
         <div className="tab-content">
@@ -162,9 +190,15 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                   Qty: {item.quantity}
                   <button
                     className="plus-icon-button"
-                    onClick={() => decreaseQuantity(item.id)}
+                    onClick={(e) => increaseQuantity(item.id, e)} // Increase quantity without opening the modal
                   >
                     <AiOutlinePlus />
+                  </button>
+                  <button
+                    className="minus-icon-button"
+                    onClick={(e) => decreaseQuantity(item.id, e)} // Decrease quantity without opening the modal
+                  >
+                    <AiOutlineMinus />
                   </button>
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>

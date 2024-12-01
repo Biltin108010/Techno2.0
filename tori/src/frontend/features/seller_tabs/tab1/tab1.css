@@ -115,21 +115,42 @@
   color: #388e3c;
 }
 
-/* Add Product Button */
 .add-product-button {
-  background-color: #008CBA;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 110px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  bottom: 0;
+  width: 25%;
+  right: 10px;
+
+  position: fixed;
+
+
+ 
+  z-index: 10; /* Ensure the button is on top of other elements */
+  background-color: #4CAF50; /* Green background for the button */
+  color: white; /* White text color */
+  padding: 12px 20px; /* Button padding, adjusted for better compatibility */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Cursor pointer on hover */
+  font-size: 16px; /* Adjust font size */
+ 
+  
 }
 
 .add-product-button:hover {
-  background-color: #007bb5;
+  background-color: #45a049; /* Darker shade of green when hovered */
 }
+
+
+
+
 
 
 /* Review Order Button */
@@ -171,5 +192,19 @@
   .add-product-button,
   .review-order-button {
     width: 100%;
+  }
+
+  .minus-icon-button {
+    border: none;
+    background: none;
+    font-size: 20px;
+    color: #f44336; /* Red color for minus button */
+    cursor: pointer;
+    margin-left: 5px;
+    z-index: 10;
+  }
+  
+  .minus-icon-button:hover {
+    color: #d32f2f;
   }
 }
