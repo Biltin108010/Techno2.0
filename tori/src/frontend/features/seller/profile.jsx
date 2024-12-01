@@ -3,6 +3,8 @@ import { AiOutlineEdit, AiOutlineSetting, AiOutlineLogout } from "react-icons/ai
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import "./profile.css"; // Import the CSS file for styling
+import { FiEdit3 } from "react-icons/fi";
+
 
 function Profile() {
   const navigate = useNavigate();
@@ -61,11 +63,14 @@ function Profile() {
   return (
     <div className="profile-container">
       <div className="profile-scrollable">
-        <div className="header-container">
-          <h1 className="title">Profile</h1>
-          <img src="/images/tori_logo2.png" alt="Logo" className="logo" />
+      <div className="home-page-header">
+        <h1 className="home-title">Profile</h1>
+        <div className="logo">
+          <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
         </div>
-        <div className="separator" />
+      </div>
+
+      <div className="home-divider"></div>
 
         <div className="profile-header">
           <div className="profile-image-wrapper">
@@ -74,7 +79,8 @@ function Profile() {
               src={user?.profile_picture || "https://via.placeholder.com/80"} // Default image if profile picture is null
               alt="Profile"
             />
-            <button className="edit-button">✏️</button>
+            <FiEdit3 size={24} className="edit-button" />
+
           </div>
           <h2 className="name">{user?.username || "Your Name"}</h2>
           <p className="contact">{user?.email || "your.email@example.com"}</p>
