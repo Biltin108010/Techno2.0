@@ -74,7 +74,7 @@ function Profile() {
               src={user?.profile_picture || "https://via.placeholder.com/80"} // Default image if profile picture is null
               alt="Profile"
             />
-            <button className="adminedit-button">✏️</button>
+            <button className="edit-button">✏️</button>
           </div>
           <h2 className="name">{user?.username || "Your Name"}</h2>
           <p className="contact">{user?.email || "your.email@example.com"}</p>

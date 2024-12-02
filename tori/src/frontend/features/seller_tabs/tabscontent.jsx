@@ -100,27 +100,23 @@ export default function TabContainer() {
   return (
     <div className="tab-container">
       <div className="header">
-          <div className="header-wrapper">
-            <div className="title">
-              {isEditing && (
-                <button className="back-button" onClick={toggleEditMode}>
-                  &#8592;
-                </button>
-              )}
-              <h2>Inventory</h2>
-              <div className="tabscontentlogo">
-              <img src="/images/tori_logo2.png" alt="Logo" width={50} height={50} />
-              </div>
-            </div>
+        <div className="header-wrapper">
+          <div className="title">
+            {isEditing && (
+              <button className="back-button" onClick={toggleEditMode}>
+                &#8592; {/* Unicode for left arrow */}
+              </button>
+            )}
+            <h2>Inventory</h2>
           </div>
 
-          {/* Moved search box below the title */}
           <div className="search-box-wrapper">
             <input
               type="search"
               placeholder="Search product"
               className="search-input"
             />
+            {/* Render Edit button based on userRole and activeTab */}
             {!isEditing && shouldShowEditButton() && (
               <button className="edit-button" onClick={toggleEditMode}>
                 Edit
@@ -128,6 +124,7 @@ export default function TabContainer() {
             )}
           </div>
         </div>
+      </div>
 
       {/* Tabs */}
       <div className="tabs">
