@@ -49,8 +49,10 @@
     height: 5rem;
     border-radius: 50%;
   }
+
   
-  .edit-button {
+  
+  .adminedit-button {
     position: absolute;
     bottom: 0;
     right: 0;

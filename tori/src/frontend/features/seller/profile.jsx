@@ -79,7 +79,7 @@ function Profile() {
               src={user?.profile_picture || "https://via.placeholder.com/80"} // Default image if profile picture is null
               alt="Profile"
             />
-            <FiEdit3 size={24} className="edit-button" />
+            <FiEdit3 size={24} className="selleredit-button" />
 
           </div>
           <h2 className="name">{user?.username || "Your Name"}</h2>
