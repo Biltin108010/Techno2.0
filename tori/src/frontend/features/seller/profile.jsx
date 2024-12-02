@@ -114,6 +114,15 @@ function Profile() {
           </div>
           Settings
         </button>
+        <button
+        className="action-button"
+        onClick={() => navigate("/seller/invite-team")} // Navigate to the Invite Team page
+      >
+        <div className="action-icon">
+          <AiOutlineEdit />
+        </div>
+        Invite Team
+      </button>
         <button className="action-button danger" onClick={handleLogout}>
           <div className="action-icon danger">
             <AiOutlineLogout />
