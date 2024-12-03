@@ -7,79 +7,45 @@ const ReviewPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Set initial state for orderItems with default quantity
+    // Set initial state for orderItems and counters
     const [orderItems, setOrderItems] = useState(
         (location.state?.items || []).map((item) => ({
             ...item,
-            quantity: item.quantity || 1, // Ensure quantity is at least 1
+            counter: 0, // Initialize the counter for each item at 0
         }))
     );
     const [feedbackMessage, setFeedbackMessage] = useState(""); // Feedback message
 
-    const handleQuantityChange = async (index, delta) => {
+    const handleCounterChange = (index, delta) => {
         const item = orderItems[index];
-        const newQuantity = (item.quantity || 1) + delta;
+        const newCounter = item.counter + delta;
 
-        // Prevent invalid quantities before making any changes
-        if (newQuantity < 1 || newQuantity > item.stock) {
-            return; // Exit early if the new quantity is out of valid bounds
+        // Prevent counter from going below 0 or exceeding quantity
+        if (newCounter < 0 || newCounter > item.quantity) {
+            return;
         }
 
-        try {
-            const { error } = await supabase
-                .from("inventory")
-                .update({ quantity: newQuantity })
-                .eq("id", item.id);
-
-            if (error) {
-                console.error("Error updating quantity:", error.message);
-                setFeedbackMessage("Failed to update quantity. Please try again.");
-                return;
-            }
-
-            // Update state after successful database update
-            const updatedItems = orderItems.map((orderItem, i) =>
-                i === index ? { ...orderItem, quantity: newQuantity } : orderItem
-            );
-            setOrderItems(updatedItems);
-            setFeedbackMessage("Quantity updated successfully!");
-        } catch (err) {
-            console.error("Unexpected error:", err.message);
-            setFeedbackMessage("An unexpected error occurred. Please try again.");
-        }
-    };
-
-
-    const handleRemoveItem = async (index) => {
-        const item = orderItems[index];
-
-        try {
-            const { error } = await supabase
-                .from("inventory") // Replace with your table name
-                .delete()
-                .eq("id", item.id);
-
-            if (error) {
-                console.error("Error removing item:", error.message);
-                setFeedbackMessage("Failed to remove item. Please try again.");
-                return;
-            }
-
-            // Remove item from state if the database delete is successful
-            setOrderItems(orderItems.filter((_, i) => i !== index));
-            setFeedbackMessage("Item removed successfully!");
-        } catch (err) {
-            console.error("Unexpected error:", err.message);
-            setFeedbackMessage("An unexpected error occurred. Please try again.");
-        }
+        // Update the counter in the state
+        const updatedItems = orderItems.map((orderItem, i) =>
+            i === index ? { ...orderItem, counter: newCounter } : orderItem
+        );
+        setOrderItems(updatedItems);
     };
 
     const handleConfirmOrder = async () => {
         try {
-            // Optional: Save the final order state to a different table (e.g., "orders")
+            // Create updates based on counter
+            const updates = orderItems.map((item) => ({
+                id: item.id,
+                quantity: item.quantity - item.counter, // Calculate new stock
+                name: item.name, // Include other required fields (e.g., name, price, etc.)
+                price: item.price,
+            }));
+
+            // Update inventory table with the new stock values
             const { error } = await supabase
-                .from("orders") // Replace with your orders table
-                .insert(orderItems.map(({ id, ...item }) => item)); // Adjust as needed
+                .from("inventory")
+                .upsert(updates); // Upsert ensures both updates and inserts
 
             if (error) {
                 console.error("Error confirming order:", error.message);
@@ -87,9 +53,9 @@ const ReviewPage = () => {
                 return;
             }
 
-            console.log("Order confirmed:", orderItems);
+            console.log("Order confirmed:", updates);
             setFeedbackMessage("Order confirmed successfully!");
-            navigate("../inventory"); // Navigate after confirming
+            navigate("../inventory"); // Navigate to inventory after confirming
         } catch (err) {
             console.error("Unexpected error:", err.message);
             setFeedbackMessage("An unexpected error occurred. Please try again.");
@@ -97,10 +63,9 @@ const ReviewPage = () => {
     };
 
     const totalAmount = orderItems.reduce(
-        (sum, item) => sum + (item.quantity || 0) * (item.price || 0), // Default to 0 for invalid values
+        (sum, item) => sum + item.counter * (item.price || 0), // Calculate total based on counter
         0
     );
-
 
     return (
         <div className="review-container">
@@ -124,29 +89,23 @@ const ReviewPage = () => {
                         <div className="item-details">
                             <h3 className="item-name">{item.name}</h3>
                             <p className="item-price">₱ {item.price.toFixed(2)}</p>
-                            <p className="item-stock">In stock: {item.stock}</p>
-                            <div className="quantity-controls">
+                            <p className="item-quantity">Total quantity: {item.quantity}</p>
+                            <div className="counter-controls">
                                 <button
-                                    onClick={() => handleQuantityChange(index, -1)}
-                                    disabled={item.quantity === 1}
+                                    onClick={() => handleCounterChange(index, -1)}
+                                    disabled={item.counter === 0}
                                 >
                                     -
                                 </button>
-                                <span className="quantity">{item.quantity}</span>
+                                <span className="counter">{item.counter}</span>
                                 <button
-                                    onClick={() => handleQuantityChange(index, 1)}
-                                    disabled={item.quantity === item.stock}
+                                    onClick={() => handleCounterChange(index, 1)}
+                                    disabled={item.counter === item.quantity}
                                 >
                                     +
                                 </button>
                             </div>
                         </div>
-                        <button
-                            className="remove-item"
-                            onClick={() => handleRemoveItem(index)}
-                        >
-                            🗑️
-                        </button>
                     </div>
                 ))}
             </div>
