@@ -251,7 +251,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         const { data: inventoryData, error: inventoryError } = await supabase
           .from('inventory')
           .select('id')  // Select the id from the inventory table
-          .eq('name', item.name)  // Assuming `name` is unique; adjust if needed
+          .eq('name', item.name)  // Assuming name is unique; adjust if needed
           .single();
 
         if (inventoryError) {
