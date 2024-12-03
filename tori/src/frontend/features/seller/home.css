@@ -22,7 +22,7 @@ body {
 }
 
 .home-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2.5rem;
   font-weight: 800;
   color: #333;
@@ -374,13 +374,15 @@ body {
   }
   
   .home-profit-card {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     flex: 1;
     margin: 0 10px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px; /* Slightly rounder corners for a smoother, more modern look */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2); /* Softer shadow for more depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+    cursor: pointer; /* Indicate it's clickable if used in interactive UI */
   }
   
   .home-divider {
