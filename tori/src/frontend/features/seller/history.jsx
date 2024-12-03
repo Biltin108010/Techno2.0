@@ -117,7 +117,7 @@ function History() {
       <header className="history-header">
         <h1 className="history-title">History</h1>
         <div className="logo">
-          <img src="/images/tori_logo2.png" alt="Logo" width={68} height={68} />
+          <img src="https://res.cloudinary.com/dcd5cnr4m/image/upload/v1733254195/Untitled_design_7_td7pot.png" alt="Logo" width={68} height={68} />
         </div>
       </header>
 
