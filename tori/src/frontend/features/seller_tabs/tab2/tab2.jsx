@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { AiOutlinePlus, AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
+import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab2.css";
 
@@ -8,6 +8,9 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [navigateToReview, setNavigateToReview] = useState(false);
   const navigate = useNavigate();
 
   const fetchInventory = async () => {
@@ -20,11 +23,10 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
         return;
       }
 
-      // Fetch inventory data for the invited user
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("email", userEmail);  // Filter inventory based on the invited user's email
+        .eq("email", userEmail);
 
       if (inventoryError) {
         console.error("Error fetching inventory data:", inventoryError.message);
@@ -36,7 +38,9 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
       if (inventoryData.length === 0) {
         setFeedbackMessage("No inventory items found for this user.");
       } else {
-        setItems(inventoryData);
+        setItems(
+          inventoryData.sort((a, b) => a.name.localeCompare(b.name)) // Alphabetical sort
+        );
         setFeedbackMessage("");
       }
     } catch (err) {
@@ -47,30 +51,125 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
     setIsSearching(false);
   };
 
+  const increaseQuantity = async (id) => {
+    const item = items.find((i) => i.id === id);
+
+    if (item) {
+      try {
+        const { error } = await supabase
+          .from("inventory")
+          .update({ quantity: item.quantity + 1 })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error increasing quantity:", error.message);
+          setFeedbackMessage("Failed to update quantity. Please try again.");
+          return;
+        }
+
+        fetchInventory(); // Refresh data
+        setFeedbackMessage("Quantity successfully increased!");
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        setFeedbackMessage("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
+
+  const decreaseQuantity = async (id) => {
+    const item = items.find((i) => i.id === id);
+
+    if (item && item.quantity > 1) {
+      try {
+        const { error } = await supabase
+          .from("inventory")
+          .update({ quantity: item.quantity - 1 })
+          .eq("id", id);
+
+        if (error) {
+          console.error("Error decreasing quantity:", error.message);
+          setFeedbackMessage("Failed to update quantity. Please try again.");
+          return;
+        }
+
+        fetchInventory();
+        setFeedbackMessage("Quantity successfully decreased!");
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        setFeedbackMessage("An unexpected error occurred. Please try again.");
+      }
+    } else {
+      setFeedbackMessage("Quantity cannot be less than 1.");
+    }
+  };
+
+  const duplicateItem = async (item) => {
+    if (!userEmail) {
+      setFeedbackMessage("You must be logged in to duplicate a product.");
+      return;
+    }
+
+    const duplicatedItem = {
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      email: userEmail,
+      created_at: new Date().toISOString(),
+      inventory_id: item.id,
+    };
+
+    try {
+      const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
+
+      if (error) {
+        console.error("Error duplicating item:", error.message);
+        setFeedbackMessage("Already added to cart. Please try again.");
+        return;
+      }
+
+      setFeedbackMessage("Product successfully added to cart!");
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const handleNavigateToReview = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("add_cart")
+        .select("*")
+        .eq("email", userEmail);
+
+      if (error) {
+        console.error("Error fetching cart items:", error.message);
+        setFeedbackMessage("Failed to fetch cart items.");
+        return;
+      }
+
+      navigate("/seller/review", { state: { items: data } });
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred.");
+    }
+  };
+
   useEffect(() => {
     if (userEmail) {
       fetchInventory();
     }
   }, [userEmail]);
 
-  const handleNavigateToReview = () => {
-    navigate("/seller/review", { state: { items } });
-  };
-
   return (
     <div className="tab2-container">
       {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
-      
 
-
-      {/* If no items found and not searching */}
       {items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
           <AiOutlineUser className="huge-user-icon" />
         </div>
       )}
 
-      {/* Display inventory items if available */}
       {items.length > 0 && (
         <div className="tab-content">
           {items.map((item) => (
@@ -84,9 +183,20 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">
                   Qty: {item.quantity}
-                  <AiOutlineMinus className="minus-icon" />
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={() => increaseQuantity(item.id)}
+                  />
+                  <AiOutlineMinus
+                    className="minus-icon"
+                    onClick={() => decreaseQuantity(item.id)}
+                  />
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>
+                <AiOutlinePlus
+                  className="duplicate-icon"
+                  onClick={() => duplicateItem(item)}
+                />
               </div>
             </div>
           ))}
