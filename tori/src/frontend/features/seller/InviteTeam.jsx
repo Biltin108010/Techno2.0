@@ -152,12 +152,14 @@ function InviteTeam() {
   };
 
   // Handle remove account
-  const handleRemoveAccount = async (email) => {
+  const handleRemoveAccount = async (inviteEmail) => {
     try {
+      // Delete the invite record where the current user's email is the inviter and the invitee's email is the one we want to remove
       const { error } = await supabase
         .from("team")
         .delete()
-        .eq("email", email);
+        .eq("email", currentUserEmail)  // Current user's email is the inviter
+        .eq("invite", inviteEmail);  // Matching the invitee's email
 
       if (error) {
         console.error("Error removing account:", error.message);
@@ -166,7 +168,7 @@ function InviteTeam() {
       }
 
       alert("Account removed successfully!");
-      fetchTeamData(); // Re-fetch to update table after removal
+      fetchTeamData(); // Re-fetch to update the table after removal
     } catch (err) {
       console.error("Error removing account:", err.message);
       alert("Failed to remove account.");
@@ -212,7 +214,7 @@ function InviteTeam() {
                   <td>{invite.approved ? "Approved" : "Pending"}</td>
                   <td>{invite.role}</td> {/* Display the role */}
                   <td>
-                    <button onClick={() => handleRemoveAccount(invite.email)}>
+                    <button onClick={() => handleRemoveAccount(invite.invite)}>
                       Remove
                     </button>
                   </td>
