@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab3.css";
 
@@ -7,12 +8,12 @@ const Tab3 = () => {
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const navigate = useNavigate();
 
-  const fetchTab3Data = async () => {
+  const fetchInventory = async () => {
     setIsSearching(true);
 
     try {
-      // Get the current user's email
       const { data: userData, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
@@ -29,16 +30,15 @@ const Tab3 = () => {
         return;
       }
 
-      // Query the `team` table for the current user's email
       const { data: teamData, error: teamError } = await supabase
         .from("team")
-        .select("tab_access, approved") // Use a different column for Tab 3, e.g., `tab_access`
+        .select("invite, approved")
         .eq("email", currentUserEmail)
         .single();
 
       if (teamError || !teamData) {
         console.error("Error fetching team data:", teamError?.message);
-        setFeedbackMessage("User not found in the team.");
+        setFeedbackMessage("You are not part of a team or your invite is missing.");
         setIsSearching(false);
         return;
       }
@@ -49,12 +49,26 @@ const Tab3 = () => {
         return;
       }
 
-      // Example of unique logic: Query inventory where `tab_access` matches
+      const firstLevelInviter = teamData.invite;
+
+      const { data: teamData2, error: teamError2 } = await supabase
+        .from("team")
+        .select("invite, approved")
+        .eq("email", firstLevelInviter)
+        .single();
+
+      if (teamError2 || !teamData2) {
+        setFeedbackMessage("Your inviter's inviter's information is missing.");
+        setIsSearching(false);
+        return;
+      }
+
+      const secondLevelInviter = teamData2.invite;
+
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("tab_access", "tab3") // Ensure `inventory` has distinct data for Tab 3
-        .neq("email", currentUserEmail); // Optional: Filter out current user's inventory from Tab 2
+        .eq("email", secondLevelInviter);
 
       if (inventoryError) {
         console.error("Error fetching inventory data:", inventoryError.message);
@@ -64,7 +78,7 @@ const Tab3 = () => {
       }
 
       if (inventoryData.length === 0) {
-        setFeedbackMessage("No inventory items found for Tab 3.");
+        setFeedbackMessage("No inventory items found for your inviter's inviter.");
       } else {
         setItems(inventoryData);
         setFeedbackMessage("");
@@ -78,23 +92,21 @@ const Tab3 = () => {
   };
 
   useEffect(() => {
-    fetchTab3Data();
+    fetchInventory();
   }, []);
+
+  const handleNavigateToReview = () => {
+    navigate("/seller/review", { state: { items } });
+  };
 
   return (
     <div className="tab3-container">
-      {feedbackMessage && (
-        <div className="feedback-message">
-          <p>{feedbackMessage}</p>
-        </div>
-      )}
-
+      {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
       {items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
           <AiOutlineUser className="huge-user-icon" />
         </div>
       )}
-
       {items.length > 0 && (
         <div className="tab-content">
           {items.map((item) => (
@@ -108,15 +120,15 @@ const Tab3 = () => {
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">
                   Qty: {item.quantity}
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={() => console.log("Decrease Quantity")}
-                  />
+                  <AiOutlineMinus className="minus-icon" />
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>
               </div>
             </div>
           ))}
+          <button className="review-order-button" onClick={handleNavigateToReview}>
+            Review Order
+          </button>
         </div>
       )}
     </div>
