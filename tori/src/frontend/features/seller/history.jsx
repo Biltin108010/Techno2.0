@@ -1,19 +1,107 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCartPlus, FaFilter } from 'react-icons/fa'; // Importing specific icons from React Icons
+import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import './history.css';
 
 function History() {
-  const [selectedDate, setSelectedDate] = useState('Today');
-  const [isFilterModalOpen, setFilterModalOpen] = useState(false); // State for modal visibility
+  const [historyData, setHistoryData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]); // To store filtered history data
+  const [isFilterModalOpen, setFilterModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('Today'); // Holds the selected date from dropdown
+  const [filterPeriod, setFilterPeriod] = useState(''); // Holds selected filter period (e.g., Today, This Week)
+  const [startDate, setStartDate] = useState(''); // Custom start date
+  const [endDate, setEndDate] = useState(''); // Custom end date
 
-  // Sample data for history items
-  const historyData = [
-    { id: 1, title: 'Items Sold', seller: 'Seller 1', amount: 60, date: '17 Sep 2023', time: '11:21 AM' },
-    { id: 2, title: 'Items Sold', seller: 'Seller 1', amount: 60, date: '17 Sep 2023', time: '11:21 AM' },
-  ];
+  // Fetch initial history data
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('audit_logs') // Replace with your table name
+          .select('name, email, price, quantity, created_at') // Fetch the name instead of item_id
+          .eq('action', 'DEDUCTION'); // Filter by action DEDUCTION
 
+        if (error) {
+          console.error('Error fetching history:', error.message);
+          return;
+        }
+
+        // Format the data to include computed total price
+        const formattedData = data.map((item) => ({
+          ...item,
+          totalPrice: item.price * item.quantity, // Calculate total price
+        }));
+
+        setHistoryData(formattedData);
+        setFilteredData(formattedData); // Initialize filtered data
+      } catch (err) {
+        console.error('Unexpected error:', err.message);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
+  // Handle dropdown selection
   const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
+    const selected = event.target.value;
+    setSelectedDate(selected);
+    let filtered = [...historyData];
+
+    const today = new Date();
+    if (selected === 'Today') {
+      filtered = filtered.filter(
+        (item) =>
+          new Date(item.created_at).toDateString() === today.toDateString()
+      );
+    } else if (selected === 'Yesterday') {
+      const yesterday = new Date();
+      yesterday.setDate(today.getDate() - 1);
+      filtered = filtered.filter(
+        (item) =>
+          new Date(item.created_at).toDateString() === yesterday.toDateString()
+      );
+    } else if (selected === 'Last Week') {
+      const lastWeekStart = new Date(today.setDate(today.getDate() - 7));
+      filtered = filtered.filter(
+        (item) => new Date(item.created_at) >= lastWeekStart
+      );
+    } else if (selected === 'Last Month') {
+      const lastMonth = new Date(today.setMonth(today.getMonth() - 1));
+      filtered = filtered.filter(
+        (item) => new Date(item.created_at) >= lastMonth
+      );
+    }
+
+    setFilteredData(filtered);
+  };
+
+  // Filter the data based on the custom filter modal
+  const applyFilters = () => {
+    let filtered = [...historyData];
+
+    const today = new Date();
+    if (filterPeriod === 'Today') {
+      filtered = filtered.filter(
+        (item) =>
+          new Date(item.created_at).toDateString() === today.toDateString()
+      );
+    } else if (filterPeriod === 'This Week') {
+      const weekStart = new Date(today.setDate(today.getDate() - today.getDay())); // Start of the week
+      filtered = filtered.filter((item) => new Date(item.created_at) >= weekStart);
+    } else if (filterPeriod === 'This Month') {
+      const monthStart = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the month
+      filtered = filtered.filter((item) => new Date(item.created_at) >= monthStart);
+    } else if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      filtered = filtered.filter(
+        (item) => new Date(item.created_at) >= start && new Date(item.created_at) <= end
+      );
+    }
+
+    setFilteredData(filtered);
+    toggleFilterModal(); // Close the filter modal after applying filters
   };
 
   const toggleFilterModal = () => {
@@ -52,61 +140,60 @@ function History() {
       </div>
 
       {/* Filter Modal */}
-    {isFilterModalOpen && (
-      <div className="filter-modal">
-        <div className="filter-modal-content">
-        <button className="close-modal-button" onClick={closeFilterModal}>
-        ✕
-      </button>
-          <div className="filter-header">
-            <h1 className="filter-title">Filter</h1>
-
-            <button className="clear-button" onClick={() => console.log('Clear filters')}>
-              Clear
+      {isFilterModalOpen && (
+        <div className="filter-modal">
+          <div className="filter-modal-content">
+            <button className="close-modal-button" onClick={closeFilterModal}>
+              ✕
             </button>
-          </div>
-          <div className="divider"></div>
+            <h1 className="filter-title">Filter</h1>
+            <div className="divider"></div>
 
-
-          <div className="filter-options">
-            <div className="filter-section">
-              <h2 className="filter-subtitle">Period</h2>
-              <div className="period-options">
-                <button className="period-button">Today</button>
-                <button className="period-button">This week</button>
-                <button className="period-button">This month</button>
-                <button className="period-button">Previous month</button>
-                <button className="period-button">This year</button>
+            {/* Filter Options */}
+            <div className="filter-options">
+              <div className="filter-section">
+                <h2 className="filter-subtitle">Custom Date Range</h2>
+                <div className="date-range">
+                  <input
+                    type="date"
+                    className="date-input"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                  <span> - </span>
+                  <input
+                    type="date"
+                    className="date-input"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="filter-section">
-              <h2 className="filter-subtitle">Select period</h2>
-              <div className="date-range">
-                <input type="date" className="date-input" />
-                <span> - </span>
-                <input type="date" className="date-input" />
-              </div>
+              <button className="filter-apply-button" onClick={applyFilters}>
+                Apply Filters
+              </button>
             </div>
-
-            <button className="filter-apply-button">Show results (3261)</button>
           </div>
         </div>
-      </div>
-    )}
+      )}
 
-
+      {/* History List */}
       <div className="history-list">
-        {historyData.map((item) => (
-          <div key={item.id} className="history-item">
-            <FaCartPlus size={24} className="item-icon" /> {/* React Cart Icon */}
+        {filteredData.map((item) => (
+          <div key={item.name} className="history-item">
+            <FaCartPlus size={24} className="item-icon" />
             <div className="item-details">
-              <div className="title">{item.title}</div>
-              <div className="sub-title">Seller Name: {item.seller}</div>
+              <div className="title">Name: {item.name}</div>
+              <div className="sub-title">Email: {item.email}</div>
             </div>
             <div className="amount-date">
-              <div className="amount">₱ {item.amount.toFixed(2)}</div>
-              <div className="sub-date">{`${item.date} ${item.time}`}</div>
+              <div className="amount">
+                ₱ {item.totalPrice.toFixed(2)} (Qty: {item.quantity})
+              </div>
+              <div className="sub-date">
+                {new Date(item.created_at).toLocaleString()}
+              </div>
             </div>
           </div>
         ))}
