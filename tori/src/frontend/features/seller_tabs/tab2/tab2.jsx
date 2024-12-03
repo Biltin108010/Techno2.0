@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab2.css";
 
-const Tab2 = () => {
+const Tab2 = ({ userEmail, userTeamEmails }) => {
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -12,65 +12,29 @@ const Tab2 = () => {
 
   const fetchInventory = async () => {
     setIsSearching(true);
-  
+
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-  
-      if (userError) {
-        console.error("Error fetching current user:", userError.message);
-        setFeedbackMessage("Failed to fetch user data.");
+      if (!userEmail) {
+        setFeedbackMessage("No user email provided.");
         setIsSearching(false);
         return;
       }
-  
-      const currentUserEmail = userData?.user?.email;
-      if (!currentUserEmail) {
-        setFeedbackMessage("User is not authenticated.");
-        setIsSearching(false);
-        return;
-      }
-  
-      const { data: teamData, error: teamError } = await supabase
-        .from("team")
-        .select("invite, approved")
-        .eq("email", currentUserEmail)
-        .single();
-  
-      if (teamError || !teamData) {
-        console.error("Error fetching team data:", teamError?.message);
-        setFeedbackMessage("You are not part of a team or your invite is missing.");
-        setIsSearching(false);
-        return;
-      }
-  
-      if (!teamData.approved) {
-        setFeedbackMessage("Access denied. Your invite is not approved.");
-        setIsSearching(false);
-        return;
-      }
-  
-      const inviterEmail = teamData.invite;
-  
-      if (!inviterEmail) {
-        setFeedbackMessage("Your inviter's information is missing.");
-        setIsSearching(false);
-        return;
-      }
-  
+
+      // Fetch inventory data for the invited user
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("email", inviterEmail);
-  
+        .eq("email", userEmail);  // Filter inventory based on the invited user's email
+
       if (inventoryError) {
         console.error("Error fetching inventory data:", inventoryError.message);
         setFeedbackMessage("Failed to fetch inventory data.");
         setIsSearching(false);
         return;
       }
-  
+
       if (inventoryData.length === 0) {
-        setFeedbackMessage("No inventory items found for your inviter.");
+        setFeedbackMessage("No inventory items found for this user.");
       } else {
         setItems(inventoryData);
         setFeedbackMessage("");
@@ -79,14 +43,15 @@ const Tab2 = () => {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred.");
     }
-  
+
     setIsSearching(false);
   };
-  
 
   useEffect(() => {
-    fetchInventory();
-  }, []);
+    if (userEmail) {
+      fetchInventory();
+    }
+  }, [userEmail]);
 
   const handleNavigateToReview = () => {
     navigate("/seller/review", { state: { items } });
@@ -95,11 +60,17 @@ const Tab2 = () => {
   return (
     <div className="tab2-container">
       {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
+      
+
+
+      {/* If no items found and not searching */}
       {items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
           <AiOutlineUser className="huge-user-icon" />
         </div>
       )}
+
+      {/* Display inventory items if available */}
       {items.length > 0 && (
         <div className="tab-content">
           {items.map((item) => (

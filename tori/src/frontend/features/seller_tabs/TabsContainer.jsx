@@ -5,38 +5,35 @@ import Tab1 from './tab1/tab1';
 import Tab2 from './tab2/tab2';
 import Tab3 from './tab3/tab3';
 import './TabsContainer.css';
-import supabase from '../../../backend/supabaseClient'; // Ensure you import your Supabase client
+import supabase from '../../../backend/supabaseClient';
 
 export default function TabContainer() {
-  const [activeTab, setActiveTab] = useState(1); // Default to Tab 2 (index 1)
+  const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  const [userRole, setUserRole] = useState(null); // To store the user's role
-  const [email, setEmail] = useState(null); // To store the user's email
-  const [username, setUsername] = useState(''); // To store the current user's username
-  const [invitedUsername, setInvitedUsername] = useState(null); // To store the invited user's username
-  const [users, setUsers] = useState([]); // To store all users from the database
+  const [userRole, setUserRole] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [username, setUsername] = useState('');
+  const [invitedUsers, setInvitedUsers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [inviterInventory, setInviterInventory] = useState([]);
+  const [secondInvitedUserInventory, setSecondInvitedUserInventory] = useState([]);
+  const [userTeamEmails, setUserTeamEmails] = useState([]); // Track the team emails
 
-  // Function to toggle edit mode
   const toggleEditMode = () => {
     setIsEditing((prev) => !prev);
   };
 
-  // Fetch user details and users list
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser(); // Fetch the current user
-
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (error) {
         console.error('Error fetching user details:', error);
         return;
       }
-
       if (user) {
-        setEmail(user.email); // Set the user's email
-
-        // Fetch the username and role of the user based on their email
+        setEmail(user.email);
         const { data: userData, error: roleError } = await supabase
-          .from('users') // Replace 'users' with your actual table name
+          .from('users')
           .select('username, role')
           .eq('email', user.email)
           .single();
@@ -44,45 +41,85 @@ export default function TabContainer() {
         if (roleError) {
           console.error('Error fetching user role and username:', roleError);
         } else if (userData) {
-          setUsername(userData.username); // Set the user's username
-          setUserRole(userData.role); // Set the user's role
+          setUsername(userData.username);
+          setUserRole(userData.role);
         }
 
-        // Fetch the team data to find the invited user
+        // Fetch the team data and the users, checking both email and invite columns
         const { data: teamData, error: teamError } = await supabase
           .from('team')
-          .select('invite')
-          .eq('email', user.email)
-          .single();
+          .select('email, invite')
+          .or(`email.eq.${user.email},invite.eq.${user.email}`);  // Check both email and invite columns
 
         if (teamError) {
           console.error('Error fetching team data:', teamError);
-        } else if (teamData && teamData.invite) {
-          // Fetch the username of the invited user
-          const { data: invitedUser, error: invitedUserError } = await supabase
-            .from('users')
-            .select('username')
-            .eq('email', teamData.invite)
-            .single();
+        } else if (teamData && teamData.length > 0) {
+          // Filter out users who are invited and the ones whose email matches
+          const invites = teamData
+            .map((teamMember) => teamMember.invite)
+            .filter((invite) => invite !== null && invite !== user.email); // Exclude current user email
 
-          if (invitedUserError) {
-            console.error('Error fetching invited user data:', invitedUserError);
-          } else if (invitedUser) {
-            setInvitedUsername(invitedUser.username); // Set the invited user's username
+          const usersData = await Promise.all(
+            invites.map(async (inviteEmail) => {
+              const { data: invitedUser, error } = await supabase
+                .from('users')
+                .select('username')
+                .eq('email', inviteEmail)
+                .single();
+              if (error) {
+                console.error(`Error fetching invited user data for ${inviteEmail}:`, error);
+              } else if (invitedUser) {
+                return { email: inviteEmail, username: invitedUser.username };
+              }
+              return null;
+            })
+          );
+
+          setInvitedUsers(usersData.filter((user) => user !== null));
+
+          // If the invitee exists, fetch the corresponding inventory data
+          if (invites.length > 0) {
+            const { data: inviterInventoryData, error: inventoryError } = await supabase
+              .from('inventory')
+              .select('*')
+              .eq('email', invites[0]);
+
+            if (inventoryError) {
+              console.error('Error fetching inviter inventory:', inventoryError);
+            } else {
+              setInviterInventory(inviterInventoryData);
+            }
           }
+
+          if (invites.length > 1) {
+            const { data: secondInvitedUserInventoryData, error: secondInventoryError } = await supabase
+              .from('inventory')
+              .select('*')
+              .eq('email', invites[1]);
+
+            if (secondInventoryError) {
+              console.error('Error fetching second invited user inventory:', secondInventoryError);
+            } else {
+              setSecondInvitedUserInventory(secondInvitedUserInventoryData);
+            }
+          }
+
+          // Set team emails as well
+          const teamEmails = teamData.map((teamMember) => teamMember.email);
+          setUserTeamEmails(teamEmails);
         }
       }
     };
 
     const fetchAllUsers = async () => {
       const { data: allUsers, error } = await supabase
-        .from('users') // Fetch all users
+        .from('users')
         .select('username');
 
       if (error) {
         console.error('Error fetching users:', error);
       } else {
-        setUsers(allUsers); // Set the list of users
+        setUsers(allUsers);
       }
     };
 
@@ -90,37 +127,45 @@ export default function TabContainer() {
     fetchAllUsers();
   }, []);
 
-  // Render the correct tab content
+  useEffect(() => {
+    setActiveTab(0); // Default to Tab 1 (activeTab 0)
+  }, [users]);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 0:
         return <Tab1 isEditing={isEditing} handleEditMode={toggleEditMode} />;
       case 1:
-        return <Tab2 isEditing={isEditing} />;
+        return (
+          <Tab2
+            isEditing={isEditing}
+            userEmail={invitedUsers[0]?.email}
+            inviterInventory={inviterInventory}
+            userTeamEmails={userTeamEmails} // Pass user team emails to Tab2
+          />
+        );
       case 2:
-        return <Tab3 isEditing={isEditing} />;
+        return (
+          <Tab3
+            isEditing={isEditing}
+            userEmail={invitedUsers[1]?.email}
+            secondInvitedInventory={secondInvitedUserInventory}
+          />
+        );
       default:
         return null;
     }
   };
 
-  // Determine if the Edit button should be visible
   const shouldShowEditButton = () => {
     if (userRole === 'admin') {
-      return true; // Admin can see the edit button on all tabs
+      return true;
     }
     if (userRole === 'seller' && activeTab === 0) {
-      return true; // Seller can only see the edit button on Tab 1
+      return true;
     }
-    return false; // Otherwise, no edit button
+    return false;
   };
-
-  // Default to Tab 2 if no users exist
-  useEffect(() => {
-    if (users.length === 0) {
-      setActiveTab(1); // Default to Tab 2
-    }
-  }, [users]);
 
   return (
     <div className="tab-container">
@@ -145,7 +190,6 @@ export default function TabContainer() {
             placeholder="Search product"
             className="search-input"
           />
-          {/* Render Edit button based on userRole and activeTab */}
           {!isEditing && shouldShowEditButton() && (
             <button className="edit-button" onClick={toggleEditMode}>
               Edit
@@ -154,31 +198,31 @@ export default function TabContainer() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="tabs">
-        {username && (
+        <button
+          onClick={() => setActiveTab(0)}
+          className={`tab ${activeTab === 0 ? 'active-tab' : ''}`}
+        >
+          {username}
+        </button>
+        {invitedUsers.length > 0 && (
           <button
-            onClick={() => setActiveTab(0)}
-            className={`tab ${activeTab === 0 ? 'active-tab' : ''}`}
+            onClick={() => setActiveTab(1)}
+            className={`tab ${activeTab === 1 ? 'active-tab' : ''}`}
           >
-            {username}
+            {invitedUsers[0]?.username || 'Tab 2'}
           </button>
         )}
-        <button
-          onClick={() => setActiveTab(1)}
-          className={`tab ${activeTab === 1 ? 'active-tab' : ''}`}
-        >
-          {invitedUsername || 'Tab 2'}
-        </button>
-        <button
-          onClick={() => setActiveTab(2)}
-          className={`tab ${activeTab === 2 ? 'active-tab' : ''}`}
-        >
-          Tab 3
-        </button>
+        {invitedUsers.length > 1 && (
+          <button
+            onClick={() => setActiveTab(2)}
+            className={`tab ${activeTab === 2 ? 'active-tab' : ''}`}
+          >
+            {invitedUsers[1]?.username || 'Tab 3'}
+          </button>
+        )}
       </div>
 
-      {/* Content */}
       <div className="tab-content">{renderTabContent()}</div>
     </div>
   );

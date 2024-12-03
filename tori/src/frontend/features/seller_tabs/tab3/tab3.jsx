@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab3.css";
 
-const Tab3 = () => {
+const Tab3 = ({ userEmail }) => {
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -14,61 +14,17 @@ const Tab3 = () => {
     setIsSearching(true);
 
     try {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-
-      if (userError) {
-        console.error("Error fetching current user:", userError.message);
-        setFeedbackMessage("Failed to fetch user data.");
+      if (!userEmail) {
+        setFeedbackMessage("No user email provided.");
         setIsSearching(false);
         return;
       }
 
-      const currentUserEmail = userData?.user?.email;
-      if (!currentUserEmail) {
-        setFeedbackMessage("User is not authenticated.");
-        setIsSearching(false);
-        return;
-      }
-
-      const { data: teamData, error: teamError } = await supabase
-        .from("team")
-        .select("invite, approved")
-        .eq("email", currentUserEmail)
-        .single();
-
-      if (teamError || !teamData) {
-        console.error("Error fetching team data:", teamError?.message);
-        setFeedbackMessage("You are not part of a team or your invite is missing.");
-        setIsSearching(false);
-        return;
-      }
-
-      if (!teamData.approved) {
-        setFeedbackMessage("Access denied. Your invite is not approved.");
-        setIsSearching(false);
-        return;
-      }
-
-      const firstLevelInviter = teamData.invite;
-
-      const { data: teamData2, error: teamError2 } = await supabase
-        .from("team")
-        .select("invite, approved")
-        .eq("email", firstLevelInviter)
-        .single();
-
-      if (teamError2 || !teamData2) {
-        setFeedbackMessage("Your inviter's inviter's information is missing.");
-        setIsSearching(false);
-        return;
-      }
-
-      const secondLevelInviter = teamData2.invite;
-
+      // Fetch inventory data for the invited user
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("email", secondLevelInviter);
+        .eq("email", userEmail);  // Filter inventory based on the invited user's email
 
       if (inventoryError) {
         console.error("Error fetching inventory data:", inventoryError.message);
@@ -78,7 +34,7 @@ const Tab3 = () => {
       }
 
       if (inventoryData.length === 0) {
-        setFeedbackMessage("No inventory items found for your inviter's inviter.");
+        setFeedbackMessage("No inventory items found for this user.");
       } else {
         setItems(inventoryData);
         setFeedbackMessage("");
@@ -92,15 +48,17 @@ const Tab3 = () => {
   };
 
   useEffect(() => {
-    fetchInventory();
-  }, []);
+    if (userEmail) {
+      fetchInventory();
+    }
+  }, [userEmail]);
 
   const handleNavigateToReview = () => {
     navigate("/seller/review", { state: { items } });
   };
 
   return (
-    <div className="tab3-container">
+    <div className="tab2-container">
       {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
       {items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
