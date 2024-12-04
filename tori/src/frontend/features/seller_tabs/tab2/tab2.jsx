@@ -232,6 +232,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
                   />
                 </p>
                 <p className="inv-item-price">Price: ₱{item.price}</p>
+                <p className="item-price">Price: ₱{item.price}</p>
                 <AiOutlinePlus
                   className="duplicate-icon"
                   onClick={() => duplicateItem(item)}
