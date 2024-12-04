@@ -1,120 +1,117 @@
-/* Global Styles */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #ffffff; /* White background */
-  color: #333333; /* Dark text for better contrast */
-  margin: 0;
-  padding: 0;
-}
-
-h2 {
-  color: #333333;
-  font-size: 1.5em;
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-
-/* Container for the entire invite team page */
 .invite-team-container {
-  padding: 20px;
-  max-width: 500px;
-  margin: 20px auto;
+  padding: 40px;
+  max-width: 750px;
+  margin: 50px auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f9f9f9; /* Slight gray background for the container */
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for the container */
+  background-color: #ffffff; /* White background for the container */
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Enhanced shadow for a modern look */
+  font-family: 'Inter', sans-serif;
+}
+
+/* Title and Headers */
+h2 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #333;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 /* Form Inputs */
 .invite-team-input-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .invite-team-input-container input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  background-color: #f1f1f1; /* Light background for the input */
-  border: 1px solid #ddd; /* Light border */
+  padding: 16px;
+  margin-bottom: 24px;
+  background-color: #f7f7f7; /* Soft light background */
+  border: 1px solid #ddd;
   color: #333;
-  font-size: 1rem;
-  border-radius: 5px;
+  font-size: 1.1rem;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
 .invite-team-input-container input:focus {
   outline: none;
-  border-color: #007bff; /* Highlight border color on focus */
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); /* Soft blue glow on focus */
 }
 
 .invite-team-input-container button {
   width: 100%;
-  padding: 12px;
-  background-color: #007bff; /* Blue background */
-  border: 1px solid #007bff;
+  padding: 16px;
+  background-color: #3498db; /* Blue background */
+  border: none;
   color: white;
-  font-size: 1rem;
-  border-radius: 5px;
+  font-size: 1.1rem;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Poppins', sans-serif;
 }
 
 .invite-team-input-container button:disabled {
-  background-color: #ddd;
+  background-color: #bdc3c7; /* Disabled button color */
   cursor: not-allowed;
 }
 
 .invite-team-input-container button:hover {
-  background-color: #0056b3; /* Darker blue on hover */
+  background-color: #2980b9; /* Darker blue on hover */
 }
 
 /* Table Styles */
 .invite-team-table-container {
   width: 100%;
-  margin-top: 30px;
+  margin-top: 40px;
   overflow-x: auto;
 }
 
 .invite-team-table-container table {
   width: 100%;
   border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .invite-team-table-container th,
 .invite-team-table-container td {
-  padding: 12px;
+  padding: 18px;
   text-align: left;
-  border-bottom: 1px solid #ddd; /* Light border for rows */
+  border-bottom: 1px solid #ddd;
+  font-size: 1.1rem;
+  color: #333;
 }
 
 .invite-team-table-container th {
-  background-color: #007bff;
+  background-color: #3498db;
   color: white;
-  font-size: 1rem;
   font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .invite-team-table-container td {
-  background-color: #f9f9f9;
-  font-size: 0.9rem;
+  background-color: #fafafa;
 }
 
 .invite-team-table-container button {
   background-color: #28a745;
   color: white;
-  padding: 6px 12px;
-  border-radius: 5px;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   border: none;
-  margin-right: 10px;
-  transition: background-color 0.3s ease;
+  margin-right: 12px;
+  transition: background-color 0.3s ease-in-out;
 }
 
 .invite-team-table-container button:hover {
@@ -126,52 +123,108 @@ h2 {
   cursor: not-allowed;
 }
 
-/* Back Button */
-.back-button-container {
-  margin-top: 30px;
-  text-align: center;
+/* Back Button Styles */
+.inviteback-button-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
 }
 
-.back-button {
-  padding: 12px 24px;
-  background-color: #007bff;
+.inviteback-button {
+  padding: 12px 20px;
+  background-color: #333; /* Dark gray background */
   color: white;
-  font-size: 1rem;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Poppins', sans-serif;
 }
 
-.back-button:hover {
-  background-color: #0056b3;
+.inviteback-button:hover {
+  background-color: #444; /* Slightly darker gray on hover */
 }
 
-.back-button:focus {
+.inviteback-button:focus {
   outline: none;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 600px) {
   .invite-team-container {
-    padding: 15px;
-    width: 90%; /* Make the container width flexible */
+    padding: 20px;
+    width: 90%; /* Make the container width flexible on smaller screens */
   }
 
   .invite-team-input-container input {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .invite-team-input-container button {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
-  .invite-team-table-container th, .invite-team-table-container td {
-    font-size: 0.9rem;
+  .invite-team-table-container th,
+  .invite-team-table-container td {
+    font-size: 1rem;
   }
 
-  .back-button {
-    font-size: 0.9rem;
-    padding: 10px 20px;
+  .inviteback-button {
+    font-size: 1rem;
+    padding: 12px 20px;
   }
+}
+
+/* Invite Form Styles */
+.invite-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 30px;
+}
+
+.invite-form-container input {
+  width: 81%;
+  max-width: 400px; /* Ensure input doesn't stretch too wide */
+  padding: 14px;
+  margin-bottom: 18px;
+  background-color: #f7f7f7; /* Soft light background for input */
+  border: 1px solid #ddd;
+  color: #333;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.invite-form-container input:focus {
+  outline: none;
+  border-color: #333; /* Blue border on focus */
+  box-shadow: 0 0 6px rgba(52, 152, 219, 0.3); /* Light blue shadow on focus */
+}
+
+.invite-form-container button {
+  width: 88%;
+  max-width: 400px; /* Align button width with input */
+  padding: 14px;
+  background-color: #333; /* Blue background */
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+}
+
+.invite-form-container button:disabled {
+  background-color: #bdc3c7; /* Disabled button color */
+  cursor: not-allowed;
+}
+
+.invite-form-container button:hover {
+  background-color: #333; /* Darker blue on hover */
 }
