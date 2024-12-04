@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
-import "./tab3.css";
+import "../tab1/tab1.css";
 
 const Tab3 = ({ userEmail, userTeamEmails }) => {
   const [items, setItems] = useState([]);
