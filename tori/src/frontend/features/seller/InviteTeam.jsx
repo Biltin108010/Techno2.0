@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import { useNavigate } from "react-router-dom"; // For navigating between pages
+import "./InviteTeam.css"
 
 function InviteTeam() {
   const [emailInput, setEmailInput] = useState(""); // Input field for inviting email
