@@ -220,17 +220,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
-                <p className="item-quantity">
-                  Qty: {item.quantity}
-                  <AiOutlinePlus
-                    className="plus-icon"
-                    onClick={() => increaseQuantity(item.id)}
-                  />
-                  <AiOutlineMinus
-                    className="minus-icon"
-                    onClick={() => decreaseQuantity(item.id)}
-                  />
-                </p>
+
                 <p className="inv-item-price">Price: ₱{item.price}</p>
                 <p className="item-price">Price: ₱{item.price}</p>
                 <AiOutlinePlus
