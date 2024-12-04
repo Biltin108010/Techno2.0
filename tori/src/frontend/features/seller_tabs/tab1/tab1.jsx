@@ -354,7 +354,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                 <img
                   src={item.image || "https://via.placeholder.com/100"}
                   alt={item.name}
-                  className="item-image"
+                  className="inv-item-image"
                 />
                 <div className="item-text-container">
                   <p className="item-title">{item.name}</p>
@@ -388,7 +388,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               <img
                 src={item.image || "https://via.placeholder.com/100"}
                 alt={item.name}
-                className="item-image"
+                className="inv-item-image"
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
@@ -401,7 +401,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               </div>
             </div>
           ))}
-          <button className="review-order-button" onClick={handleNavigateToReview}>
+          <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
             Review Order
           </button>
         </div>

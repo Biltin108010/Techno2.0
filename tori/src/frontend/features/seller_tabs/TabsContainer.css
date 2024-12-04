@@ -1,6 +1,6 @@
 /* General Container */
 .root {
-  background-color: #ffffff;
+  background-color: #FBFBFB;
 }
 
 .tab-container {
@@ -18,7 +18,6 @@
   flex-direction: column; /* Stack content vertically */
   justify-content: center;
   padding: 16px;
-  border-bottom: 1px solid #ddd;
 }
 
 .tab-container .header-wrapper {
@@ -89,7 +88,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #fff;
-  background-color: #000; /* Black background */
+  background-color: #333; /* Black background */
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -134,39 +133,50 @@
 }
 
 /* Tabs */
-.tab-container .tabs {
+.tab-container .tabs{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 8px;
-  background-color: #f9f9f9;
+  gap: 0; /* No gap between tabs */
+  padding: 0px;
+  background-color: #e0dfdf; /* Light gray background for the container */
+  border-radius: 8px; /* Smooth edges for the container */
+  overflow: hidden; /* Prevents child overflow for rounded corners */
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: -5px;
 }
 
 .tab-container .tab {
-  padding: 10px 0;
+  padding: 12px 0;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: #555;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  color: #333; /* Default text color */
+  background-color: transparent; /* Transparent to match container background */
+  border: none;
+  border-right: 1px solid #ffffff; 
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
+.tab-container .tab:last-child {
+  border-right: none; /* Removes the right border for the last tab */
+}
+
 .tab-container .tab:hover {
-  background-color: #f2f2f2;
+  background-color: #eaeaea; /* Slightly darker gray for hover effect */
 }
 
 .tab-container .active-tab {
-  background-color: #000;
-  color: #fff;
+  background-color: #333; /* Black background for the active tab */
+  color: #fff; /* White text for the active tab */
+  font-weight: 600;
 }
 
 /* Tab Content */
 .tab-container .tab-content {
-  padding: 16px;
+  padding: 10px;
 }
 
 .tab-container .title {
