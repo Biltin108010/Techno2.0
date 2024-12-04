@@ -194,7 +194,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
   };
 
   return (
-    <div className="tab2-container">
+    <div className="tab1-container">
       {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
 
       {isApproved === false && !isSearching && (
@@ -216,7 +216,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
               <img
                 src={item.image || "https://via.placeholder.com/100"}
                 alt={item.name}
-                className="item-image"
+                className="inv-item-image"
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
@@ -231,7 +231,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
                     onClick={() => decreaseQuantity(item.id)}
                   />
                 </p>
-                <p className="item-price">Price: ₱{item.price}</p>
+                <p className="inv-item-price">Price: ₱{item.price}</p>
                 <AiOutlinePlus
                   className="duplicate-icon"
                   onClick={() => duplicateItem(item)}
@@ -239,7 +239,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
               </div>
             </div>
           ))}
-          <button className="review-order-button" onClick={handleNavigateToReview}>
+          <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
             Review Order
           </button>
         </div>
