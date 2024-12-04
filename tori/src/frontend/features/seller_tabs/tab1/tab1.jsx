@@ -375,7 +375,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                       }}
                     />
                   </p>
-                  <p className="item-price">Price: ₱{item.price}</p>
+                  <p className="inv-item-price">Price: ₱{item.price}</p>
                 </div>
               </div>
             ))}
@@ -393,7 +393,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">Qty: {item.quantity}</p>
-                <p className="item-price">Price: ₱{item.price}</p>
+                <p className="inv-item-price">Price: ₱{item.price}</p>
                 <AiOutlinePlus
                   className="duplicate-icon" // Add custom styling for this icon if needed
                   onClick={() => duplicateItem(item)}

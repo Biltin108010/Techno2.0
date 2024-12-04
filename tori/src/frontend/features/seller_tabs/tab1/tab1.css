@@ -71,16 +71,22 @@
   gap: 20px; /* Add spacing between grid items */
 }
 
-
 /* Item Box Layout */
 .item-box {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
   background-color: white;
-  padding: 15px;
+  padding: 10px;
+  padding-bottom: 0px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.item-box {
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .inv-item-image {
@@ -92,19 +98,36 @@
 
 .item-text-container {
   margin-left: 15px;
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Center the content vertically */
 }
 
 .item-title {
   font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: bold;
+  margin-top: 5px; 
+  margin-bottom: 0px;/* Remove extra margin */
+  color: #333;
 }
 
 .item-quantity,
-.item-price {
+.inv-item-price {
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
-  margin-top: 5px;
+  margin-top: 5px; /* Add a small gap between quantity and price */
+  margin-bottom: 0;
+  color: #333;/* Remove extra margin */
 }
+
+.duplicate-icon {
+  margin-left: 136px; /* Align the icon to the right */
+  position: relative;
+  top: -19px; /* Move the icon up slightly */
+  cursor: pointer; /* Change cursor to pointer for clickability */
+}
+
 
 /* Plus and Minus Icons */
 .plus-icon, .minus-icon {
@@ -183,13 +206,6 @@
 /* Responsive Layout */
 @media (max-width: 768px) {
   .tab1-container {
-    padding: 10px;
-  }
-
-  .item-box {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 15px;
     padding: 10px;
   }
 
