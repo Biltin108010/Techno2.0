@@ -191,7 +191,7 @@ export default function TabContainer() {
             )}
             <h2>Inventory</h2>
             <div className="tabscontentlogo">
-              <img src="/images/tori_logo2.png" alt="Logo" width={50} height={50} />
+              <img src="https://res.cloudinary.com/dcd5cnr4m/image/upload/v1733254195/Untitled_design_7_td7pot.png" alt="Logo" width={50} height={50} />
             </div>
           </div>
         </div>

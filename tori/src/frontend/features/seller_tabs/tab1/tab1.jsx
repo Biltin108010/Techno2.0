@@ -354,7 +354,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                 <img
                   src={item.image || "https://via.placeholder.com/100"}
                   alt={item.name}
-                  className="item-image"
+                  className="inv-item-image"
                 />
                 <div className="item-text-container">
                   <p className="item-title">{item.name}</p>
@@ -375,7 +375,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
                       }}
                     />
                   </p>
-                  <p className="item-price">Price: ₱{item.price}</p>
+                  <p className="inv-item-price">Price: ₱{item.price}</p>
                 </div>
               </div>
             ))}
@@ -388,12 +388,12 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               <img
                 src={item.image || "https://via.placeholder.com/100"}
                 alt={item.name}
-                className="item-image"
+                className="inv-item-image"
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">Qty: {item.quantity}</p>
-                <p className="item-price">Price: ₱{item.price}</p>
+                <p className="inv-item-price">Price: ₱{item.price}</p>
                 <AiOutlinePlus
                   className="duplicate-icon" // Add custom styling for this icon if needed
                   onClick={() => duplicateItem(item)}
@@ -401,7 +401,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               </div>
             </div>
           ))}
-          <button className="review-order-button" onClick={handleNavigateToReview}>
+          <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
             Review Order
           </button>
         </div>
