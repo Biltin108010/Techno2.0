@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab3.css";
 
-const Tab3 = ({ userEmail }) => {
+const Tab3 = ({ userEmail, userTeamEmails }) => {
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [navigateToReview, setNavigateToReview] = useState(false);
+  const [isApproved, setIsApproved] = useState(null); // New state for approval status
   const navigate = useNavigate();
 
   const fetchInventory = async () => {
@@ -37,10 +39,9 @@ const Tab3 = ({ userEmail }) => {
       if (inventoryData.length === 0) {
         setFeedbackMessage("No inventory items found for this user.");
       } else {
-        const sortedItems = (inventoryData || []).sort((a, b) =>
-          a.name.localeCompare(b.name)
+        setItems(
+          inventoryData.sort((a, b) => a.name.localeCompare(b.name)) // Alphabetical sort
         );
-        setItems(sortedItems);
         setFeedbackMessage("");
       }
     } catch (err) {
@@ -51,60 +52,43 @@ const Tab3 = ({ userEmail }) => {
     setIsSearching(false);
   };
 
+  const checkApprovalStatus = async () => {
+    try {
+      if (!userEmail) {
+        setFeedbackMessage("No user email provided.");
+        return;
+      }
+
+      // Fetch the team data for the current user
+      const { data: teamData, error: teamError } = await supabase
+        .from("team")
+        .select("approved, team_num")
+        .eq("invite", userEmail) // Check the invite column for the current user
+        .single(); // Assuming only one entry for each user
+
+      if (teamError) {
+        console.error("Error fetching team data:", teamError.message);
+        setFeedbackMessage("Failed to fetch team data.");
+        return;
+      }
+
+      if (teamData && teamData.approved) {
+        setIsApproved(true); // User is approved
+        fetchInventory(); // Proceed to fetch the inventory data
+      } else {
+        setIsApproved(false); // User is not approved
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred while checking approval.");
+    }
+  };
+
   useEffect(() => {
     if (userEmail) {
-      fetchInventory();
+      checkApprovalStatus();
     }
   }, [userEmail]);
-
-  const handleAddProduct = async (newItem) => {
-    const itemWithEmail = { ...newItem, email: userEmail };
-
-    try {
-      const { error } = await supabase
-        .from("inventory")
-        .insert([itemWithEmail]);
-
-      if (error) {
-        console.error("Error adding item to database:", error.message);
-        setFeedbackMessage("Failed to add the product. Please try again.");
-        return;
-      }
-
-      await fetchInventory();
-      setIsModalOpen(false);
-      setFeedbackMessage("Product successfully added!");
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
-    }
-  };
-
-  const handleEditProduct = async (updatedItem) => {
-    try {
-      const { error } = await supabase
-        .from("inventory")
-        .update({
-          name: updatedItem.name,
-          quantity: updatedItem.quantity,
-          price: updatedItem.price,
-        })
-        .eq("id", updatedItem.id);
-
-      if (error) {
-        console.error("Error updating item:", error.message);
-        setFeedbackMessage("Failed to update the product. Please try again.");
-        return;
-      }
-
-      await fetchInventory();
-      setIsModalOpen(false);
-      setFeedbackMessage("Product updated successfully!");
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred. Please try again.");
-    }
-  };
 
   const increaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
@@ -122,7 +106,7 @@ const Tab3 = ({ userEmail }) => {
           return;
         }
 
-        await fetchInventory();
+        fetchInventory(); // Refresh data
         setFeedbackMessage("Quantity successfully increased!");
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -147,7 +131,7 @@ const Tab3 = ({ userEmail }) => {
           return;
         }
 
-        await fetchInventory();
+        fetchInventory();
         setFeedbackMessage("Quantity successfully decreased!");
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -158,84 +142,77 @@ const Tab3 = ({ userEmail }) => {
     }
   };
 
-  const handleItemClick = (item) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
+  const duplicateItem = async (item) => {
+    if (!userEmail) {
+      setFeedbackMessage("You must be logged in to duplicate a product.");
+      return;
+    }
+
+    const duplicatedItem = {
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      email: userEmail,
+      created_at: new Date().toISOString(),
+      inventory_id: item.id,
+    };
+
+    try {
+      const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
+
+      if (error) {
+        console.error("Error duplicating item:", error.message);
+        setFeedbackMessage("Already added to cart. Please try again.");
+        return;
+      }
+
+      setFeedbackMessage("Product successfully added to cart!");
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+    }
   };
 
   const handleNavigateToReview = async () => {
-    navigate("/seller/review", { state: { items } });
-  };
+    try {
+      const { data, error } = await supabase
+        .from("add_cart")
+        .select("*")
+        .eq("email", userEmail);
 
-  const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
-    const [name, setName] = useState(item ? item.name : "");
-    const [quantity, setQuantity] = useState(item ? item.quantity : "");
-    const [price, setPrice] = useState(item ? item.price : "");
-
-    const handleSave = () => {
-      if (name && quantity && price) {
-        onSave({
-          ...item,
-          name,
-          quantity: parseInt(quantity, 10),
-          price: parseFloat(price),
-        });
+      if (error) {
+        console.error("Error fetching cart items:", error.message);
+        setFeedbackMessage("Failed to fetch cart items.");
+        return;
       }
-    };
 
-    if (!isOpen) return null;
-
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h2>{item ? "Edit Product" : "Add Product"}</h2>
-          <label>
-            Name:
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <label>
-            Quantity:
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-            />
-          </label>
-          <label>
-            Price:
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-            />
-          </label>
-          <button onClick={handleSave}>{item ? "Save" : "Add"}</button>
-          <button onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    );
+      navigate("/seller/review", { state: { items: data } });
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred.");
+    }
   };
 
   return (
-    <div className="tab3-container">
-      {feedbackMessage && <div className="feedback-message">{feedbackMessage}</div>}
-      {items.length === 0 && !isSearching && (
+    <div className="tab2-container">
+      {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
+
+      {isApproved === false && !isSearching && (
+        <div className="waiting-for-approval">
+          <p>Waiting for approval</p>
+        </div>
+      )}
+
+      {isApproved === true && items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
           <AiOutlineUser className="huge-user-icon" />
         </div>
       )}
-      {items.length > 0 && (
+
+      {isApproved === true && items.length > 0 && (
         <div className="tab-content">
           {items.map((item) => (
-            <div
-              key={item.id}
-              className="item-box"
-              onClick={() => handleItemClick(item)}
-            >
+            <div key={item.id} className="item-box">
               <img
                 src={item.image || "https://via.placeholder.com/100"}
                 alt={item.name}
@@ -245,10 +222,20 @@ const Tab3 = ({ userEmail }) => {
                 <p className="item-title">{item.name}</p>
                 <p className="item-quantity">
                   Qty: {item.quantity}
-                  <AiOutlinePlus onClick={() => increaseQuantity(item.id)} />
-                  <AiOutlineMinus onClick={() => decreaseQuantity(item.id)} />
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={() => increaseQuantity(item.id)}
+                  />
+                  <AiOutlineMinus
+                    className="minus-icon"
+                    onClick={() => decreaseQuantity(item.id)}
+                  />
                 </p>
                 <p className="item-price">Price: ₱{item.price}</p>
+                <AiOutlinePlus
+                  className="duplicate-icon"
+                  onClick={() => duplicateItem(item)}
+                />
               </div>
             </div>
           ))}
@@ -257,12 +244,6 @@ const Tab3 = ({ userEmail }) => {
           </button>
         </div>
       )}
-      <EditProductModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        item={selectedItem}
-        onSave={selectedItem ? handleEditProduct : handleAddProduct}
-      />
     </div>
   );
 };

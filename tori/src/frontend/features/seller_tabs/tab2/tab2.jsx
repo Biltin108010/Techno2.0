@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus, AiOutlineMinus, AiOutlineUser } from "react-icons/ai";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "./tab2.css";
 
@@ -11,6 +11,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [navigateToReview, setNavigateToReview] = useState(false);
+  const [isApproved, setIsApproved] = useState(null); // New state for approval status
   const navigate = useNavigate();
 
   const fetchInventory = async () => {
@@ -50,6 +51,44 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
 
     setIsSearching(false);
   };
+
+  const checkApprovalStatus = async () => {
+    try {
+      if (!userEmail) {
+        setFeedbackMessage("No user email provided.");
+        return;
+      }
+
+      // Fetch the team data for the current user
+      const { data: teamData, error: teamError } = await supabase
+        .from("team")
+        .select("approved, team_num")
+        .eq("invite", userEmail) // Check the invite column for the current user
+        .single(); // Assuming only one entry for each user
+
+      if (teamError) {
+        console.error("Error fetching team data:", teamError.message);
+        setFeedbackMessage("Failed to fetch team data.");
+        return;
+      }
+
+      if (teamData && teamData.approved) {
+        setIsApproved(true); // User is approved
+        fetchInventory(); // Proceed to fetch the inventory data
+      } else {
+        setIsApproved(false); // User is not approved
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred while checking approval.");
+    }
+  };
+
+  useEffect(() => {
+    if (userEmail) {
+      checkApprovalStatus();
+    }
+  }, [userEmail]);
 
   const increaseQuantity = async (id) => {
     const item = items.find((i) => i.id === id);
@@ -154,23 +193,23 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
     }
   };
 
-  useEffect(() => {
-    if (userEmail) {
-      fetchInventory();
-    }
-  }, [userEmail]);
-
   return (
     <div className="tab2-container">
       {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
 
-      {items.length === 0 && !isSearching && (
+      {isApproved === false && !isSearching && (
+        <div className="waiting-for-approval">
+          <p>Waiting for approval</p>
+        </div>
+      )}
+
+      {isApproved === true && items.length === 0 && !isSearching && (
         <div className="seller-icon-container">
           <AiOutlineUser className="huge-user-icon" />
         </div>
       )}
 
-      {items.length > 0 && (
+      {isApproved === true && items.length > 0 && (
         <div className="tab-content">
           {items.map((item) => (
             <div key={item.id} className="item-box">

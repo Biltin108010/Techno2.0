@@ -18,6 +18,8 @@ export default function TabContainer() {
   const [inviterInventory, setInviterInventory] = useState([]);
   const [secondInvitedUserInventory, setSecondInvitedUserInventory] = useState([]);
   const [userTeamEmails, setUserTeamEmails] = useState([]); // Track the team emails
+  const [teamNum, setTeamNum] = useState(null); // Store the team number
+  const [approvalStatus, setApprovalStatus] = useState(null); // Track current user's approval status
 
   const toggleEditMode = () => {
     setIsEditing((prev) => !prev);
@@ -45,68 +47,78 @@ export default function TabContainer() {
           setUserRole(userData.role);
         }
 
-        // Fetch the team data and the users, checking both email and invite columns
+        // Fetch the team data to get the user's team_num and approval status
         const { data: teamData, error: teamError } = await supabase
           .from('team')
-          .select('email, invite')
-          .or(`email.eq.${user.email},invite.eq.${user.email}`);  // Check both email and invite columns
+          .select('team_num, approved')
+          .eq('invite', user.email)
+          .single();
 
         if (teamError) {
           console.error('Error fetching team data:', teamError);
-        } else if (teamData && teamData.length > 0) {
-          // Filter out users who are invited and the ones whose email matches
-          const invites = teamData
-            .map((teamMember) => teamMember.invite)
-            .filter((invite) => invite !== null && invite !== user.email); // Exclude current user email
+        } else if (teamData) {
+          setTeamNum(teamData.team_num);
+          setApprovalStatus(teamData.approved); // Store approval status
 
-          const usersData = await Promise.all(
-            invites.map(async (inviteEmail) => {
-              const { data: invitedUser, error } = await supabase
-                .from('users')
-                .select('username')
-                .eq('email', inviteEmail)
-                .single();
-              if (error) {
-                console.error(`Error fetching invited user data for ${inviteEmail}:`, error);
-              } else if (invitedUser) {
-                return { email: inviteEmail, username: invitedUser.username };
+          // Now fetch the invited users from the same team number, excluding the current user
+          const { data: teamMembers, error: membersError } = await supabase
+            .from('team')
+            .select('invite')
+            .eq('team_num', teamData.team_num)
+            .neq('invite', user.email);  // Exclude current user from the invite list
+
+          if (membersError) {
+            console.error('Error fetching team members:', membersError);
+          } else if (teamMembers) {
+            const invitedEmails = teamMembers.map((member) => member.invite);
+
+            // Fetch the details of invited users
+            const usersData = await Promise.all(
+              invitedEmails.map(async (inviteEmail) => {
+                const { data: invitedUser, error } = await supabase
+                  .from('users')
+                  .select('username')
+                  .eq('email', inviteEmail)
+                  .single();
+                if (error) {
+                  console.error(`Error fetching invited user data for ${inviteEmail}:`, error);
+                } else if (invitedUser) {
+                  return { email: inviteEmail, username: invitedUser.username };
+                }
+                return null;
+              })
+            );
+
+            setInvitedUsers(usersData.filter((user) => user !== null));
+
+            // Fetch the inventory data for the first invited user if the current user is approved
+            if (invitedEmails.length > 0 && approvalStatus) {
+              const { data: inviterInventoryData, error: inventoryError } = await supabase
+                .from('inventory')
+                .select('*')
+                .eq('email', invitedEmails[0]);
+
+              if (inventoryError) {
+                console.error('Error fetching inviter inventory:', inventoryError);
+              } else {
+                setInviterInventory(inviterInventoryData);
               }
-              return null;
-            })
-          );
+            }
 
-          setInvitedUsers(usersData.filter((user) => user !== null));
+            // Fetch the inventory data for the second invited user if they exist and the current user is approved
+            if (invitedEmails.length > 1 && approvalStatus) {
+              const { data: secondInvitedUserInventoryData, error: secondInventoryError } = await supabase
+                .from('inventory')
+                .select('*')
+                .eq('email', invitedEmails[1]);
 
-          // If the invitee exists, fetch the corresponding inventory data
-          if (invites.length > 0) {
-            const { data: inviterInventoryData, error: inventoryError } = await supabase
-              .from('inventory')
-              .select('*')
-              .eq('email', invites[0]);
-
-            if (inventoryError) {
-              console.error('Error fetching inviter inventory:', inventoryError);
-            } else {
-              setInviterInventory(inviterInventoryData);
+              if (secondInventoryError) {
+                console.error('Error fetching second invited user inventory:', secondInventoryError);
+              } else {
+                setSecondInvitedUserInventory(secondInvitedUserInventoryData);
+              }
             }
           }
-
-          if (invites.length > 1) {
-            const { data: secondInvitedUserInventoryData, error: secondInventoryError } = await supabase
-              .from('inventory')
-              .select('*')
-              .eq('email', invites[1]);
-
-            if (secondInventoryError) {
-              console.error('Error fetching second invited user inventory:', secondInventoryError);
-            } else {
-              setSecondInvitedUserInventory(secondInvitedUserInventoryData);
-            }
-          }
-
-          // Set team emails as well
-          const teamEmails = teamData.map((teamMember) => teamMember.email);
-          setUserTeamEmails(teamEmails);
         }
       }
     };
@@ -125,7 +137,7 @@ export default function TabContainer() {
 
     fetchUserDetails();
     fetchAllUsers();
-  }, []);
+  }, [approvalStatus]);
 
   useEffect(() => {
     setActiveTab(0); // Default to Tab 1 (activeTab 0)
@@ -205,7 +217,7 @@ export default function TabContainer() {
         >
           {username}
         </button>
-        {invitedUsers.length > 0 && (
+        {invitedUsers.length > 0 && approvalStatus && (
           <button
             onClick={() => setActiveTab(1)}
             className={`tab ${activeTab === 1 ? 'active-tab' : ''}`}
@@ -213,7 +225,7 @@ export default function TabContainer() {
             {invitedUsers[0]?.username || 'Tab 2'}
           </button>
         )}
-        {invitedUsers.length > 1 && (
+        {invitedUsers.length > 1 && approvalStatus && (
           <button
             onClick={() => setActiveTab(2)}
             className={`tab ${activeTab === 2 ? 'active-tab' : ''}`}
