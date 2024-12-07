@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import { useNavigate } from "react-router-dom"; // For navigating between pages
 import "./InviteTeam.css"
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowBack } from 'react-icons/io';
 import styled from "styled-components";
 
 const BackButton = styled(IoIosArrowBack)`
@@ -313,12 +313,9 @@ const handleInvite = async () => {
     <div className="invite-team-container">
       {/* Header Section */}
       <div className="invite-header-container">
-      <button
-        className="invite-team-back-button-container"
-        onClick={() => navigate(-1)}
-      >
-        <BackButton />
-      </button>
+      <button className="invite-team-back-button-container" onClick={() => navigate(-1)}>
+          <BackButton />
+        </button>
         <h2>Invite a Team Member</h2>
       </div>
   

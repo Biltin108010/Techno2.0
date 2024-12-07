@@ -171,13 +171,11 @@ html, body {
   width: 35px;
   height: 35px;
   border: 1px solid #ddd;
-  border-radius: 8px;
   cursor: pointer;
   background-color: #fff;
-  transition: all 0.2s ease-in-out;
-  margin-top: 3px;
-  margin-left: 10px;
+  z-index: 3;
 }
+
 
 /* Invite Form Styles */
 .invite-team-form-container {
