@@ -8,21 +8,6 @@
   box-sizing: border-box;
 }
 
-.back-button {
-  width: 40px;
-  height: 40px;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .seller-info {
   display: flex;
   justify-content: space-between;

@@ -61,30 +61,34 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const handleAddProduct = async (newItem) => {
     if (!userEmail) {
       setFeedbackMessage("You must be logged in to add a product.");
+      setTimeout(() => setFeedbackMessage(''), 3000); // Clear the message after 3 seconds
       return;
     }
-
+  
     const itemWithEmail = { ...newItem, email: userEmail };
-
+  
     try {
       const { error } = await supabase
         .from("inventory") // Replace with your actual table name
         .insert([itemWithEmail]);
-
+  
       if (error) {
         console.error("Error adding item to database:", error.message);
         setFeedbackMessage("Failed to add the product. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000); // Clear the message after 3 seconds
         return;
       }
-
+  
       await fetchItems(); // Fetch the latest items
       setIsModalOpen(false);
       setFeedbackMessage("Product successfully added!");
+      setTimeout(() => setFeedbackMessage(''), 3000); // Clear the message after 3 seconds
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
+      setTimeout(() => setFeedbackMessage(''), 3000); // Clear the message after 3 seconds
     }
-  };
+  };  
 
   const handleEditProduct = async (updatedItem) => {
     try {
@@ -275,6 +279,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
@@ -282,6 +287,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
 
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
@@ -303,6 +309,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       if (error) {
         console.error("Error duplicating item:", error.message);
         setFeedbackMessage("Failed to add item to cart. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
 
@@ -310,6 +317,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 
@@ -321,25 +329,28 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         .from("add_cart")
         .select("*")
         .eq("email", userEmail); // Filter by user email
-
+  
       if (error) {
         console.error("Error fetching cart items:", error.message);
         setFeedbackMessage("Failed to fetch cart items.");
+        setTimeout(() => setFeedbackMessage(''), 3000); // Remove message after 3 seconds
         return;
       }
-
+  
       navigate("/seller/review", { state: { items: data } }); // Pass cart items to ReviewPage
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred.");
+      setTimeout(() => setFeedbackMessage(''), 3000); // Remove message after 3 seconds
     }
   };
+  
 
 
   return (
-    <div className="tab1-container">
+    <div className="tab-content">
       {feedbackMessage && (
-        <div className="feedback-message">
+        <div className="tab-feedback-message">
           <p>{feedbackMessage}</p>
         </div>
       )}
@@ -357,7 +368,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               Add Product
             </button>
           </div>
-          <div className="tab-content">
+          <div className="tab1-container">
             {items.map((item) => (
               <div
                 key={item.id}
@@ -395,7 +406,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
           </div>
         </div>
       ) : (
-        <div className="tab-content">
+        <div className="tab1-container">
           {items.map((item) => (
             <div key={item.id} className="item-box">
               <img

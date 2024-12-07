@@ -242,23 +242,21 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
   };
 
   return (
-    <div className="tab1-container">
-      {feedbackMessage && <div className="feedback-message"><p>{feedbackMessage}</p></div>}
-
+    <div className="tab-content">
+      {feedbackMessage && (
+        <div className="tab-feedback-message">
+          <p>{feedbackMessage}</p>
+        </div>
+      )}
+  
       {isApproved === false && !isSearching && (
         <div className="waiting-for-approval">
-          <p>Waiting for approval</p>
+          <p>Waiting for approval.</p>
         </div>
       )}
-
-      {isApproved === true && items.length === 0 && !isSearching && (
-        <div className="seller-icon-container">
-          <AiOutlineUser className="huge-user-icon" />
-        </div>
-      )}
-
+  
       {isApproved === true && items.length > 0 && (
-        <div className="tab-content">
+        <div className="tab1-container">
           {items.map((item) => (
             <div key={item.id} className="item-box">
               <img
@@ -268,13 +266,17 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
-
-                <p className="inv-item-quantity">Qty: {item.quantity}</p>
-                <p className="item-price">Price: ₱{item.price}</p>
-                <AiOutlinePlus
-                  className="duplicate-icon"
-                  onClick={() => duplicateItem(item)}
-                />
+                <p className="item-quantity">
+                  Qty: {item.quantity}
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateItem(item);
+                    }}
+                  />
+                </p>
+                <p className="inv-item-price">Price: ₱{item.price}</p>
               </div>
             </div>
           ))}
@@ -285,6 +287,6 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
       )}
     </div>
   );
-};
-
+}
 export default Tab2;
+
