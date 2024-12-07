@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import { useNavigate } from "react-router-dom"; // For navigating between pages
-import "./InviteTeam.css"
+import "./InviteTeam.css";
+import { IoIosArrowBack } from "react-icons/io";
+import styled from "styled-components";
+
+const BackButton = styled(IoIosArrowBack)`
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  margin-right: 2px;
+
+  &:hover {
+    color: #000;
+  }
+`;
 
 function InviteTeam() {
   const [emailInput, setEmailInput] = useState(""); // Input field for inviting email
@@ -57,7 +70,6 @@ function InviteTeam() {
         // Filter pending invites where approved is false
         const pendingInvitesData = teamData.filter(member => member.approved === false);
         setPendingInvites(pendingInvitesData);
-        
   
         // Check if the user has been invited already or is an inviter
         const user = teamData.find((member) => member.invite === currentUserEmail);
@@ -77,8 +89,6 @@ function InviteTeam() {
     }
   };
   
-  
-
   // Get the current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -101,112 +111,107 @@ function InviteTeam() {
   }, [currentUserEmail]);
 
   // Handle sending an invite
-// Handle sending an invite
-// Handle sending an invite
-const handleInvite = async () => {
-  if (!emailInput.trim()) {
-    alert("Please enter a valid email.");
-    return;
-  }
-
-  if (emailInput === currentUserEmail) {
-    alert("You cannot invite yourself!");
-    return;
-  }
-
-  try {
-    // Fetch current user's team info and check if they are already part of a team
-    const { data: inviterData, error: inviterError } = await supabase
-      .from("team")
-      .select("team_num, approved")
-      .eq("invite", currentUserEmail)
-      .eq("approved", true)
-      .limit(1);
-
-    if (inviterError) {
-      console.error("Error fetching inviter data:", inviterError.message);
+  const handleInvite = async () => {
+    if (!emailInput.trim()) {
+      alert("Please enter a valid email.");
       return;
     }
 
-    let teamNum = currentTeamNum;
-    if (!inviterData || inviterData.length === 0) {
-      console.log("Creating new team for the user...");
+    if (emailInput === currentUserEmail) {
+      alert("You cannot invite yourself!");
+      return;
+    }
 
-      // Fetch the max team number and increment
-      const { data: maxTeamNumData, error: maxTeamNumError } = await supabase
+    try {
+      // Fetch current user's team info and check if they are already part of a team
+      const { data: inviterData, error: inviterError } = await supabase
         .from("team")
-        .select("team_num")
-        .order("team_num", { ascending: false })
+        .select("team_num, approved")
+        .eq("invite", currentUserEmail)
+        .eq("approved", true)
         .limit(1);
 
-      if (maxTeamNumError) throw maxTeamNumError;
+      if (inviterError) {
+        console.error("Error fetching inviter data:", inviterError.message);
+        return;
+      }
 
-      const newTeamNum = (maxTeamNumData?.[0]?.team_num || 0) + 1;
-      teamNum = newTeamNum;
+      let teamNum = currentTeamNum;
+      if (!inviterData || inviterData.length === 0) {
+        console.log("Creating new team for the user...");
 
-      // Insert a new row with the current user and their team number
-      const { error: insertError } = await supabase
+        // Fetch the max team number and increment
+        const { data: maxTeamNumData, error: maxTeamNumError } = await supabase
+          .from("team")
+          .select("team_num")
+          .order("team_num", { ascending: false })
+          .limit(1);
+
+        if (maxTeamNumError) throw maxTeamNumError;
+
+        const newTeamNum = (maxTeamNumData?.[0]?.team_num || 0) + 1;
+        teamNum = newTeamNum;
+
+        // Insert a new row with the current user and their team number
+        const { error: insertError } = await supabase
+          .from("team")
+          .insert([{ invite: currentUserEmail, approved: true, team_num: teamNum, inviter: true }]);
+
+        if (insertError) throw insertError;
+
+        setCurrentTeamNum(teamNum); // Update the state with the new team number
+      }
+
+      // Fetch the count of members in the team to check if it's already full
+      const { data: teamMembers, error: teamMembersError } = await supabase
         .from("team")
-        .insert([{ invite: currentUserEmail, approved: true, team_num: teamNum, inviter: true }]);
+        .select("invite")
+        .eq("team_num", teamNum);
 
-      if (insertError) throw insertError;
+      if (teamMembersError) throw teamMembersError;
 
-      setCurrentTeamNum(teamNum); // Update the state with the new team number
+      // Check the team size (count of team members with the same team_num)
+      const teamSize = teamMembers.length;
+      if (teamSize >= 3) {
+        alert("Your team is already full!");
+        return;
+      }
+
+      // Check if the person is already invited
+      const { data: duplicateInvite, error: duplicateError } = await supabase
+        .from("team")
+        .select("*")
+        .eq("invite", emailInput.trim())
+        .eq("team_num", teamNum)
+        .limit(1);
+
+      if (duplicateError) throw duplicateError;
+
+      if (duplicateInvite.length > 0) {
+        alert("This person has already been invited.");
+        return;
+      }
+
+      // Insert the invite with the correct team number
+      const { error: inviteError } = await supabase
+        .from("team")
+        .insert([{
+          invite: emailInput.trim(),
+          approved: false,
+          team_num: teamNum,
+          inviter: false,
+        }]);
+
+      if (inviteError) throw inviteError;
+
+      alert("Invite sent successfully!");
+      setEmailInput(""); // Reset input field
+      fetchTeamData(); // Refresh the team data
+    } catch (err) {
+      console.error("Error sending invite:", err.message);
+      alert("Failed to send invite.");
     }
-
-    // Fetch the count of members in the team to check if it's already full
-    const { data: teamMembers, error: teamMembersError } = await supabase
-      .from("team")
-      .select("invite")
-      .eq("team_num", teamNum);
-
-    if (teamMembersError) throw teamMembersError;
-
-    // Check the team size (count of team members with the same team_num)
-    const teamSize = teamMembers.length;
-    if (teamSize >= 3) {
-      alert("Your team is already full!");
-      return;
-    }
-
-    // Check if the person is already invited
-    const { data: duplicateInvite, error: duplicateError } = await supabase
-      .from("team")
-      .select("*")
-      .eq("invite", emailInput.trim())
-      .eq("team_num", teamNum)
-      .limit(1);
-
-    if (duplicateError) throw duplicateError;
-
-    if (duplicateInvite.length > 0) {
-      alert("This person has already been invited.");
-      return;
-    }
-
-    // Insert the invite with the correct team number
-    const { error: inviteError } = await supabase
-      .from("team")
-      .insert([{
-        invite: emailInput.trim(),
-        approved: false,
-        team_num: teamNum,
-        inviter: false,
-      }]);
-
-    if (inviteError) throw inviteError;
-
-    alert("Invite sent successfully!");
-    setEmailInput(""); // Reset input field
-    fetchTeamData(); // Refresh the team data
-  } catch (err) {
-    console.error("Error sending invite:", err.message);
-    alert("Failed to send invite.");
-  }
-};
-
-
-
+  };
 
   // Handle approval status change
   const handleApprovalChange = async (invite, value) => {
@@ -259,133 +264,69 @@ const handleInvite = async () => {
     }
   };
 
-  // Handle leave team
-  const handleLeaveTeam = async () => {
-    try {
-      const { error } = await supabase
-        .from("team")
-        .delete()
-        .eq("invite", currentUserEmail)
-        .eq("team_num", currentTeamNum);
-
-      if (error) throw error;
-
-      alert("You have left the team!");
-      fetchTeamData(); // Refresh the table
-    } catch (err) {
-      console.error("Error leaving team:", err.message);
-      alert("Failed to leave the team.");
-    }
-  };
-
-  // Handle disband team
-  const handleDisbandTeam = async () => {
-    try {
-      const { error } = await supabase
-        .from("team")
-        .delete()
-        .eq("team_num", currentTeamNum);
-
-      if (error) throw error;
-
-      alert("The team has been disbanded!");
-      fetchTeamData(); // Refresh the table
-    } catch (err) {
-      console.error("Error disbanding team:", err.message);
-      alert("Failed to disband the team.");
-    }
-  };
-
   return (
-    <div>
-      {/* Back Button */}
-      <div className="inviteback-button-container">
-        <button className="inviteback-button" onClick={() => navigate(-1)}>
-          &lt;
+    <div className="invite-team-container">
+      <div className="invite-header-container">
+        <button className="invite-team-back-button-container" onClick={() => navigate(-1)}>
+          <BackButton />
+        </button>
+        <h2>Invite a Team Member</h2>
+      </div>
+
+      <div className="invite-team-form-container">
+        <input
+          type="email"
+          placeholder="Enter team member's email"
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+        />
+        <button onClick={handleInvite} disabled={isTeamFull || !canInvite}>
+          Send Invitation
         </button>
       </div>
-  
-      {/* Render Pending Invites for Invited User */}
-      {!isInviter && pendingInvites.length > 0 && !isTeamFull && (
-        <div>
-          <h2>Pending Invites</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Action</th>
+
+      <div className="invite-team-table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teamData.map((member) => (
+              <tr key={member.invite}>
+                <td>{member.invite}</td>
+                <td>{member.inviter ? "Inviter" : "Member"}</td>
+                <td>
+                  {member.approved ? "Approved" : "Pending Approval"}
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleApprovalChange(member.invite, true)}
+                    disabled={member.approved}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleApprovalChange(member.invite, false)}
+                    disabled={member.approved === false}
+                  >
+                    Reject
+                  </button>
+                  <button onClick={() => handleRemoveAccount(member.invite)}>
+                    Remove
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {pendingInvites.map((invite) => (
-                <tr key={invite.invite}>
-                  <td>{invite.invite}</td>
-                  <td>{invite.approved ? "Approved" : "Pending"}</td>
-                  <td>
-                    <button onClick={() => handleApprovalChange(invite.invite, true)}>Approve</button>
-                    <button onClick={() => handleApprovalChange(invite.invite, false)}>Reject</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-  
-      {/* Render Team Members */}
-      <div>
-        <h2>Team Members</h2>
-        {teamData.length === 0 && <p>No team members yet.</p>}
-        {teamData.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teamData.map((member) => (
-                <tr key={member.invite}>
-                  <td>{member.invite}</td>
-                  <td>{member.approved ? "Approved" : "Pending"}</td>
-                  <td>
-                    {isInviter && member.invite !== currentUserEmail && (
-                      <button onClick={() => handleRemoveAccount(member.invite)}>Remove</button>
-                    )}
-                    {member.invite === currentUserEmail && !isInviter && (
-                      <button onClick={handleLeaveTeam}>Leave Team</button>
-                    )}
-                    {isInviter && member.invite === currentUserEmail && isApproved && (
-                      <button onClick={handleDisbandTeam}>Disband Team</button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            ))}
+          </tbody>
+        </table>
       </div>
-  
-      {/* Invite Form */}
-      {isInviter && !isTeamFull && (
-        <div className="invite-form-container">
-          <input
-            type="email"
-            value={emailInput}
-            onChange={(e) => setEmailInput(e.target.value)}
-            disabled={!canInvite || isTeamFull}
-            placeholder="Enter email to invite"
-          />
-          <button onClick={handleInvite} disabled={!canInvite || isTeamFull}>
-            Send Invite
-          </button>
-        </div>
-      )}
     </div>
-  );  
+  );
 }
 
 export default InviteTeam;

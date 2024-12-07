@@ -21,47 +21,61 @@
   width: 400px;
   max-width: 90%;
   z-index: 1001; /* Ensure it appears above the overlay */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added slight shadow */
 }
 
 .modal-content h2 {
+  font-family: 'Poppins', sans-serif;
   margin-bottom: 15px;
   font-size: 24px;
+  font-weight: 900;
+  color: #333;
 }
 
 .modal-content label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #555;
 }
 
 .modal-content input {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border-radius: 4px;
+  padding: 12px; /* Increased padding for better usability */
+  margin-top: 8px; /* Adjusted margin */
+  margin-bottom: 15px; /* Spaced out the inputs from the buttons */
+  border-radius: 6px;
   border: 1px solid #ddd;
+  font-size: 16px;
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
 }
 
 .modal-content button {
-  background-color: #00B69B;
+  background-color: #00B69B; /* Pastel semi-dark green */
   color: white;
-  padding: 10px;
+  padding: 12px;
   margin-top: 15px;
   border: none;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%; /* Ensure the button spans the width of the modal */
+  transition: background-color 0.3s ease;
 }
 
 .modal-content button:hover {
-  background-color: #00B69B;
+  background-color: #00B69B; /* Slightly darker pastel green */
 }
 
 .modal-content button:last-child {
-  background-color: #E64646;
+  background-color: #f85c4e; /* Pastel tomato red */
 }
 
 .modal-content button:last-child:hover {
-  background-color: #E64646;
+  background-color: #f85c4e; /* Slightly darker pastel tomato red */
 }
+
+
 
 .tab1-container {
   padding: 20px;
@@ -165,12 +179,12 @@
   font-size: 16px; /* Increase font size for better visibility */
   font-weight: 800;
   color: white;
-  padding: 12px 25px; /* Slightly reduce padding for balance */
-  border-radius: 8px; /* Larger border radius for a more rounded look */
+  padding: 15px 30px; /* Slightly reduce padding for balance */
+  border-radius: 6px; /* Larger border radius for a more rounded look */
   border: none;
   cursor: pointer;
-  width: auto; /* Allow the width to adjust based on content */
-  max-width: 350px; /* Set a maximum width for better control */
+  width: 80%; /* Allow the width to adjust based on content */
+  max-width: 342px; /* Set a maximum width for better control */
   text-align: center;
   display: flex;
   justify-content: center;

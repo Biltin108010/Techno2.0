@@ -103,14 +103,17 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
         if (error) {
           console.error("Error increasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
         fetchInventory(); // Refresh data
         setFeedbackMessage("Quantity successfully increased!");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
         setFeedbackMessage("An unexpected error occurred. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       }
     }
   };
@@ -128,17 +131,21 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
         if (error) {
           console.error("Error decreasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
         fetchInventory();
         setFeedbackMessage("Quantity successfully decreased!");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
         setFeedbackMessage("An unexpected error occurred. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       }
     } else {
       setFeedbackMessage("Quantity cannot be less than 1.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 
@@ -182,6 +189,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
@@ -189,6 +197,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
 
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
@@ -210,6 +219,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
       if (error) {
         console.error("Error duplicating item:", error.message);
         setFeedbackMessage("Failed to add item to cart. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
 
@@ -217,6 +227,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 
@@ -231,6 +242,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
       if (error) {
         console.error("Error fetching cart items:", error.message);
         setFeedbackMessage("Failed to fetch cart items.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
 
@@ -238,6 +250,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 

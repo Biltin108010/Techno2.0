@@ -44,6 +44,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     if (error) {
       console.error("Error fetching items:", error.message);
       setFeedbackMessage("Failed to fetch items. Please try again later.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     } else {
       // Sort items alphabetically by name
       const sortedItems = (data || []).sort((a, b) =>
@@ -104,15 +105,18 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       if (error) {
         console.error("Error updating item:", error.message);
         setFeedbackMessage("Failed to update the product. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
 
       await fetchItems(); // Refresh the data
       setIsModalOpen(false);
       setFeedbackMessage("Product Added to Cart!");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 
@@ -130,14 +134,17 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         if (error) {
           console.error("Error increasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
         await fetchItems(); // Refresh the data
         setFeedbackMessage("Quantity successfully increased!");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
         setFeedbackMessage("An unexpected error occurred. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       }
     }
   };
@@ -156,17 +163,21 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         if (error) {
           console.error("Error decreasing quantity:", error.message);
           setFeedbackMessage("Failed to update quantity. Please try again.");
+          setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
 
         await fetchItems(); // Refresh the data
         setFeedbackMessage("Quantity successfully decreased!");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
         setFeedbackMessage("An unexpected error occurred. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
       }
     } else {
       setFeedbackMessage("Quantity cannot be less than 1.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
 
@@ -242,6 +253,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const duplicateItem = async (item) => {
     if (!userEmail) {
       setFeedbackMessage("You must be logged in to duplicate a product.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
       return;
     }
 
@@ -314,6 +326,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       }
 
       setFeedbackMessage("Product successfully added to cart!");
+      setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
       setFeedbackMessage("An unexpected error occurred. Please try again.");
