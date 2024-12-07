@@ -59,6 +59,48 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     fetchItems(); // Call fetchItems to get the latest data
   }, [userEmail]);
 
+  
+
+  const handleDeleteProduct = async (id) => {
+    try {
+      // First, delete related records in the audit_logs table
+      const { error: auditLogsError } = await supabase
+        .from("audit_logs") // Replace with your actual related table name
+        .delete()
+        .eq("item_id", id); // Assuming `item_id` is the foreign key field in `audit_logs`
+  
+      if (auditLogsError) {
+        console.error("Error deleting related audit logs:", auditLogsError.message);
+        setFeedbackMessage("Failed to delete audit logs. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
+      // Then, delete the product from the inventory table
+      const { error } = await supabase
+        .from("inventory") // Replace with your actual table name
+        .delete()
+        .eq("id", id);
+  
+      if (error) {
+        console.error("Error deleting product:", error.message);
+        setFeedbackMessage("Failed to delete the product. Please try again.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
+      await fetchItems(); // Refresh the items after deletion
+      setIsModalOpen(false);
+      setFeedbackMessage("Product successfully deleted.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred. Please try again.");
+      setTimeout(() => setFeedbackMessage(''), 3000);
+    }
+  };
+  
+
   const handleAddProduct = async (newItem) => {
     if (!userEmail) {
       setFeedbackMessage("You must be logged in to add a product.");
@@ -188,62 +230,74 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     setIsModalOpen(true);
   };
 
-  const EditProductModal = ({ isOpen, onClose, item, onSave }) => {
-    const [name, setName] = useState(item ? item.name : "");
-    const [quantity, setQuantity] = useState(item ? item.quantity : "");
-    const [price, setPrice] = useState(item ? item.price : "");
+const EditProductModal = ({ isOpen, onClose, item, onSave, onDelete }) => {
+  const [name, setName] = useState(item ? item.name : "");
+  const [quantity, setQuantity] = useState(item ? item.quantity : "");
+  const [price, setPrice] = useState(item ? item.price : "");
 
-    const handleSave = () => {
-      if (name && quantity && price) {
-        onSave({
-          ...item,
-          name,
-          quantity: parseInt(quantity, 10),
-          price: parseFloat(price),
-        });
-      }
-    };
-
-
-    if (!isOpen) return null;
-
-    return (
-      <div className="modal-overlay">
-        <div className="modal-content">
-          <h2>{item ? "Edit Product" : "Add Product"}</h2>
-          <label>
-            Name:
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Product Name"
-            />
-          </label>
-          <label>
-            Quantity:
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Quantity"
-            />
-          </label>
-          <label>
-            Price:
-            <input
-              type="text"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-            />
-          </label>
-          <button onClick={handleSave}>{item ? "Save" : "Add"}</button>
-          <button onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    );
+  const handleSave = () => {
+    if (name && quantity && price) {
+      onSave({
+        ...item,
+        name,
+        quantity: parseInt(quantity, 10),
+        price: parseFloat(price),
+      });
+    }
   };
+
+  const handleDelete = () => {
+    if (item) {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this product?"
+      );
+      if (confirmed) {
+        onDelete(item.id);
+      }
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>{item ? "Edit Product" : "Add Product"}</h2>
+        <label>
+          Name:
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Product Name"
+          />
+        </label>
+        <label>
+          Quantity:
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            placeholder="Quantity"
+          />
+        </label>
+        <label>
+          Price:
+          <input
+            type="text"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Price"
+          />
+        </label>
+        <button onClick={handleSave}>{item ? "Save" : "Add"}</button>
+        {item && <button onClick={handleDelete}>Delete</button>}
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  );
+};
+
 
   if (navigateToReview) {
     return <Navigate to="/seller/review" />;
@@ -449,7 +503,9 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         onClose={() => setIsModalOpen(false)}
         item={selectedItem}
         onSave={selectedItem ? handleEditProduct : handleAddProduct}
+        onDelete={handleDeleteProduct}
       />
+
     </div>
   );
 };

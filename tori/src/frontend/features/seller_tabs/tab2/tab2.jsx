@@ -90,64 +90,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
     }
   }, [userEmail]);
 
-  const increaseQuantity = async (id) => {
-    const item = items.find((i) => i.id === id);
 
-    if (item) {
-      try {
-        const { error } = await supabase
-          .from("inventory")
-          .update({ quantity: item.quantity + 1 })
-          .eq("id", id);
-
-        if (error) {
-          console.error("Error increasing quantity:", error.message);
-          setFeedbackMessage("Failed to update quantity. Please try again.");
-          setTimeout(() => setFeedbackMessage(''), 3000);
-          return;
-        }
-
-        fetchInventory(); // Refresh data
-        setFeedbackMessage("Quantity successfully increased!");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      } catch (err) {
-        console.error("Unexpected error:", err.message);
-        setFeedbackMessage("An unexpected error occurred. Please try again.");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      }
-    }
-  };
-
-  const decreaseQuantity = async (id) => {
-    const item = items.find((i) => i.id === id);
-
-    if (item && item.quantity > 1) {
-      try {
-        const { error } = await supabase
-          .from("inventory")
-          .update({ quantity: item.quantity - 1 })
-          .eq("id", id);
-
-        if (error) {
-          console.error("Error decreasing quantity:", error.message);
-          setFeedbackMessage("Failed to update quantity. Please try again.");
-          setTimeout(() => setFeedbackMessage(''), 3000);
-          return;
-        }
-
-        fetchInventory();
-        setFeedbackMessage("Quantity successfully decreased!");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      } catch (err) {
-        console.error("Unexpected error:", err.message);
-        setFeedbackMessage("An unexpected error occurred. Please try again.");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      }
-    } else {
-      setFeedbackMessage("Quantity cannot be less than 1.");
-      setTimeout(() => setFeedbackMessage(''), 3000);
-    }
-  };
 
   const duplicateItem = async (item) => {
     if (!userEmail) {
