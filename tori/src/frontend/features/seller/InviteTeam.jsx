@@ -70,6 +70,7 @@ function InviteTeam() {
         // Filter pending invites where approved is false
         const pendingInvitesData = teamData.filter(member => member.approved === false);
         setPendingInvites(pendingInvitesData);
+        
   
         // Check if the user has been invited already or is an inviter
         const user = teamData.find((member) => member.invite === currentUserEmail);
@@ -88,7 +89,7 @@ function InviteTeam() {
       setLoading(false);
     }
   };
-  
+
   // Get the current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -111,107 +112,115 @@ function InviteTeam() {
   }, [currentUserEmail]);
 
   // Handle sending an invite
-  const handleInvite = async () => {
-    if (!emailInput.trim()) {
-      alert("Please enter a valid email.");
+// Handle sending an invite
+// Handle sending an invite
+const handleInvite = async () => {
+  if (!emailInput.trim()) {
+    alert("Please enter a valid email.");
+    return;
+  }
+
+  if (emailInput === currentUserEmail) {
+    alert("You cannot invite yourself!");
+    return;
+  }
+
+  try {
+    // Fetch current user's team info and check if they are already part of a team
+    const { data: inviterData, error: inviterError } = await supabase
+      .from("team")
+      .select("team_num, approved")
+      .eq("invite", currentUserEmail)
+      .eq("approved", true)
+      .limit(1);
+
+    if (inviterError) {
+      console.error("Error fetching inviter data:", inviterError.message);
       return;
     }
 
-    if (emailInput === currentUserEmail) {
-      alert("You cannot invite yourself!");
+    let teamNum = currentTeamNum;
+    if (!inviterData || inviterData.length === 0) {
+      console.log("Creating new team for the user...");
+
+
+      // Fetch the max team number and increment
+      const { data: maxTeamNumData, error: maxTeamNumError } = await supabase
+
+        .from("team")
+        .select("team_num")
+        .order("team_num", { ascending: false })
+
+        .limit(1);
+
+      if (maxTeamNumError) throw maxTeamNumError;
+
+      const newTeamNum = (maxTeamNumData?.[0]?.team_num || 0) + 1;
+      teamNum = newTeamNum;
+
+
+      // Insert a new row with the current user and their team number
+      const { error: insertError } = await supabase
+        .from("team")
+        .insert([{ invite: currentUserEmail, approved: true, team_num: teamNum, inviter: true }]);
+
+
+
+      if (insertError) throw insertError;
+
+      setCurrentTeamNum(teamNum); // Update the state with the new team number
+    }
+
+    // Fetch the count of members in the team to check if it's already full
+    const { data: teamMembers, error: teamMembersError } = await supabase
+      .from("team")
+      .select("invite")
+      .eq("team_num", teamNum);
+
+    if (teamMembersError) throw teamMembersError;
+
+    // Check the team size (count of team members with the same team_num)
+    const teamSize = teamMembers.length;
+    if (teamSize >= 3) {
+      alert("Your team is already full!");
       return;
     }
 
-    try {
-      // Fetch current user's team info and check if they are already part of a team
-      const { data: inviterData, error: inviterError } = await supabase
-        .from("team")
-        .select("team_num, approved")
-        .eq("invite", currentUserEmail)
-        .eq("approved", true)
-        .limit(1);
+    // Check if the person is already invited
+    const { data: duplicateInvite, error: duplicateError } = await supabase
+      .from("team")
+      .select("*")
+      .eq("invite", emailInput.trim())
+      .eq("team_num", teamNum)
+      .limit(1);
 
-      if (inviterError) {
-        console.error("Error fetching inviter data:", inviterError.message);
-        return;
-      }
+    if (duplicateError) throw duplicateError;
 
-      let teamNum = currentTeamNum;
-      if (!inviterData || inviterData.length === 0) {
-        console.log("Creating new team for the user...");
-
-        // Fetch the max team number and increment
-        const { data: maxTeamNumData, error: maxTeamNumError } = await supabase
-          .from("team")
-          .select("team_num")
-          .order("team_num", { ascending: false })
-          .limit(1);
-
-        if (maxTeamNumError) throw maxTeamNumError;
-
-        const newTeamNum = (maxTeamNumData?.[0]?.team_num || 0) + 1;
-        teamNum = newTeamNum;
-
-        // Insert a new row with the current user and their team number
-        const { error: insertError } = await supabase
-          .from("team")
-          .insert([{ invite: currentUserEmail, approved: true, team_num: teamNum, inviter: true }]);
-
-        if (insertError) throw insertError;
-
-        setCurrentTeamNum(teamNum); // Update the state with the new team number
-      }
-
-      // Fetch the count of members in the team to check if it's already full
-      const { data: teamMembers, error: teamMembersError } = await supabase
-        .from("team")
-        .select("invite")
-        .eq("team_num", teamNum);
-
-      if (teamMembersError) throw teamMembersError;
-
-      // Check the team size (count of team members with the same team_num)
-      const teamSize = teamMembers.length;
-      if (teamSize >= 3) {
-        alert("Your team is already full!");
-        return;
-      }
-
-      // Check if the person is already invited
-      const { data: duplicateInvite, error: duplicateError } = await supabase
-        .from("team")
-        .select("*")
-        .eq("invite", emailInput.trim())
-        .eq("team_num", teamNum)
-        .limit(1);
-
-      if (duplicateError) throw duplicateError;
-
-      if (duplicateInvite.length > 0) {
-        alert("This person has already been invited.");
-        return;
-      }
-
-      // Insert the invite with the correct team number
-      const { error: inviteError } = await supabase
-        .from("team")
-        .insert([{
-          invite: emailInput.trim(),
-          approved: false,
-          team_num: teamNum,
-          inviter: false,
-        }]);
-
-      if (inviteError) throw inviteError;
-
-      alert("Invite sent successfully!");
-      setEmailInput(""); // Reset input field
-      fetchTeamData(); // Refresh the team data
-    } catch (err) {
-      console.error("Error sending invite:", err.message);
-      alert("Failed to send invite.");
+    if (duplicateInvite.length > 0) {
+      alert("This person has already been invited.");
+      return;
     }
-  };
+
+    // Insert the invite with the correct team number
+    const { error: inviteError } = await supabase
+      .from("team")
+      .insert([{
+        invite: emailInput.trim(),
+        approved: false,
+        team_num: teamNum,
+        inviter: false,
+      }]);
+
+    if (inviteError) throw inviteError;
+
+    alert("Invite sent successfully!");
+    setEmailInput(""); // Reset input field
+    fetchTeamData(); // Refresh the team data
+  } catch (err) {
+    console.error("Error sending invite:", err.message);
+    alert("Failed to send invite.");
+  }
+};
 
   // Handle approval status change
   const handleApprovalChange = async (invite, value) => {
@@ -261,6 +270,43 @@ function InviteTeam() {
     } catch (err) {
       console.error("Error removing account:", err.message);
       alert("Failed to remove account.");
+    }
+  };
+
+  // Handle leave team
+  const handleLeaveTeam = async () => {
+    try {
+      const { error } = await supabase
+        .from("team")
+        .delete()
+        .eq("invite", currentUserEmail)
+        .eq("team_num", currentTeamNum);
+
+      if (error) throw error;
+
+      alert("You have left the team!");
+      fetchTeamData(); // Refresh the table
+    } catch (err) {
+      console.error("Error leaving team:", err.message);
+      alert("Failed to leave the team.");
+    }
+  };
+
+  // Handle disband team
+  const handleDisbandTeam = async () => {
+    try {
+      const { error } = await supabase
+        .from("team")
+        .delete()
+        .eq("team_num", currentTeamNum);
+
+      if (error) throw error;
+
+      alert("The team has been disbanded!");
+      fetchTeamData(); // Refresh the table
+    } catch (err) {
+      console.error("Error disbanding team:", err.message);
+      alert("Failed to disband the team.");
     }
   };
 
