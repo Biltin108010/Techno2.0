@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import supabase from "../../../backend/supabaseClient"; // Import your Supabase client
 import { useNavigate } from "react-router-dom"; // For navigating between pages
-import "./InviteTeam.css";
+import "./InviteTeam.css"
 import { IoIosArrowBack } from "react-icons/io";
 import styled from "styled-components";
 
@@ -89,6 +89,8 @@ function InviteTeam() {
       setLoading(false);
     }
   };
+  
+  
 
   // Get the current user
   useEffect(() => {
@@ -143,14 +145,11 @@ const handleInvite = async () => {
     if (!inviterData || inviterData.length === 0) {
       console.log("Creating new team for the user...");
 
-
       // Fetch the max team number and increment
       const { data: maxTeamNumData, error: maxTeamNumError } = await supabase
-
         .from("team")
         .select("team_num")
         .order("team_num", { ascending: false })
-
         .limit(1);
 
       if (maxTeamNumError) throw maxTeamNumError;
@@ -158,13 +157,10 @@ const handleInvite = async () => {
       const newTeamNum = (maxTeamNumData?.[0]?.team_num || 0) + 1;
       teamNum = newTeamNum;
 
-
       // Insert a new row with the current user and their team number
       const { error: insertError } = await supabase
         .from("team")
         .insert([{ invite: currentUserEmail, approved: true, team_num: teamNum, inviter: true }]);
-
-
 
       if (insertError) throw insertError;
 
@@ -221,6 +217,9 @@ const handleInvite = async () => {
     alert("Failed to send invite.");
   }
 };
+
+
+
 
   // Handle approval status change
   const handleApprovalChange = async (invite, value) => {
@@ -312,67 +311,101 @@ const handleInvite = async () => {
 
   return (
     <div className="invite-team-container">
+      {/* Header Section */}
       <div className="invite-header-container">
-        <button className="invite-team-back-button-container" onClick={() => navigate(-1)}>
-          <BackButton />
-        </button>
+      <button
+        className="invite-team-back-button-container"
+        onClick={() => navigate(-1)}
+      >
+        <BackButton />
+      </button>
         <h2>Invite a Team Member</h2>
       </div>
-
-      <div className="invite-team-form-container">
-        <input
-          type="email"
-          placeholder="Enter team member's email"
-          value={emailInput}
-          onChange={(e) => setEmailInput(e.target.value)}
-        />
-        <button onClick={handleInvite} disabled={isTeamFull || !canInvite}>
-          Send Invitation
-        </button>
-      </div>
-
-      <div className="invite-team-table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamData.map((member) => (
-              <tr key={member.invite}>
-                <td>{member.invite}</td>
-                <td>{member.inviter ? "Inviter" : "Member"}</td>
-                <td>
-                  {member.approved ? "Approved" : "Pending Approval"}
-                </td>
-                <td>
-                  <button
-                    onClick={() => handleApprovalChange(member.invite, true)}
-                    disabled={member.approved}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => handleApprovalChange(member.invite, false)}
-                    disabled={member.approved === false}
-                  >
-                    Reject
-                  </button>
-                  <button onClick={() => handleRemoveAccount(member.invite)}>
-                    Remove
-                  </button>
-                </td>
+  
+        {isInviter && !isTeamFull && ( // Only show invite form if the user is the inviter and the team is not full
+          <div className="invite-team-form-container">
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              disabled={!canInvite || isTeamFull}
+              placeholder="Enter email to invite"
+            />
+            <button onClick={handleInvite} disabled={!canInvite || isTeamFull}>
+              Send Invitation
+            </button>
+          </div>
+        )}
+  
+      {/* Pending Invites Section (For Invited User) */}
+      {!isInviter && pendingInvites.length > 0 && !isTeamFull && (
+        <div>
+          <h2>Pending Invites</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pendingInvites.map((invite) => (
+                <tr key={invite.invite}>
+                  <td>{invite.invite}</td>
+                  <td>{invite.approved ? "Approved" : "Pending"}</td>
+                  <td>
+                    <button onClick={() => handleApprovalChange(invite.invite, true)}>Approve</button>
+                    <button onClick={() => handleApprovalChange(invite.invite, false)}>Reject</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+  
+      {/* Team Members Section */}
+      <div>
+        {teamData.length === 0 && <p>No team members yet.</p>}
+        {teamData.length > 0 && (
+          <div className="invite-team-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamData.map((member) => (
+                  <tr key={member.invite}>
+                    <td>{member.invite}</td>
+                    <td>{member.approved ? "Approved" : "Pending"}</td>
+                    <td>
+                      {/* Show "Remove" button if the current user is the inviter */}
+                      {isInviter && member.invite !== currentUserEmail && (
+                        <button onClick={() => handleRemoveAccount(member.invite)}>Remove</button>
+                      )}
+                      {/* Show "Leave Team" or "Disband Team" depending on current user's status */}
+                      {member.invite === currentUserEmail && !isInviter && (
+                        <button onClick={handleLeaveTeam}>Leave Team</button>
+                      )}
+                      {isInviter && member.invite === currentUserEmail && isApproved && (
+                        <button onClick={handleDisbandTeam}>Disband Team</button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
+  
 }
 
 export default InviteTeam;
