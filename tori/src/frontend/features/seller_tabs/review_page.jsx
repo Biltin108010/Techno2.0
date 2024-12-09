@@ -204,8 +204,8 @@ const ReviewPage = () => {
                 <h1 className="review-title">Review Order</h1>
             </div>
             <div className="seller-info">
-                <span className="seller-label">Seller</span>
-                <span className="seller-name">Person 1</span>
+                <span className="seller-label">Your Cart!</span>
+
             </div>
 
             <div className="order-list">
