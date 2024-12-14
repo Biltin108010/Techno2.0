@@ -13,6 +13,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
   const [navigateToReview, setNavigateToReview] = useState(false);
   const [isApproved, setIsApproved] = useState(null); // New state for approval status
   const navigate = useNavigate();
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   const fetchInventory = async () => {
     setIsSearching(true);
@@ -51,7 +52,67 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
 
     setIsSearching(false);
   };
-
+  useEffect(() => {
+    const fetchCartItemCount = async () => {
+      if (!userEmail) return;
+  
+      try {
+        // Fetch the user's team number
+        const { data: teamData, error: teamError } = await supabase
+          .from("team")
+          .select("team_num")
+          .eq("invite", userEmail)
+          .single();
+  
+        let cartItems;
+  
+        if (teamError || !teamData) {
+          // User does not belong to a team; fetch individual cart items
+          const { data: individualItems, error: individualError } = await supabase
+            .from("add_cart")
+            .select("id")
+            .eq("email", userEmail); // Fetch only the user's cart items
+  
+          if (individualError) {
+            console.error("Error fetching individual cart items:", individualError.message);
+            return;
+          }
+  
+          cartItems = individualItems;
+        } else {
+          // User belongs to a team; fetch team-related items
+          const teamNum = teamData.team_num;
+  
+          const { data: teamItems, error: teamItemsError } = await supabase
+            .from("add_cart")
+            .select("id")
+            .eq("team_num", teamNum); // Fetch items for the entire team
+  
+          if (teamItemsError) {
+            console.error("Error fetching team cart items:", teamItemsError.message);
+            return;
+          }
+  
+          cartItems = teamItems;
+        }
+  
+        setCartItemCount(cartItems?.length || 0); // Set the cart count for the user
+      } catch (err) {
+        console.error("Error fetching cart items:", err.message);
+      }
+    };
+  
+    // Fetch the initial count on component mount
+    fetchCartItemCount();
+  
+    // Set up polling every 5 seconds (5000 ms)
+    const intervalId = setInterval(fetchCartItemCount, 1000);
+  
+    // Cleanup function to clear the interval when the component is unmounted
+    return () => clearInterval(intervalId);
+  }, [userEmail]);
+  
+  
   const checkApprovalStatus = async () => {
     try {
       if (!userEmail) {
@@ -90,64 +151,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
     }
   }, [userEmail]);
 
-  const increaseQuantity = async (id) => {
-    const item = items.find((i) => i.id === id);
 
-    if (item) {
-      try {
-        const { error } = await supabase
-          .from("inventory")
-          .update({ quantity: item.quantity + 1 })
-          .eq("id", id);
-
-        if (error) {
-          console.error("Error increasing quantity:", error.message);
-          setFeedbackMessage("Failed to update quantity. Please try again.");
-          setTimeout(() => setFeedbackMessage(''), 3000);
-          return;
-        }
-
-        fetchInventory(); // Refresh data
-        setFeedbackMessage("Quantity successfully increased!");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      } catch (err) {
-        console.error("Unexpected error:", err.message);
-        setFeedbackMessage("An unexpected error occurred. Please try again.");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      }
-    }
-  };
-
-  const decreaseQuantity = async (id) => {
-    const item = items.find((i) => i.id === id);
-
-    if (item && item.quantity > 1) {
-      try {
-        const { error } = await supabase
-          .from("inventory")
-          .update({ quantity: item.quantity - 1 })
-          .eq("id", id);
-
-        if (error) {
-          console.error("Error decreasing quantity:", error.message);
-          setFeedbackMessage("Failed to update quantity. Please try again.");
-          setTimeout(() => setFeedbackMessage(''), 3000);
-          return;
-        }
-
-        fetchInventory();
-        setFeedbackMessage("Quantity successfully decreased!");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      } catch (err) {
-        console.error("Unexpected error:", err.message);
-        setFeedbackMessage("An unexpected error occurred. Please try again.");
-        setTimeout(() => setFeedbackMessage(''), 3000);
-      }
-    } else {
-      setFeedbackMessage("Quantity cannot be less than 1.");
-      setTimeout(() => setFeedbackMessage(''), 3000);
-    }
-  };
 
   const duplicateItem = async (item) => {
     if (!userEmail) {
@@ -279,17 +283,28 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
               />
               <div className="item-text-container">
                 <p className="item-title">{item.name}</p>
-                <p className="item-quantity">Qty: {item.quantity}</p>
+                <p className="item-quantity">
+                  Qty: {item.quantity}
+                  <AiOutlinePlus
+                    className="plus-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateItem(item);
+                    }}
+                  />
+                </p>
                 <p className="inv-item-price">Price: ₱{item.price}</p>
-                <AiOutlinePlus
-                  className="plus-icon"
-                  onClick={() => duplicateItem(item)}
-                />
               </div>
             </div>
           ))}
-          <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
+          <button
+            className="tab1-review-order-button"
+            onClick={handleNavigateToReview}
+          >
             Review Order
+            {cartItemCount > 0 && (
+              <span className="notification-bubble">{cartItemCount}</span>
+            )}
           </button>
         </div>
       )}
@@ -297,3 +312,4 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
   );
 }
 export default Tab3;
+

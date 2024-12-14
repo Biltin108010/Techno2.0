@@ -12,7 +12,8 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
-  const [cartCount, setCartCount] = useState(0);
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
 
   // Fetch the logged-in user's email
@@ -34,31 +35,67 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     fetchUserEmail();
   }, []);
 
-  const fetchCartCount = async () => {
-    if (!userEmail) return; // Make sure the user is logged in
-  
-    try {
-      const { data, error } = await supabase
-        .from("add_cart")
-        .select("*")
-        .eq("email", userEmail); // Filter by email
-  
-      if (error) {
-        console.error("Error fetching cart items:", error.message);
-        setFeedbackMessage("Failed to fetch cart items.");
-        return;
-      }
-  
-      setCartCount(data ? data.length : 0); // Set the number of items in the cart
-    } catch (err) {
-      console.error("Unexpected error:", err.message);
-      setFeedbackMessage("An unexpected error occurred.");
-    }
-  };
-
   useEffect(() => {
-    fetchCartCount(); // Fetch cart count whenever userEmail changes
-  }, [userEmail]);  
+    const fetchCartItemCount = async () => {
+      if (!userEmail) return;
+  
+      try {
+        // Fetch the user's team number
+        const { data: teamData, error: teamError } = await supabase
+          .from("team")
+          .select("team_num")
+          .eq("invite", userEmail)
+          .single();
+  
+        let cartItems;
+  
+        if (teamError || !teamData) {
+          // User does not belong to a team; fetch individual cart items
+          const { data: individualItems, error: individualError } = await supabase
+            .from("add_cart")
+            .select("id")
+            .eq("email", userEmail); // Fetch only the user's cart items
+  
+          if (individualError) {
+            console.error("Error fetching individual cart items:", individualError.message);
+            return;
+          }
+  
+          cartItems = individualItems;
+        } else {
+          // User belongs to a team; fetch team-related items
+          const teamNum = teamData.team_num;
+  
+          const { data: teamItems, error: teamItemsError } = await supabase
+            .from("add_cart")
+            .select("id")
+            .eq("team_num", teamNum); // Fetch items for the entire team
+  
+          if (teamItemsError) {
+            console.error("Error fetching team cart items:", teamItemsError.message);
+            return;
+          }
+  
+          cartItems = teamItems;
+        }
+  
+        setCartItemCount(cartItems?.length || 0); // Set the cart count for the user
+      } catch (err) {
+        console.error("Error fetching cart items:", err.message);
+      }
+    };
+  
+    // Fetch the initial count on component mount
+    fetchCartItemCount();
+  
+    // Set up polling every 5 seconds (5000 ms)
+    const intervalId = setInterval(fetchCartItemCount, 1000);
+  
+    // Cleanup function to clear the interval when the component is unmounted
+    return () => clearInterval(intervalId);
+  }, [userEmail]);
+  
+  
 
   // Fetch inventory items for the logged-in user
   const fetchItems = async () => {
@@ -515,14 +552,16 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               </div>
             </div>
           ))}
-            <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
-              Review Order
-              {cartCount > 0 && (
-                <div className="notification-badge">
-                  {cartCount}
-                </div>
-              )}
-            </button>
+          <button
+            className="tab1-review-order-button"
+            onClick={handleNavigateToReview}
+          >
+            Review Order
+            {cartItemCount > 0 && (
+              <span className="notification-bubble">{cartItemCount}</span>
+            )}
+          </button>
+
 
         </div>
       )}

@@ -292,7 +292,7 @@
   .plus-icon, .minus-icon {
     font-size: 18px;
   }
-  .notification-badge {
+  .notification-bubble {
     position: absolute;
     top: -5px;
     right: -10px;

@@ -284,6 +284,7 @@ const handleInvite = async () => {
       if (error) throw error;
   
       alert("You have left the team!");
+      fetchTeamData();
       navigate(-1); // Navigate back to the previous page
     } catch (err) {
       console.error("Error leaving team:", err.message);
@@ -302,6 +303,7 @@ const handleInvite = async () => {
       if (error) throw error;
 
       alert("The team has been disbanded!");
+      fetchTeamData();
       navigate(-1); // Refresh the table
     } catch (err) {
       console.error("Error disbanding team:", err.message);
