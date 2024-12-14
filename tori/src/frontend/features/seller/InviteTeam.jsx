@@ -89,7 +89,22 @@ function InviteTeam() {
       setLoading(false);
     }
   };
+
+  const checkIfCartHasItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("add_cart")
+        .select("email")
+        .eq("email", currentUserEmail); // Check the cart items of the current user
   
+      if (error) throw error;
+  
+      return data.length > 0; // If there are items in the cart, return true
+    } catch (err) {
+      console.error("Error checking add_cart:", err.message);
+      return false; // If there's an error, assume no items are in the cart
+    }
+  };
   
 
   // Get the current user
@@ -121,7 +136,10 @@ const handleInvite = async () => {
     alert("Please enter a valid email.");
     return;
   }
-
+  if (await checkIfCartHasItems()) {
+    alert("You cannot invite members while there are items in the cart.");
+    return;
+  }
   if (emailInput === currentUserEmail) {
     alert("You cannot invite yourself!");
     return;
@@ -274,6 +292,10 @@ const handleInvite = async () => {
 
   // Handle leave team
   const handleLeaveTeam = async () => {
+    if (await checkIfCartHasItems()) {
+      alert("You cannot leave the team while there are items in the cart.");
+      return;
+    }
     try {
       const { error } = await supabase
         .from("team")
@@ -294,6 +316,10 @@ const handleInvite = async () => {
 
   // Handle disband team
   const handleDisbandTeam = async () => {
+    if (await checkIfCartHasItems()) {
+      alert("You cannot disband the team while there are items in the cart.");
+      return;
+    }
     try {
       const { error } = await supabase
         .from("team")
