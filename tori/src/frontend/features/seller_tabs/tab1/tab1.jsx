@@ -12,6 +12,8 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+
 
   // Fetch the logged-in user's email
   useEffect(() => {
@@ -31,6 +33,32 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
 
     fetchUserEmail();
   }, []);
+
+  const fetchCartCount = async () => {
+    if (!userEmail) return; // Make sure the user is logged in
+  
+    try {
+      const { data, error } = await supabase
+        .from("add_cart")
+        .select("*")
+        .eq("email", userEmail); // Filter by email
+  
+      if (error) {
+        console.error("Error fetching cart items:", error.message);
+        setFeedbackMessage("Failed to fetch cart items.");
+        return;
+      }
+  
+      setCartCount(data ? data.length : 0); // Set the number of items in the cart
+    } catch (err) {
+      console.error("Unexpected error:", err.message);
+      setFeedbackMessage("An unexpected error occurred.");
+    }
+  };
+
+  useEffect(() => {
+    fetchCartCount(); // Fetch cart count whenever userEmail changes
+  }, [userEmail]);  
 
   // Fetch inventory items for the logged-in user
   const fetchItems = async () => {
@@ -487,9 +515,15 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
               </div>
             </div>
           ))}
-          <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
-            Review Order
-          </button>
+            <button className="tab1-review-order-button" onClick={handleNavigateToReview}>
+              Review Order
+              {cartCount > 0 && (
+                <div className="notification-badge">
+                  {cartCount}
+                </div>
+              )}
+            </button>
+
         </div>
       )}
 
