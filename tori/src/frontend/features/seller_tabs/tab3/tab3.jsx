@@ -221,7 +221,7 @@ const Tab3 = ({ userEmail, userTeamEmails }) => {
         return;
       }
 
-      setFeedbackMessage("Product successfully added to cart!");
+
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
