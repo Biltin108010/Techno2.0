@@ -159,7 +159,7 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
 
       if (error) {
         console.error("Error duplicating item:", error.message);
-        setFeedbackMessage("Failed to add item to cart. Please try again.");
+        setFeedbackMessage("Already in the Review Order~");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }

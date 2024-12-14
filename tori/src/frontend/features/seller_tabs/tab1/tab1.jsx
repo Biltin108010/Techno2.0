@@ -181,7 +181,6 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         }
 
         await fetchItems(); // Refresh the data
-        setFeedbackMessage("Quantity successfully increased!");
         setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -210,7 +209,6 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         }
 
         await fetchItems(); // Refresh the data
-        setFeedbackMessage("Quantity successfully decreased!");
         setTimeout(() => setFeedbackMessage(''), 3000);
       } catch (err) {
         console.error("Unexpected error:", err.message);
@@ -371,7 +369,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
 
       if (error) {
         console.error("Error duplicating item:", error.message);
-        setFeedbackMessage("Failed to add item to cart. Please try again.");
+        setFeedbackMessage("Already in the Review Order~");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
