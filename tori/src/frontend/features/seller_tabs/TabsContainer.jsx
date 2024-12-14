@@ -186,7 +186,7 @@ export default function TabContainer() {
       case 3:
         return (
           <div>
-            <p>Add a new team or join an existing one.</p>
+            <p>Locate Invite at: Profile/Invite Team</p>
             <button
               className="inviteButton"
               onClick={() => navigate("/seller/invite-team")}
