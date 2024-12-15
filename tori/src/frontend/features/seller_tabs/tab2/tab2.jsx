@@ -57,39 +57,39 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
   useEffect(() => {
     const fetchCartItemCount = async () => {
       if (!currentLoggedInUserEmail) return; // Use currentLoggedInUserEmail instead of userEmail
-      
+
       try {
         // Fetch the count of cart items where the user_prev matches the current user's email
         const { data: cartItems, error } = await supabase
           .from("add_cart")
           .select("id")
           .eq("user_prev", currentLoggedInUserEmail); // Use currentLoggedInUserEmail
-  
+
         if (error) {
           console.error("Error fetching cart items:", error.message);
           return;
         }
-  
+
         setCartItemCount(cartItems?.length || 0); // Set the cart item count based on currentLoggedInUserEmail
       } catch (err) {
         console.error("Error fetching cart items:", err.message);
       }
     };
-  
+
     // Fetch the initial count on component mount
     fetchCartItemCount();
-  
+
     // Set up polling every 5 seconds (5000 ms)
     const intervalId = setInterval(fetchCartItemCount, 5000); // You can adjust the interval time as needed
-  
+
     // Cleanup function to clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
   }, [currentLoggedInUserEmail]); // Update dependency to currentLoggedInUserEmail
-  
-  
-  
-  
-  
+
+
+
+
+
   const checkApprovalStatus = async () => {
     try {
       if (!userEmail) {
@@ -136,7 +136,7 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
       return;
     }
-  
+
     try {
       // Fetch the team_num for the logged-in user using the invite column
       const { data: teamData, error: teamError } = await supabase
@@ -144,42 +144,42 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         .select("team_num")
         .eq("invite", currentLoggedInUserEmail) // Use currentLoggedInUserEmail
         .single();
-  
+
       if (teamError && teamError.code !== "PGRST116") {
         console.error("Error fetching team number:", teamError.message);
         setFeedbackMessage("Failed to fetch team information.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-  
+
       const teamNum = teamData?.team_num || null; // Default to null if no team_num is found
-  
+
       // Check if the item already has the inventory_id
       let inventoryId = item.inventory_id;
-  
+
       if (!inventoryId) {
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
           .select("id")
           .eq("name", item.name)
           .single();
-  
+
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
-  
+
         inventoryId = inventoryData?.id || null;
-  
+
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
-  
+
       // Prepare the duplicated item
       const duplicatedItem = {
         name: item.name,
@@ -191,17 +191,17 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         created_at: new Date().toISOString(),
         inventory_id: inventoryId,
       };
-  
+
       // Insert the duplicated item into the add_cart table
       const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
-  
+
       if (error) {
         console.error("Error duplicating item:", error.message);
         setFeedbackMessage("Failed to duplicate the item.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-  
+
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -209,9 +209,9 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
-  
-  
-  
+
+
+
 
 
 
