@@ -90,21 +90,22 @@ function InviteTeam() {
     }
   };
 
-  const checkIfCartHasItems = async () => {
+  const checkIfCartHasPreviewOrder = async () => {
     try {
       const { data, error } = await supabase
         .from("add_cart")
-        .select("email")
-        .eq("email", currentUserEmail); // Check the cart items of the current user
-  
+        .select("user_prev")
+        .eq("user_prev", currentUserEmail); // Check if current user has any preview orders
+    
       if (error) throw error;
   
-      return data.length > 0; // If there are items in the cart, return true
+      return data.length > 0; // If there are preview orders, return true
     } catch (err) {
-      console.error("Error checking add_cart:", err.message);
-      return false; // If there's an error, assume no items are in the cart
+      console.error("Error checking add_cart preview orders:", err.message);
+      return false; // Assume no preview orders in case of an error
     }
   };
+  
   
 
   // Get the current user
@@ -136,8 +137,8 @@ const handleInvite = async () => {
     alert("Please enter a valid email.");
     return;
   }
-  if (await checkIfCartHasItems()) {
-    alert("You cannot invite members while there are items in the cart.");
+  if (await checkIfCartHasPreviewOrder()) {
+    alert("You cannot invite members while your Preview Order is not cleared.");
     return;
   }
   if (emailInput === currentUserEmail) {
@@ -292,8 +293,8 @@ const handleInvite = async () => {
 
   // Handle leave team
   const handleLeaveTeam = async () => {
-    if (await checkIfCartHasItems()) {
-      alert("You cannot leave the team while there are items in the cart.");
+    if (await checkIfCartHasPreviewOrder()) {
+      alert("You cannot leave the team while your Preview Order is not cleared.");
       return;
     }
     try {
@@ -313,11 +314,12 @@ const handleInvite = async () => {
       alert("Failed to leave the team.");
     }
   };
+  
 
   // Handle disband team
   const handleDisbandTeam = async () => {
-    if (await checkIfCartHasItems()) {
-      alert("You cannot disband the team while there are items in the cart.");
+    if (await checkIfCartHasPreviewOrder()) {
+      alert("You cannot disband the team while your Preview Order is not cleared.");
       return;
     }
     try {
@@ -325,9 +327,9 @@ const handleInvite = async () => {
         .from("team")
         .delete()
         .eq("team_num", currentTeamNum);
-
+  
       if (error) throw error;
-
+  
       alert("The team has been disbanded!");
       fetchTeamData();
       navigate(-1); // Refresh the table
@@ -336,6 +338,7 @@ const handleInvite = async () => {
       alert("Failed to disband the team.");
     }
   };
+  
 
   return (
     <div className="invite-team-container">
