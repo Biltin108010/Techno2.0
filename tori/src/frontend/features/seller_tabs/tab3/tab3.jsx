@@ -178,6 +178,27 @@ const Tab3 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         }
       }
   
+      // Check for duplicate entries in the add_cart table
+      const { data: duplicateCheck, error: duplicateError } = await supabase
+        .from("add_cart")
+        .select("id")
+        .eq("name", item.name) // Match by name
+        .eq("user_prev", currentLoggedInUserEmail); // Match by user_prev
+  
+      if (duplicateError) {
+        console.error("Error checking for duplicates:", duplicateError.message);
+        setFeedbackMessage("Failed to verify duplicate entries.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
+      if (duplicateCheck && duplicateCheck.length > 0) {
+        // Duplicate exists, provide feedback
+        setFeedbackMessage("Item already exists in the Review Order.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
       // Prepare the duplicated item
       const duplicatedItem = {
         name: item.name,
@@ -200,7 +221,7 @@ const Tab3 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         return;
       }
   
-
+      // Success feedback
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -210,8 +231,6 @@ const Tab3 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
   };
   
   
-  
-
 
 
   const handleNavigateToReview = async () => {

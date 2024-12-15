@@ -136,7 +136,7 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
       return;
     }
-
+  
     try {
       // Fetch the team_num for the logged-in user using the invite column
       const { data: teamData, error: teamError } = await supabase
@@ -144,42 +144,63 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         .select("team_num")
         .eq("invite", currentLoggedInUserEmail) // Use currentLoggedInUserEmail
         .single();
-
+  
       if (teamError && teamError.code !== "PGRST116") {
         console.error("Error fetching team number:", teamError.message);
         setFeedbackMessage("Failed to fetch team information.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
+  
       const teamNum = teamData?.team_num || null; // Default to null if no team_num is found
-
+  
       // Check if the item already has the inventory_id
       let inventoryId = item.inventory_id;
-
+  
       if (!inventoryId) {
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
           .select("id")
           .eq("name", item.name)
           .single();
-
+  
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
-
+  
         inventoryId = inventoryData?.id || null;
-
+  
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
-
+  
+      // Check for duplicate entries in the add_cart table
+      const { data: duplicateCheck, error: duplicateError } = await supabase
+        .from("add_cart")
+        .select("id")
+        .eq("name", item.name) // Match by name
+        .eq("user_prev", currentLoggedInUserEmail); // Match by user_prev
+  
+      if (duplicateError) {
+        console.error("Error checking for duplicates:", duplicateError.message);
+        setFeedbackMessage("Failed to verify duplicate entries.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
+      if (duplicateCheck && duplicateCheck.length > 0) {
+        // Duplicate exists, provide feedback
+        setFeedbackMessage("Item already exists in the Review Order.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
       // Prepare the duplicated item
       const duplicatedItem = {
         name: item.name,
@@ -191,17 +212,18 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
         created_at: new Date().toISOString(),
         inventory_id: inventoryId,
       };
-
+  
       // Insert the duplicated item into the add_cart table
       const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
-
+  
       if (error) {
         console.error("Error duplicating item:", error.message);
         setFeedbackMessage("Failed to duplicate the item.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
+  
+      // Success feedback
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -209,6 +231,7 @@ const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
+  
 
 
 
