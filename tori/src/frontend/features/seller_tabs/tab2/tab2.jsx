@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient";
 import "../tab1/tab1.css";
 
-const Tab2 = ({ userEmail, userTeamEmails }) => {
+const Tab2 = ({ userEmail, userTeamEmails, currentLoggedInUserEmail }) => {
+
   const [items, setItems] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -52,51 +53,24 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
 
     setIsSearching(false);
   };
+
   useEffect(() => {
     const fetchCartItemCount = async () => {
-      if (!userEmail) return;
-  
+      if (!currentLoggedInUserEmail) return; // Use currentLoggedInUserEmail instead of userEmail
+      
       try {
-        // Fetch the user's team number
-        const { data: teamData, error: teamError } = await supabase
-          .from("team")
-          .select("team_num")
-          .eq("invite", userEmail)
-          .single();
+        // Fetch the count of cart items where the user_prev matches the current user's email
+        const { data: cartItems, error } = await supabase
+          .from("add_cart")
+          .select("id")
+          .eq("user_prev", currentLoggedInUserEmail); // Use currentLoggedInUserEmail
   
-        let cartItems;
-  
-        if (teamError || !teamData) {
-          // User does not belong to a team; fetch individual cart items
-          const { data: individualItems, error: individualError } = await supabase
-            .from("add_cart")
-            .select("id")
-            .eq("email", userEmail); // Fetch only the user's cart items
-  
-          if (individualError) {
-            console.error("Error fetching individual cart items:", individualError.message);
-            return;
-          }
-  
-          cartItems = individualItems;
-        } else {
-          // User belongs to a team; fetch team-related items
-          const teamNum = teamData.team_num;
-  
-          const { data: teamItems, error: teamItemsError } = await supabase
-            .from("add_cart")
-            .select("id")
-            .eq("team_num", teamNum); // Fetch items for the entire team
-  
-          if (teamItemsError) {
-            console.error("Error fetching team cart items:", teamItemsError.message);
-            return;
-          }
-  
-          cartItems = teamItems;
+        if (error) {
+          console.error("Error fetching cart items:", error.message);
+          return;
         }
   
-        setCartItemCount(cartItems?.length || 0); // Set the cart count for the user
+        setCartItemCount(cartItems?.length || 0); // Set the cart item count based on currentLoggedInUserEmail
       } catch (err) {
         console.error("Error fetching cart items:", err.message);
       }
@@ -106,11 +80,14 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
     fetchCartItemCount();
   
     // Set up polling every 5 seconds (5000 ms)
-    const intervalId = setInterval(fetchCartItemCount, 1000);
+    const intervalId = setInterval(fetchCartItemCount, 5000); // You can adjust the interval time as needed
   
     // Cleanup function to clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
-  }, [userEmail]);
+  }, [currentLoggedInUserEmail]); // Update dependency to currentLoggedInUserEmail
+  
+  
+  
   
   
   const checkApprovalStatus = async () => {
@@ -154,78 +131,77 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
 
 
   const duplicateItem = async (item) => {
-    if (!userEmail) {
+    if (!currentLoggedInUserEmail) {
       setFeedbackMessage("You must be logged in to duplicate a product.");
       setTimeout(() => setFeedbackMessage(''), 3000);
       return;
     }
-
+  
     try {
       // Fetch the team_num for the logged-in user using the invite column
       const { data: teamData, error: teamError } = await supabase
         .from("team")
         .select("team_num")
-        .eq("invite", userEmail)
+        .eq("invite", currentLoggedInUserEmail) // Use currentLoggedInUserEmail
         .single();
-
-      if (teamError && teamError.code !== 'PGRST116') {
-        // Handle errors that are not "No rows found" (PGRST116)
+  
+      if (teamError && teamError.code !== "PGRST116") {
         console.error("Error fetching team number:", teamError.message);
         setFeedbackMessage("Failed to fetch team information.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
+  
       const teamNum = teamData?.team_num || null; // Default to null if no team_num is found
-
+  
       // Check if the item already has the inventory_id
       let inventoryId = item.inventory_id;
-
+  
       if (!inventoryId) {
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
           .select("id")
           .eq("name", item.name)
           .single();
-
+  
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
-
+  
         inventoryId = inventoryData?.id || null;
-
+  
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
-
-      // Prepare the duplicated item with the team_num included (or null)
+  
+      // Prepare the duplicated item
       const duplicatedItem = {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        email: userEmail,
-        team_num: teamNum, // Include the team_num or pass null
+        email: item.email, // Original item's owner email
+        user_prev: currentLoggedInUserEmail, // Set user_prev to the logged-in user's email
+        team_num: teamNum, // Include the team_num or null
         created_at: new Date().toISOString(),
         inventory_id: inventoryId,
       };
-
+  
       // Insert the duplicated item into the add_cart table
       const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
-
+  
       if (error) {
         console.error("Error duplicating item:", error.message);
-        setFeedbackMessage("Already in the Review Order~");
+        setFeedbackMessage("Failed to duplicate the item.");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
-
+  
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -233,6 +209,9 @@ const Tab2 = ({ userEmail, userTeamEmails }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
+  
+  
+  
 
 
 

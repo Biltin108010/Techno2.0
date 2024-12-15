@@ -52,9 +52,10 @@ const ReviewPage = () => {
                     console.warn("No team found for user. Fetching individual cart items.");
 
                     const { data: individualItems, error: individualError } = await supabase
-                        .from("add_cart")
-                        .select("*")
-                        .eq("email", userEmail); // Fetch only the user's cart items
+                    .from("add_cart")
+                    .select("*")
+                    .eq("user_prev", userEmail); // Fetch items where user_prev matches the current user email
+                
 
                     if (individualError) {
                         setFeedbackMessage("Failed to fetch individual cart items.");
@@ -67,9 +68,11 @@ const ReviewPage = () => {
                     const teamNum = teamData.team_num;
 
                     const { data: teamItems, error: teamItemsError } = await supabase
-                        .from("add_cart")
-                        .select("*")
-                        .eq("team_num", teamNum); // Fetch items for all team members
+                    .from("add_cart")
+                    .select("*")
+                    .eq("team_num", teamNum) // Fetch items for all team members
+                    .eq("user_prev", userEmail); // Ensure the user_prev is for the current logged-in user
+                
 
                     if (teamItemsError) {
                         setFeedbackMessage("Failed to fetch team cart items.");

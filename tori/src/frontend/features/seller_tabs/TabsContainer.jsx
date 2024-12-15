@@ -164,26 +164,28 @@ export default function TabContainer() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 0:
+      case 0: // Logged-in user's tab
         return <Tab1 isEditing={isEditing} handleEditMode={toggleEditMode} />;
-      case 1:
+      case 1: // First invited user's inventory
         return (
           <Tab2
             isEditing={isEditing}
-            userEmail={invitedUsers[0]?.email}
+            userEmail={invitedUsers[0]?.email} // Email of the inventory owner
+            currentLoggedInUserEmail={email} // Current logged-in user's email
             inviterInventory={inviterInventory}
-            userTeamEmails={userTeamEmails} // Pass user team emails to Tab2
+            userTeamEmails={userTeamEmails}
           />
         );
-      case 2:
+      case 2: // Second invited user's inventory
         return (
           <Tab3
             isEditing={isEditing}
-            userEmail={invitedUsers[1]?.email}
+            userEmail={invitedUsers[1]?.email} // Email of the inventory owner
+            currentLoggedInUserEmail={email} // Current logged-in user's email
             secondInvitedInventory={secondInvitedUserInventory}
           />
         );
-      case 3: // This is now the combined tab for the "+" and "Pending Invite"
+      case 3: // Pending invite or "+" tab
         return (
           <div>
             {isPendingInvite ? (
@@ -203,6 +205,7 @@ export default function TabContainer() {
         return null;
     }
   };
+  
 
   const shouldShowEditButton = () => {
     if (userRole === 'admin') {

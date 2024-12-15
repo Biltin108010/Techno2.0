@@ -4,7 +4,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import supabase from "../../../../backend/supabaseClient"; // Import your Supabase client
 import "./tab1.css";
 
-const Tab1 = ({ isEditing, handleEditMode }) => {
+const Tab1 = ({ isEditing, handleEditMode, currentLoggedInUserEmail }) => {
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
@@ -13,6 +14,8 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
   const [cartItemCount, setCartItemCount] = useState(0);
+  
+  
 
 
 
@@ -38,48 +41,20 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
   useEffect(() => {
     const fetchCartItemCount = async () => {
       if (!userEmail) return;
-  
+      
       try {
-        // Fetch the user's team number
-        const { data: teamData, error: teamError } = await supabase
-          .from("team")
-          .select("team_num")
-          .eq("invite", userEmail)
-          .single();
+        // Fetch the count of cart items where the user_prev matches the current user's email
+        const { data: cartItems, error } = await supabase
+          .from("add_cart")
+          .select("id")
+          .eq("user_prev", userEmail); // Count items based on user_prev (user's email)
   
-        let cartItems;
-  
-        if (teamError || !teamData) {
-          // User does not belong to a team; fetch individual cart items
-          const { data: individualItems, error: individualError } = await supabase
-            .from("add_cart")
-            .select("id")
-            .eq("email", userEmail); // Fetch only the user's cart items
-  
-          if (individualError) {
-            console.error("Error fetching individual cart items:", individualError.message);
-            return;
-          }
-  
-          cartItems = individualItems;
-        } else {
-          // User belongs to a team; fetch team-related items
-          const teamNum = teamData.team_num;
-  
-          const { data: teamItems, error: teamItemsError } = await supabase
-            .from("add_cart")
-            .select("id")
-            .eq("team_num", teamNum); // Fetch items for the entire team
-  
-          if (teamItemsError) {
-            console.error("Error fetching team cart items:", teamItemsError.message);
-            return;
-          }
-  
-          cartItems = teamItems;
+        if (error) {
+          console.error("Error fetching cart items:", error.message);
+          return;
         }
   
-        setCartItemCount(cartItems?.length || 0); // Set the cart count for the user
+        setCartItemCount(cartItems?.length || 0); // Set the cart item count based on user_prev
       } catch (err) {
         console.error("Error fetching cart items:", err.message);
       }
@@ -89,11 +64,12 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
     fetchCartItemCount();
   
     // Set up polling every 5 seconds (5000 ms)
-    const intervalId = setInterval(fetchCartItemCount, 1000);
+    const intervalId = setInterval(fetchCartItemCount, 5000); // You can adjust the interval time as needed
   
     // Cleanup function to clear the interval when the component is unmounted
     return () => clearInterval(intervalId);
   }, [userEmail]);
+  
   
   
 
@@ -373,7 +349,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
       return;
     }
-
+  
     try {
       // Fetch the team_num for the logged-in user using the invite column
       const { data: teamData, error: teamError } = await supabase
@@ -381,7 +357,7 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         .select("team_num")
         .eq("invite", userEmail)
         .single();
-
+  
       if (teamError && teamError.code !== 'PGRST116') {
         // Handle errors that are not "No rows found" (PGRST116)
         console.error("Error fetching team number:", teamError.message);
@@ -389,56 +365,83 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
+  
       const teamNum = teamData?.team_num || null; // Default to null if no team_num is found
-
+  
       // Check if the item already has the inventory_id
       let inventoryId = item.inventory_id;
-
+  
       if (!inventoryId) {
         const { data: inventoryData, error: inventoryError } = await supabase
           .from("inventory")
           .select("id")
           .eq("name", item.name)
           .single();
-
+  
         if (inventoryError) {
           console.error("Error fetching inventory item:", inventoryError.message);
           setFeedbackMessage("Failed to fetch inventory item.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
-
+  
         inventoryId = inventoryData?.id || null;
-
+  
         if (!inventoryId) {
           setFeedbackMessage("Inventory item not found.");
           setTimeout(() => setFeedbackMessage(''), 3000);
           return;
         }
       }
-
+  
+      // Determine user_prev based on whether current user email and item email are the same
+      const userPrevEmail = (userEmail === item.email) 
+        ? userEmail  // Use current user's email if they match
+        : item.email; // Otherwise use the original item's email
+  
+      // Check for duplicate names in the add_cart table
+      const { data: duplicateCheck, error: duplicateError } = await supabase
+        .from("add_cart")
+        .select("id")
+        .eq("name", item.name) // Prevent duplicate names in add_cart
+        .eq("user_prev", userPrevEmail); // Ensure it's scoped to the user_prev email
+  
+      if (duplicateError) {
+        console.error("Error checking for duplicates:", duplicateError.message);
+        setFeedbackMessage("Failed to verify duplicate entries.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
+      if (duplicateCheck && duplicateCheck.length > 0) {
+        // If a duplicate name exists, prevent adding it again
+        setFeedbackMessage("Item already in the Review Order.");
+        setTimeout(() => setFeedbackMessage(''), 3000);
+        return;
+      }
+  
       // Prepare the duplicated item with the team_num included (or null)
       const duplicatedItem = {
         name: item.name,
         quantity: item.quantity,
         price: item.price,
-        email: userEmail,
+        email: item.email, // Original item's owner email
+        user_prev: userPrevEmail, // Use the resolved user_prev email
         team_num: teamNum, // Include the team_num or pass null
         created_at: new Date().toISOString(),
         inventory_id: inventoryId,
       };
-
+  
       // Insert the duplicated item into the add_cart table
       const { error } = await supabase.from("add_cart").insert([duplicatedItem]);
-
+  
       if (error) {
         console.error("Error duplicating item:", error.message);
         setFeedbackMessage("Already in the Review Order~");
         setTimeout(() => setFeedbackMessage(''), 3000);
         return;
       }
-
+  
       setTimeout(() => setFeedbackMessage(''), 3000);
     } catch (err) {
       console.error("Unexpected error:", err.message);
@@ -446,8 +449,10 @@ const Tab1 = ({ isEditing, handleEditMode }) => {
       setTimeout(() => setFeedbackMessage(''), 3000);
     }
   };
+  
 
 
+  
 
   // Fetch cart items to navigate to the ReviewPage
   const handleNavigateToReview = async () => {
